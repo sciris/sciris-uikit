@@ -1,6 +1,3 @@
-//import plugins from './plugins.js';
-import './styles/index.scss';
-
 import LoginPage from './views/LoginPage.vue';
 import ChangePasswordPage from './views/ChangePasswordPage.vue';
 import MainAdminPage from './views/MainAdminPage.vue';
@@ -8,41 +5,44 @@ import RegisterPage from './views/RegisterPage.vue';
 import UserChangeInfoPage from './views/UserChangeInfoPage.vue';
 
 import EventBus from './eventbus.js';
+import NavigationPlugin from './plugins/navigation/index.js';
+import HelpLink from './plugins/help/HelpLink.vue';
+
 import { events } from './eventbus.js';
 
-const ScirisRoutes = [
-  {
-    path: '/login',
-    name: 'Login',
-    component: LoginPage
-  }, {
-    path: '/changepassword',
-    name: 'Change password',
-    component: ChangePasswordPage
-  }, {
-    path: '/mainadmin',
-    name: 'Admin',
-    component: MainAdminPage
-  }, {
-    path: '/register',
-    name: 'Registration',
-    component: RegisterPage
-  }, {
-    path: 'changeinfo',
-    name: 'Edit account',
-    component: UserChangeInfoPage
-  }
-]
+import Simplert from 'vue2-simplert-plugin';
+import { directive as vClickOutside } from 'vue-clickaway';
+import _ from 'lodash';
+
+require("bootstrap");
 
 function install(Vue, options={}) {
-  options.router.addRoutes(ScirisRoutes);
+
+  Object.defineProperty(Vue.prototype, '$_', { value: _ });
+
+  Vue.use(Simplert);
+
+  if (!options.navigation){
+    options.navigation = {}
+  }
+
+  let navigationOptions = options.navigation.options || {};
+  if (!navigationOptions.disabled){
+    Vue.use(NavigationPlugin, navigationOptions);
+  }
+  Vue.component('help', HelpLink);
 
   let afterLoginPath = options.afterLoginPath || "/"; 
   let afterPasswordChangePath = options.afterPasswordChangePath || "/"; 
   let afterRegistrationPath = options.afterRegistrationPath || "/login"; 
+  let afterLogoutPath = options.afterLogoutPath || "/login"; 
 
   EventBus.$on(events.EVENT_LOGIN_SUCCESS, (user) => {
     options.router.push(afterLoginPath); 
+  });
+
+  EventBus.$on(events.EVENT_LOGOUT_SUCCESS, (user) => {
+    options.router.push(afterLogoutPath); 
   });
 
   EventBus.$on(events.EVENT_REGISTER_SUCCESS, () => {
@@ -65,8 +65,17 @@ export default {
   install
 }
 
+const views = {
+  LoginPage,
+  ChangePasswordPage,
+  MainAdminPage,
+  RegisterPage,
+  UserChangeInfoPage
+} 
+
 export {
   ScirisRoutes,
   EventBus,
-  events
+  events,
+  views 
 }
