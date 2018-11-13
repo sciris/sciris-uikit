@@ -4,19 +4,22 @@
 @import "~vue-paper-dashboard/src/assets/sass/paper-dashboard.scss";
 
 @import "variables";
+@import "functions";
+@import "typography";
+
 @import "mixins";
-@import "vendor-prefixes";
 @import "misc";
-@import "sidebar";
 @import "navbars";
 @import "sidebar-and-main-panel";
-@import "buttons";
-@import "inputs";
+@import "buttons"; // check
 @import "dropdown";
+@import "modal";
 
-@import "cards";
+@import "cards"; 
 @import "responsive";
 @import "textbox";
+@import "tooltips";
 @import "graphs";
 @import "tables";
+@import "footers";
 @import "overrides";

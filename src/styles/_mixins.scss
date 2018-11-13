@@ -1,44 +1,9 @@
-@mixin opacity($opacity) {
-  opacity: $opacity;
-  // IE8 filter
-  $opacity-ie: ($opacity * 100);
-  filter: #{alpha(opacity=$opacity-ie)};
-}
+//Utilities
+@import "./mixins/transparency";
 
-@mixin bar-animation($type) {
-  -webkit-animation: $type 500ms linear 0s;
-  -moz-animation: $type 500ms linear 0s;
-  animation: $type 500ms 0s;
-  -webkit-animation-fill-mode: forwards;
-  -moz-animation-fill-mode: forwards;
-  animation-fill-mode: forwards;
-}
-
-@mixin black-filter($opacity) {
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  background-color: rgba(17, 17, 17, $opacity);
-  display: block;
-  content: "";
-  z-index: 1;
-}
-
-@mixin navbar-color($color) {
-  background-color: $color;
-}
-
-@mixin center-item() {
-  left: 0;
-  right: 0;
-  margin-right: auto;
-  margin-left: auto;
-  position: absolute;
-}
-
-@mixin font-height($font-size, $line-height) {
-  font-size: $font-size;
-  line-height: $line-height;
-}
+//Components
+@import "./mixins/sidebar";
+@import './mixins/font-height';
+@import './mixins/position';
+@import './mixins/reject';
+@import './mixins/size';
