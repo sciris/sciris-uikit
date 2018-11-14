@@ -1,5 +1,11 @@
 .main-panel {
   width: 100%;
+  @include transition (0.33s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+}
+
+.off-canvas-sidebar {
+  width: 0;
+  @include transition (0.33s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 }
 
 @media (min-width: 992px) {
@@ -28,11 +34,18 @@
   }
 
   .off-canvas-sidebar {
+    width: 0;
+  }
+
+  .nav-open .off-canvas-sidebar {
+    width: 230px;
+  }
+
+  .off-canvas-sidebar {
     position: fixed;
     display: block;
     top: 0;
     height: 100%;
-    width: 230px;
     right: 0;
     z-index: 1032;
     visibility: visible;
@@ -42,9 +55,6 @@
     text-align: left;
     padding-right: 0px;
     padding-left: 0;
-
-    @include transform-translate-x(0);
-    @include transition (0.33s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 
     .nav {
       margin-top: 0;
@@ -110,11 +120,6 @@
           }
         }
       }
-    }
-
-    .nav-open .wrapper {
-      left: 0;
-      @include transform-translate-x(-10px);
     }
 
     .navbar-toggle {

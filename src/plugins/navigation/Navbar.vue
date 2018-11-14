@@ -2,13 +2,6 @@
 Definition of top navigation bar
 
 Last update: 2018sep23
-variables 
-- homepage
-- navbar logo
-- sidebar logo
-- links
-- button colour
-- nav colour
 
 -->
 

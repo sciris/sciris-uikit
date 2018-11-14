@@ -6,6 +6,7 @@
   z-index: 1;
   background-size: cover;
   background-position: center center;
+
   .sidebar-wrapper {
     position: relative;
     height: 100%;
@@ -15,6 +16,7 @@
     z-index: 4;
     box-shadow: inset -1px 0px 0px 0px $medium-gray;
   }
+
   .sidebar-background {
     position: absolute;
     z-index: 1;
@@ -29,6 +31,10 @@
 
 }
 
+.nav-open .main-panel {
+  left: -10px;
+}
+
 .nav-open .off-canvas-sidebar {
   position: fixed;
   right: 0;
@@ -37,6 +43,10 @@
   visibility: visible;
   z-index: 999999;
   display: block;
+  .sidebar-wrapper {
+    position: relative;
+    z-index: 4;
+  }
 }
 
 .sidebar,
