@@ -765,6 +765,8 @@ var HelpLink = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 }
 
+require('vue2-simplert-plugin/dist/vue2-simplert-plugin.css');
+
 require("bootstrap");
 
 function install(Vue$$1, options = {}) {
