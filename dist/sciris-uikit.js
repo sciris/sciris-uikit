@@ -9379,7 +9379,7 @@
   }
 
   var FileSaver_min = createCommonjsModule(function (module, exports) {
-  (function(a,b){if("function"==typeof undefined&&undefined.amd)undefined([],b);else b();})(commonjsGlobal,function(){function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Depricated: Expected third argument to be a object"), b={autoBom:!b}), b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(b,c,d){var e=new XMLHttpRequest;e.open("GET",b), e.responseType="blob", e.onload=function(){a(e.response,c,d);}, e.onerror=function(){console.error("could not download file");}, e.send();}function d(a){var b=new XMLHttpRequest;return b.open("HEAD",a,!1), b.send(), 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"));}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null), a.dispatchEvent(b);}}var f=function(){try{return Function("return this")()||(eval)("this")}catch(a){return"object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof commonjsGlobal&&commonjsGlobal.global===commonjsGlobal?commonjsGlobal:this}}(),a=f.saveAs||"object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download", j.download=g, j.rel="noopener", "string"==typeof b?(j.href=b, j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b), setTimeout(function(){i.revokeObjectURL(j.href);},4E4), setTimeout(function(){e(j);},0));}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download", "string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f, i.target="_blank", setTimeout(function(){e(i);});}}:function(a,b,d,e){if(e=e||open("","_blank"), e&&(e.document.title=e.document.body.innerText="downloading..."), "string"==typeof a)return c(a,b,d);var g="application/octet-stream"===a.type,h=/constructor/i.test(f.HTMLElement)||f.safari,i=/CriOS\/[\d]+/.test(navigator.userAgent);if((i||g&&h)&&"object"==typeof FileReader){var j=new FileReader;j.onloadend=function(){var a=j.result;a=i?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"), e?e.location.href=a:location=a, e=null;}, j.readAsDataURL(a);}else{var k=f.URL||f.webkitURL,l=k.createObjectURL(a);e?e.location=l:location.href=l, e=null, setTimeout(function(){k.revokeObjectURL(l);},4E4);}};f.saveAs=a.saveAs=a, "undefined"!='object'&&(module.exports=a);});
+  (function(a,b){if("function"==typeof undefined&&undefined.amd)undefined([],b);else b();})(commonjsGlobal,function(){function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Depricated: Expected third argument to be a object"), b={autoBom:!b}), b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(b,c,d){var e=new XMLHttpRequest;e.open("GET",b), e.responseType="blob", e.onload=function(){a(e.response,c,d);}, e.onerror=function(){console.error("could not download file");}, e.send();}function d(a){var b=new XMLHttpRequest;return b.open("HEAD",a,!1), b.send(), 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"));}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null), a.dispatchEvent(b);}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof commonjsGlobal&&commonjsGlobal.global===commonjsGlobal?commonjsGlobal:void 0,a=f.saveAs||"object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download", j.download=g, j.rel="noopener", "string"==typeof b?(j.href=b, j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b), setTimeout(function(){i.revokeObjectURL(j.href);},4E4), setTimeout(function(){e(j);},0));}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download", "string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f, i.target="_blank", setTimeout(function(){e(i);});}}:function(a,b,d,e){if(e=e||open("","_blank"), e&&(e.document.title=e.document.body.innerText="downloading..."), "string"==typeof a)return c(a,b,d);var g="application/octet-stream"===a.type,h=/constructor/i.test(f.HTMLElement)||f.safari,i=/CriOS\/[\d]+/.test(navigator.userAgent);if((i||g&&h)&&"object"==typeof FileReader){var j=new FileReader;j.onloadend=function(){var a=j.result;a=i?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"), e?e.location.href=a:location=a, e=null;}, j.readAsDataURL(a);}else{var k=f.URL||f.webkitURL,l=k.createObjectURL(a);e?e.location=l:location.href=l, e=null, setTimeout(function(){k.revokeObjectURL(l);},4E4);}};f.saveAs=a.saveAs=a, "undefined"!='object'&&(module.exports=a);});
 
 
   });
@@ -11504,6 +11504,81 @@
 
   var VModal = unwrapExports(dist);
 
+  var Vue$1 = Vue;
+  Vue$1 = 'default' in Vue$1 ? Vue$1['default'] : Vue$1;
+
+  var version = '2.2.2';
+
+  var compatible = (/^2\./).test(Vue$1.version);
+  if (!compatible) {
+    Vue$1.util.warn('VueClickaway ' + version + ' only supports Vue 2.x, and does not support Vue ' + Vue$1.version);
+  }
+
+
+
+  // @SECTION: implementation
+
+  var HANDLER = '_vue_clickaway_handler';
+
+  function bind$2(el, binding, vnode) {
+    unbind(el);
+
+    var vm = vnode.context;
+
+    var callback = binding.value;
+    if (typeof callback !== 'function') {
+      {
+        Vue$1.util.warn(
+          'v-' + binding.name + '="' +
+          binding.expression + '" expects a function value, ' +
+          'got ' + callback
+        );
+      }
+      return;
+    }
+
+    // @NOTE: Vue binds directives in microtasks, while UI events are dispatched
+    //        in macrotasks. This causes the listener to be set up before
+    //        the "origin" click event (the event that lead to the binding of
+    //        the directive) arrives at the document root. To work around that,
+    //        we ignore events until the end of the "initial" macrotask.
+    // @REFERENCE: https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
+    // @REFERENCE: https://github.com/simplesmiler/vue-clickaway/issues/8
+    var initialMacrotaskEnded = false;
+    setTimeout(function() {
+      initialMacrotaskEnded = true;
+    }, 0);
+
+    el[HANDLER] = function(ev) {
+      // @NOTE: this test used to be just `el.containts`, but working with path is better,
+      //        because it tests whether the element was there at the time of
+      //        the click, not whether it is there now, that the event has arrived
+      //        to the top.
+      // @NOTE: `.path` is non-standard, the standard way is `.composedPath()`
+      var path = ev.path || (ev.composedPath ? ev.composedPath() : undefined);
+      if (initialMacrotaskEnded && (path ? path.indexOf(el) < 0 : !el.contains(ev.target))) {
+        return callback.call(vm, ev);
+      }
+    };
+
+    document.documentElement.addEventListener('click', el[HANDLER], false);
+  }
+
+  function unbind(el) {
+    document.documentElement.removeEventListener('click', el[HANDLER], false);
+    delete el[HANDLER];
+  }
+
+  var directive$1 = {
+    bind: bind$2,
+    update: function(el, binding) {
+      if (binding.value === binding.oldValue) return;
+      bind$2(el, binding);
+    },
+    unbind: unbind,
+  };
+  var directive_1 = directive$1;
+
   var vueDialogDrag_umd = createCommonjsModule(function (module, exports) {
   (function webpackUniversalModuleDefinition(root, factory) {
   	module.exports = factory();
@@ -13476,12 +13551,12 @@
   EventBus.$on(events$1.EVENT_STATUS_SUCCEED, (vm, notif) => {
     if (vm.$spinner) vm.$spinner.stop();
     if (vm.$Progress) vm.$Progress.finish();
-    if (notif && vm.$notifications) vm.$notifications.notify(notif);
+    if (notif && notif.message && vm.$notifications) vm.$notifications.notify(notif);
   });
   EventBus.$on(events$1.EVENT_STATUS_FAIL, (vm, notif) => {
     if (vm.$spinner) vm.$spinner.stop();
     if (vm.$Progress) vm.$Progress.fail();
-    if (notif && vm.$notifications) vm.$notifications.notify(notif);
+    if (notif && notif.message && vm.$notifications) vm.$notifications.notify(notif);
   });
 
   // progress-indicator-service.js -- functions for showing progress
@@ -14498,6 +14573,88 @@
     checkAdminLoggedIn
   };
 
+  /*
+   * Heftier functions that are shared across pages
+   */
+
+  function updateSets(vm) {
+    return new Promise((resolve, reject) => {
+      console.log('updateSets() called');
+      rpcs.rpc('get_parset_info', [vm.projectID]) // Get the current user's parsets from the server.
+      .then(response => {
+        vm.parsetOptions = response.data; // Set the scenarios to what we received.
+
+        if (vm.parsetOptions.indexOf(vm.activeParset) === -1) {
+          console.log('Parameter set ' + vm.activeParset + ' no longer found');
+          vm.activeParset = vm.parsetOptions[0]; // If the active parset no longer exists in the array, reset it
+        } else {
+          console.log('Parameter set ' + vm.activeParset + ' still found');
+        }
+
+        vm.newParsetName = vm.activeParset; // WARNING, KLUDGY
+
+        console.log('Parset options: ' + vm.parsetOptions);
+        console.log('Active parset: ' + vm.activeParset);
+        rpcs.rpc('get_progset_info', [vm.projectID]) // Get the current user's progsets from the server.
+        .then(response => {
+          vm.progsetOptions = response.data; // Set the scenarios to what we received.
+
+          if (vm.progsetOptions.indexOf(vm.activeProgset) === -1) {
+            console.log('Program set ' + vm.activeProgset + ' no longer found');
+            vm.activeProgset = vm.progsetOptions[0]; // If the active parset no longer exists in the array, reset it
+          } else {
+            console.log('Program set ' + vm.activeProgset + ' still found');
+          }
+
+          vm.newProgsetName = vm.activeProgset; // WARNING, KLUDGY
+
+          console.log('Progset options: ' + vm.progsetOptions);
+          console.log('Active progset: ' + vm.activeProgset);
+          resolve(response);
+        }).catch(error => {
+          status.fail(this, 'Could not get progset info', error);
+          reject(error);
+        });
+      }).catch(error => {
+        status.fail(this, 'Could not get parset info', error);
+        reject(error);
+      });
+    }).catch(error => {
+      status.fail(this, 'Could not get parset info', error);
+      reject(error);
+    });
+  }
+
+  function exportGraphs(vm) {
+    return new Promise((resolve, reject) => {
+      console.log('exportGraphs() called');
+      rpcs.download('download_graphs', [vm.$store.state.currentUser.username]).then(response => {
+        resolve(response);
+      }).catch(error => {
+        status.fail(vm, 'Could not download graphs', error);
+        reject(error);
+      });
+    });
+  }
+
+  function exportResults(vm, serverDatastoreId) {
+    return new Promise((resolve, reject) => {
+      console.log('exportResults()');
+      rpcs.download('export_results', [serverDatastoreId, vm.$store.state.currentUser.username]).then(response => {
+        resolve(response);
+      }).catch(error => {
+        status.fail(vm, 'Could not export results', error);
+        reject(error);
+      });
+    });
+  }
+
+  var shared = {
+    updateSets,
+    exportGraphs,
+    exportResults
+  };
+
   function styleInject$1(css, ref) {
     if ( ref === void 0 ) ref = {};
     var insertAt = ref.insertAt;
@@ -14677,7 +14834,7 @@
       },
       horizontalAlign: {
         type: String,
-        default: 'center'
+        default: 'right'
       },
       type: {
         type: String,
@@ -14750,17 +14907,26 @@
     }
   };
 
-  var css$4$1 = ".dropdown {\n  cursor: pointer; }\n";
+  var css$4$1 = ".dropdown-toggle {\n  cursor: pointer;\n  display: flex;\n  justify-content: space-evenly;\n  text-transform: initial; }\n\n.dropdown-toggle:after {\n  position: absolute;\n  right: 10px;\n  top: 50%;\n  margin-top: -2px; }\n\n.dropdown-menu {\n  margin-top: 20px; }\n";
   styleInject$1(css$4$1);
 
-  var Dropdown = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{directives:[{name:"click-outside",rawName:"v-click-outside",value:(_vm.closeDropDown),expression:"closeDropDown"}],staticClass:"dropdown",class:{open:_vm.isOpen},on:{"click":_vm.toggleDropDown}},[_c('a',{staticClass:"dropdown-toggle btn-rotate",attrs:{"data-toggle":"dropdown","href":"javascript:void(0)"}},[_vm._t("title",[_c('i',{class:_vm.icon}),_vm._v(" "),_c('p',{staticClass:"notification"},[_vm._v(_vm._s(_vm.title)+" "),_c('b',{staticClass:"caret"})])])],2),_vm._v(" "),_c('ul',{staticClass:"dropdown-menu"},[_vm._t("default")],2)])},staticRenderFns: [],
+  var Dropdown = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{directives:[{name:"click-outside",rawName:"v-click-outside",value:(_vm.closeDropDown),expression:"closeDropDown"}],staticClass:"dropdown",class:{open:_vm.isOpen}},[_c('a',{staticClass:"dropdown-toggle btn-rotate",style:(_vm.style),attrs:{"href":"javascript:void(0)","data-toggle":"dropdown"},on:{"click":_vm.toggleDropDown}},[_vm._t("title",[_c('i',{class:_vm.icon}),_vm._v(" "),_c('div',{staticClass:"dropdown-title"},[_vm._v(_vm._s(_vm.title)+" "),_c('b',{staticClass:"caret"})])])],2),_vm._v(" "),_c('ul',{staticClass:"dropdown-menu"},[_vm._t("default")],2)])},staticRenderFns: [],
     props: {
       title: String,
-      icon: String
+      icon: String,
+      width: {
+        type: String,
+        default: "170px"
+      },
     },
     data () {
       return {
         isOpen: false
+      }
+    },
+    computed: {
+      style () {
+        return 'width: ' + this.width;
       }
     },
     methods: {
@@ -14804,7 +14970,6 @@
   function setupSpinner(Vue$$1) {
     // Create the global $spinner functions the user can call 
     // from inside any component.
-    Vue$$1.use(VModal);
     Vue$$1.prototype.$spinner = {
       start() {
         // Send a start event to the bus.
@@ -14833,6 +14998,8 @@
   }
 
   function install(Vue$$1, options = {}) {
+    Vue$$1.use(VModal);
+
     if (!options.notifications || !options.notifications.disabled) {
       setupNotifications(Vue$$1);
       Vue$$1.component('Notifications', Notifications);
@@ -14851,6 +15018,7 @@
 
     Vue$$1.component('Dropdown', Dropdown);
     Vue$$1.component('DialogDrag', DialogDrag);
+    Vue$$1.directive('click-outside', directive_1);
   } // Automatic installation if Vue has been added to the global scope.
 
 
@@ -14870,6 +15038,9 @@
   const succeed$1 = status.succeed;
   const fail$1 = status.fail;
   const start$1 = status.start;
+  const updateSets$1 = shared.updateSets;
+  const exportGraphs$1 = shared.exportGraphs;
+  const exportResults$1 = shared.exportResults;
   const placeholders$1 = graphs.placeholders;
   const clearGraphs$1 = graphs.clearGraphs;
   const getPlotOptions$1 = graphs.getPlotOptions;
@@ -14925,6 +15096,10 @@
     rpc,
     download,
     upload,
+    // shared.js
+    updateSets: updateSets$1,
+    exportGraphs: exportGraphs$1,
+    exportResults: exportResults$1,
     // graphs.js
     placeholders: placeholders$1,
     clearGraphs: clearGraphs$1,
@@ -14986,6 +15161,7 @@
     rpcs,
     graphs,
     status,
+    shared,
     user,
     tasks,
     utils: utils$2,
@@ -15731,16 +15907,6 @@
 
   var Simplert = unwrapExports(vue2SimplertPlugin);
   var vue2SimplertPlugin_1 = vue2SimplertPlugin.Simplert;
-
-  var Vue$1 = Vue;
-  Vue$1 = 'default' in Vue$1 ? Vue$1['default'] : Vue$1;
-
-  var version = '2.2.2';
-
-  var compatible = (/^2\./).test(Vue$1.version);
-  if (!compatible) {
-    Vue$1.util.warn('VueClickaway ' + version + ' only supports Vue 2.x, and does not support Vue ' + Vue$1.version);
-  }
 
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
@@ -32844,6 +33010,1868 @@
   }.call(commonjsGlobal));
   });
 
+  var CalibrationMixin = {
+    data() {
+      return {
+        // Parameter and program set information
+        activeParset: -1,
+        activeProgset: -1,
+        parsetOptions: [],
+        progsetOptions: [],
+        // Plotting data
+        showPlotControls: false,
+        hasGraphs: false,
+        table: null,
+        // Not actually used on this page
+        startYear: 0,
+        endYear: 2018,
+        // TEMP FOR DEMO
+        activePop: "All",
+        popOptions: [],
+        plotOptions: [],
+        yearOptions: [],
+        serverDatastoreId: '',
+        openDialogs: [],
+        showGraphDivs: [],
+        // These don't actually do anything, but they're here for future use
+        showLegendDivs: [],
+        mousex: -1,
+        mousey: -1,
+        figscale: 1.0,
+        // Page-specific data
+        parlist: [],
+        poplabels: [],
+        origParsetName: [],
+        showParameters: false,
+        calibTime: '30 seconds',
+        calibTimes: ['30 seconds', 'Unlimited'],
+        filterPlaceholder: 'Type here to filter parameters',
+        // Placeholder text for second table filter box
+        filterText: '' // Text in the first table filter box
+
+      };
+    },
+
+    computed: {
+      projectID() {
+        return sciris.projectID(this);
+      },
+
+      hasData() {
+        return sciris.hasData(this);
+      },
+
+      hasPrograms() {
+        return sciris.hasPrograms(this);
+      },
+
+      simStart() {
+        return sciris.simStart(this);
+      },
+
+      simEnd() {
+        return sciris.simEnd(this);
+      },
+
+      simYears() {
+        return sciris.simYears(this);
+      },
+
+      activePops() {
+        return sciris.activePops(this);
+      },
+
+      placeholders() {
+        return sciris.placeholders(this, 1);
+      },
+
+      filteredParlist() {
+        return this.applyParametersFilter(this.parlist);
+      }
+
+    },
+
+    created() {
+      sciris.addListener(this);
+      sciris.createDialogs(this);
+
+      if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData) {
+        console.log('created() called');
+        this.startYear = this.simStart;
+        this.endYear = this.simEnd; // CK: Uncomment to set the end year to 2035 instead of 2018
+
+        this.popOptions = this.activePops;
+        this.serverDatastoreId = this.$store.state.activeProject.project.id + ':calibration';
+        this.getPlotOptions(this.$store.state.activeProject.project.id).then(response => {
+          this.updateSets().then(response2 => {
+            this.loadParTable().then(response3 => {
+              this.reloadGraphs(false);
+            });
+          });
+        });
+      }
+    },
+
+    watch: {//      activeParset() {
+      //        this.loadParTable()
+      //      }
+    },
+    methods: {
+      validateYears() {
+        return sciris.validateYears(this);
+      },
+
+      updateSets() {
+        return sciris.updateSets(this);
+      },
+
+      exportGraphs() {
+        return sciris.exportGraphs(this);
+      },
+
+      exportResults(datastoreID) {
+        return sciris.exportResults(this, datastoreID);
+      },
+
+      scaleFigs(frac) {
+        return sciris.scaleFigs(this, frac);
+      },
+
+      clearGraphs() {
+        return sciris.clearGraphs(this);
+      },
+
+      togglePlotControls() {
+        return sciris.togglePlotControls(this);
+      },
+
+      getPlotOptions(project_id) {
+        return sciris.getPlotOptions(this, project_id);
+      },
+
+      makeGraphs(graphdata) {
+        return sciris.makeGraphs(this, graphdata, '/calibration');
+      },
+
+      reloadGraphs(showErr) {
+        // Set to calibration=true
+        return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, true);
+      },
+
+      maximize(legend_id) {
+        return sciris.maximize(this, legend_id);
+      },
+
+      minimize(legend_id) {
+        return sciris.minimize(this, legend_id);
+      },
+
+      toggleParams() {
+        this.showParameters = !this.showParameters;
+      },
+
+      loadParTable() {
+        return new Promise((resolve, reject) => {
+          console.log('loadParTable() called for ' + this.activeParset); // TODO: Get spinners working right for this leg of initialization.
+
+          sciris.rpc('get_y_factors', [this.projectID, this.activeParset, this.toolName()]).then(response => {
+            this.parlist = response.data.parlist; // Get the parameter values
+
+            var tmpParset = _.cloneDeep(this.activeParset);
+
+            this.activeParset = null;
+            sciris.sleep(500).then(response => {
+              this.activeParset = tmpParset;
+            });
+            this.parlist.push('Update Vue DOM');
+            this.parlist.pop();
+            this.poplabels = response.data.poplabels;
+            console.log(response);
+            console.log(this.poplabels);
+            console.log(this.parlist);
+            resolve(response);
+          }).catch(error => {
+            sciris.fail(this, 'Could not load parameters', error);
+            reject(error);
+          });
+        });
+      },
+
+      saveParTable() {
+        return new Promise((resolve, reject) => {
+          sciris.rpc('set_y_factors', [this.projectID, this.activeParset, this.parlist, this.toolName()]).then(response => {
+            this.loadParTable().then(response2 => {
+              sciris.succeed(this, 'Parameters updated');
+              this.manualCalibration(this.projectID);
+              resolve(response2);
+            });
+            resolve(response);
+          }).catch(error => {
+            sciris.fail(this, 'Could not save parameters', error);
+            reject(error);
+          });
+        });
+      },
+
+      applyParametersFilter(parlist) {
+        return parlist.filter(par => par.parcategory.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1 || par.parlabel.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1);
+      },
+
+      renameParsetModal() {
+        console.log('renameParsetModal() called');
+        this.origParsetName = this.activeParset; // Store this before it gets overwritten
+
+        this.$modal.show('rename-parset');
+      },
+
+      renameParset() {
+        console.log('renameParset() called for ' + this.activeParset);
+        this.$modal.hide('rename-parset');
+        sciris.start(this);
+        sciris.rpc('rename_parset', [this.projectID, this.origParsetName, this.activeParset]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          this.updateSets(); // Update the project summaries so the copied program shows up on the list.
+          // TODO: look into whether the above line is necessary
+
+          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" renamed'); // Indicate success.
+        }).catch(error => {
+          sciris.fail(this, 'Could not rename parameter set', error);
+        });
+      },
+
+      copyParset() {
+        console.log('copyParset() called for ' + this.activeParset);
+        sciris.start(this);
+        sciris.rpc('copy_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          this.updateSets(); // Update the project summaries so the copied program shows up on the list.
+          // TODO: look into whether the above line is necessary
+
+          this.activeParset = response.data;
+          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" copied'); // Indicate success.
+        }).catch(error => {
+          sciris.fail(this, 'Could not copy parameter set', error);
+        });
+      },
+
+      deleteParset() {
+        console.log('deleteParset() called for ' + this.activeParset);
+        sciris.start(this);
+        sciris.rpc('delete_parset', [this.projectID, this.activeParset]) // Have the server delete the parset.
+        .then(response => {
+          this.updateSets() // Update the project summaries so the deleted parset shows up on the list.
+          .then(response2 => {
+            this.loadParTable(); // Reload the parameters.
+
+            sciris.succeed(this, 'Parameter set "' + this.activeParset + '" deleted'); // Indicate success.
+          });
+        }).catch(error => {
+          sciris.fail(this, 'Cannot delete last parameter set: ensure there are at least 2 parameter sets before deleting one', error);
+        });
+      },
+
+      downloadParset() {
+        console.log('downloadParset() called for ' + this.activeParset);
+        sciris.start(this);
+        sciris.download('download_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          // Indicate success.
+          sciris.succeed(this, ''); // No green popup message.
+        }).catch(error => {
+          sciris.fail(this, 'Could not download parameter set', error);
+        });
+      },
+
+      uploadParset() {
+        console.log('uploadParset() called');
+        sciris.upload('upload_parset', [this.projectID], {}, '.par') // Have the server copy the project, giving it a new name.
+        .then(response => {
+          sciris.start(this);
+          this.updateSets() // Update the project summaries so the copied program shows up on the list.
+          .then(response2 => {
+            this.activeParset = response.data;
+            this.loadParTable(); // Reload the parameters.
+
+            sciris.succeed(this, 'Parameter set "' + this.activeParset + '" uploaded'); // Indicate success.
+          });
+        }).catch(error => {
+          sciris.fail(this, 'Could not upload parameter set', error);
+        });
+      },
+
+      manualCalibration(project_id) {
+        console.log('manualCalibration() called');
+        this.validateYears(); // Make sure the start end years are in the right range.
+
+        sciris.start(this);
+        sciris.rpc('manual_calibration', [project_id, this.serverDatastoreId], {
+          'parsetname': this.activeParset,
+          'plot_options': this.plotOptions,
+          'plotyear': this.endYear,
+          'pops': this.activePop,
+          'tool': this.toolName(),
+          'cascade': null
+        }) // Go to the server to get the results
+        .then(response => {
+          this.makeGraphs(response.data);
+          this.table = response.data.table;
+          sciris.succeed(this, 'Simulation run, graphs now rendering...');
+        }).catch(error => {
+          console.log(error.message);
+          sciris.fail(this, 'Could not run manual calibration', error);
+        });
+      },
+
+      autoCalibrate(project_id) {
+        console.log('autoCalibrate() called');
+        this.validateYears(); // Make sure the start end years are in the right range.
+
+        sciris.start(this);
+
+        if (this.calibTime === '30 seconds') {
+          var maxtime = 30;
+        } else {
+          var maxtime = 9999;
+        }
+
+        sciris.rpc('automatic_calibration', [project_id, this.serverDatastoreId], {
+          'parsetname': this.activeParset,
+          'max_time': maxtime,
+          'plot_options': this.plotOptions,
+          'plotyear': this.endYear,
+          'pops': this.activePop,
+          'tool': this.toolName(),
+          'cascade': null
+        }) // Go to the server to get the results from the package set.
+        .then(response => {
+          this.table = response.data.table;
+          this.makeGraphs(response.data.graphs);
+          sciris.succeed(this, 'Simulation run, graphs now rendering...');
+        }).catch(error => {
+          console.log(error.message);
+          sciris.fail(this, 'Could not run automatic calibration', error);
+        });
+      },
+
+      reconcile() {
+        console.log('reconcile() called for ' + this.activeParset);
+        sciris.start(this);
+        sciris.download('reconcile', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          // Indicate success.
+          sciris.succeed(this, ''); // No green popup message.
+        }).catch(error => {
+          sciris.fail(this, 'Could not reconcile program set', error);
+        });
+      }
+
+    }
+  };
+
+  var HelpMixin = {
+    data() {
+      return {
+        username: '',
+        useragent: '',
+        version: '',
+        date: '',
+        gitbranch: '',
+        githash: '',
+        server: '',
+        cpu: '',
+        timestamp: '',
+        adv_showConsole: false,
+        adv_authentication: '',
+        adv_query: '',
+        adv_response: 'No response'
+      };
+    },
+
+    computed: {
+      getVersionInfo() {
+        sciris.rpc('get_version_info').then(response => {
+          this.username = this.$store.state.currentUser.username;
+          this.useragent = window.navigator.userAgent;
+          this.timestamp = Date(Date.now()).toLocaleString();
+          this.version = response.data['version'];
+          this.date = response.data['date'];
+          this.gitbranch = response.data['gitbranch'];
+          this.githash = response.data['githash'];
+          this.server = response.data['server'];
+          this.cpu = response.data['cpu'];
+        });
+      }
+
+    },
+    methods: {
+      adv_consoleModal() {
+        if (!this.adv_showConsole) {
+          var obj = {
+            // Alert object data
+            message: 'WARNING: This option is for authorized developers only. Unless you have received prior written authorization to use this feature, exit now. If you click "Yes", your details will be logged, and any misuse will result in immediate account suspension.',
+            useConfirmBtn: true,
+            customConfirmBtnText: 'Yes, I will take the risk',
+            customCloseBtnText: 'Oops, get me out of here',
+            customConfirmBtnClass: 'btn __red',
+            customCloseBtnClass: 'btn',
+            onConfirm: this.adv_toggleConsole
+          };
+          this.$Simplert.open(obj);
+        } else {
+          this.adv_showConsole = false;
+        }
+      },
+
+      adv_toggleConsole() {
+        this.adv_showConsole = !this.adv_showConsole;
+      },
+
+      adv_submit() {
+        console.log('adv_submit() called');
+        sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          console.log(response.data);
+          this.adv_response = response.data.replace(/\n/g, '<br>');
+          sciris.succeed(this, 'Query run'); // Indicate success.
+        }).catch(error => {
+          sciris.fail(this, 'Could not run query', error);
+        });
+      }
+
+    }
+  };
+
+  var ScenarioMixin = {
+    data() {
+      return {
+        // Parameter and program set information
+        activeParset: -1,
+        activeProgset: -1,
+        parsetOptions: [],
+        progsetOptions: [],
+        // Plotting data
+        showPlotControls: false,
+        hasGraphs: false,
+        table: null,
+        startYear: 0,
+        endYear: 2018,
+        // TEMP FOR DEMO
+        activePop: "All",
+        popOptions: [],
+        plotOptions: [],
+        yearOptions: [],
+        serverDatastoreId: '',
+        openDialogs: [],
+        showGraphDivs: [],
+        // These don't actually do anything, but they're here for future use
+        showLegendDivs: [],
+        mousex: -1,
+        mousey: -1,
+        figscale: 1.0,
+        // Page-specific data
+        scenSummaries: [],
+        defaultBudgetScen: {},
+        scenariosLoaded: false,
+        addEditModal: {
+          scenSummary: {},
+          origName: '',
+          mode: 'add'
+        }
+      };
+    },
+
+    computed: {
+      projectID() {
+        return sciris.projectID(this);
+      },
+
+      hasData() {
+        return sciris.hasData(this);
+      },
+
+      hasPrograms() {
+        return sciris.hasPrograms(this);
+      },
+
+      simStart() {
+        return sciris.dataEnd(this);
+      },
+
+      simEnd() {
+        return sciris.simEnd(this);
+      },
+
+      projectionYears() {
+        return sciris.projectionYears(this);
+      },
+
+      activePops() {
+        return sciris.activePops(this);
+      },
+
+      placeholders() {
+        return sciris.placeholders(this, 1);
+      }
+
+    },
+
+    created() {
+      sciris.addListener(this);
+      sciris.createDialogs(this);
+
+      if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
+        console.log('created() called');
+        this.startYear = this.simStart;
+        this.endYear = this.simEnd;
+        this.popOptions = this.activePops;
+        this.serverDatastoreId = this.$store.state.activeProject.project.id + ':scenario';
+        this.getPlotOptions(this.$store.state.activeProject.project.id).then(response => {
+          this.updateSets().then(response2 => {
+            // The order of execution / completion of these doesn't matter.
+            this.getScenSummaries();
+            this.getDefaultBudgetScen();
+            this.reloadGraphs(false);
+          });
+        });
+      }
+    },
+
+    methods: {
+      validateYears() {
+        return sciris.validateYears(this);
+      },
+
+      updateSets() {
+        return sciris.updateSets(this);
+      },
+
+      exportGraphs() {
+        return sciris.exportGraphs(this);
+      },
+
+      exportResults(datastoreID) {
+        return sciris.exportResults(this, datastoreID);
+      },
+
+      scaleFigs(frac) {
+        return sciris.scaleFigs(this, frac);
+      },
+
+      clearGraphs() {
+        return sciris.clearGraphs(this);
+      },
+
+      togglePlotControls() {
+        return sciris.togglePlotControls(this);
+      },
+
+      getPlotOptions(project_id) {
+        return sciris.getPlotOptions(this, project_id);
+      },
+
+      makeGraphs(graphdata) {
+        return sciris.makeGraphs(this, graphdata, '/scenarios');
+      },
+
+      reloadGraphs(showErr) {
+        return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true);
+      },
+
+      // Set to calibration=false, plotbudget=true
+      maximize(legend_id) {
+        return sciris.maximize(this, legend_id);
+      },
+
+      minimize(legend_id) {
+        return sciris.minimize(this, legend_id);
+      },
+
+      getDefaultBudgetScen() {
+        console.log('getDefaultBudgetScen() called');
+        sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+          this.defaultBudgetScen = response.data; // Set the scenario to what we received.
+
+          console.log('This is the default:');
+          console.log(this.defaultBudgetScen);
+        }).catch(error => {
+          sciris.fail(this, 'Could not get default budget scenario', error);
+        });
+      },
+
+      getScenSummaries() {
+        console.log('getScenSummaries() called');
+        sciris.start(this);
+        sciris.rpc('get_scen_info', [this.projectID]).then(response => {
+          this.scenSummaries = response.data; // Set the scenarios to what we received.
+
+          console.log('Scenario summaries:');
+          console.log(this.scenSummaries);
+          this.scenariosLoaded = true;
+          sciris.succeed(this, 'Scenarios loaded');
+        }).catch(error => {
+          sciris.fail(this, 'Could not get scenarios', error);
+        });
+      },
+
+      setScenSummaries() {
+        console.log('setScenSummaries() called');
+        sciris.start(this);
+        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          sciris.succeed(this, 'Scenarios saved');
+        }).catch(error => {
+          sciris.fail(this, 'Could not save scenarios', error);
+        });
+      },
+
+      addBudgetScenModal() {
+        // Open a model dialog for creating a new project
+        console.log('addBudgetScenModal() called');
+        sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+          this.defaultBudgetScen = response.data; // Set the scenario to what we received.
+
+          this.addEditModal.scenSummary = _.cloneDeep(this.defaultBudgetScen);
+          this.addEditModal.origName = this.addEditModal.scenSummary.name;
+          this.addEditModal.mode = 'add';
+          this.$modal.show('add-budget-scen');
+          console.log(this.defaultBudgetScen);
+        }).catch(error => {
+          sciris.fail(this, 'Could not open add scenario modal', error);
+        });
+      },
+
+      addBudgetScen() {
+        console.log('addBudgetScen() called');
+        this.$modal.hide('add-budget-scen');
+        sciris.start(this);
+
+        let newScen = _.cloneDeep(this.addEditModal.scenSummary); // Get the new scenario summary from the modal.
+
+
+        let scenNames = []; // Get the list of all of the current scenario names.
+
+        this.scenSummaries.forEach(scenSum => {
+          scenNames.push(scenSum.name);
+        });
+
+        if (this.addEditModal.mode == 'edit') {
+          // If we are editing an existing scenario...
+          let index = scenNames.indexOf(this.addEditModal.origName); // Get the index of the original (pre-edited) name
+
+          if (index > -1) {
+            this.scenSummaries[index].name = newScen.name; // hack to make sure Vue table updated
+
+            this.scenSummaries[index] = newScen;
+          } else {
+            console.log('Error: a mismatch in editing keys');
+          }
+        } else {
+          // Else (we are adding a new scenario)...
+          newScen.name = sciris.getUniqueName(newScen.name, scenNames);
+          this.scenSummaries.push(newScen);
+        }
+
+        console.log(newScen);
+        console.log(this.scenSummaries);
+        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          sciris.succeed(this, 'Scenario added');
+        }).catch(error => {
+          sciris.fail(this, 'Could not add scenario', error);
+        });
+      },
+
+      editScen(scenSummary) {
+        // Open a model dialog for creating a new project
+        console.log('editScen() called');
+        this.defaultBudgetScen = scenSummary;
+        console.log('defaultBudgetScen');
+        console.log(this.defaultBudgetScen);
+        this.addEditModal.scenSummary = _.cloneDeep(this.defaultBudgetScen);
+        this.addEditModal.origName = this.addEditModal.scenSummary.name;
+        this.addEditModal.mode = 'edit';
+        this.$modal.show('add-budget-scen');
+      },
+
+      copyScen(scenSummary) {
+        console.log('copyScen() called');
+        sciris.start(this);
+
+        var newScen = _.cloneDeep(scenSummary);
+
+        var otherNames = [];
+        this.scenSummaries.forEach(scenSum => {
+          otherNames.push(scenSum.name);
+        });
+        newScen.name = sciris.getUniqueName(newScen.name, otherNames);
+        this.scenSummaries.push(newScen);
+        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          sciris.succeed(this, 'Scenario copied');
+        }).catch(error => {
+          sciris.fail(this, 'Could not copy scenario', error);
+        });
+      },
+
+      deleteScen(scenSummary) {
+        console.log('deleteScen() called');
+        sciris.start(this);
+
+        for (var i = 0; i < this.scenSummaries.length; i++) {
+          if (this.scenSummaries[i].name === scenSummary.name) {
+            this.scenSummaries.splice(i, 1);
+          }
+        }
+
+        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          sciris.succeed(this, 'Scenario deleted');
+        }).catch(error => {
+          sciris.fail(this, 'Could not delete scenario', error);
+        });
+      },
+
+      runScens() {
+        console.log('runScens() called');
+        this.validateYears(); // Make sure the start end years are in the right range.
+
+        sciris.start(this);
+        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
+        .then(response => {
+          // Go to the server to get the results from the package set.
+          sciris.rpc('run_scenarios', [this.projectID, this.serverDatastoreId, this.plotOptions], {
+            saveresults: false,
+            tool: this.toolName(),
+            plotyear: this.endYear,
+            pops: this.activePop
+          }).then(response => {
+            this.table = response.data.table;
+            this.makeGraphs(response.data);
+            sciris.succeed(this, ''); // Success message in graphs function
+          }).catch(error => {
+            sciris.fail(this, 'Could not run scenarios', error);
+          });
+        }).catch(error => {
+          sciris.fail(this, 'Could not set scenarios', error);
+        });
+      }
+
+    }
+  };
+
+  var ProjectMixin = {
+    data() {
+      return {
+        filterPlaceholder: 'Type here to filter projects',
+        // Placeholder text for table filter box
+        filterText: '',
+        // Text in the table filter box
+        allSelected: false,
+        // Are all of the projects selected?
+        projectToRename: null,
+        // What project is being renamed?
+        sortColumn: 'name',
+        // Column of table used for sorting the projects: name, country, creationTime, updatedTime, dataUploadTime
+        sortReverse: false,
+        // Sort in reverse order?
+        projectSummaries: [],
+        // List of summary objects for projects the user has
+        proj_name: 'New project',
+        // For creating a new project: number of populations
+        num_pops: 5,
+        // For creating a new project: number of populations
+        num_progs: 5,
+        // For creating a new project: number of populations
+        activeuid: [],
+        // WARNING, kludgy to get create progbook working
+        frameworkSummaries: [],
+        currentFramework: '',
+        demoOptions: [],
+        demoOption: '',
+        defaultPrograms: [],
+        progStartYear: [],
+        progEndYear: []
+      };
+    },
+
+    computed: {
+      projectID() {
+        return sciris.projectID(this);
+      },
+
+      userName() {
+        return this.$store.state.currentUser.username;
+      },
+
+      simYears() {
+        return sciris.simYears(this);
+      },
+
+      sortedFilteredProjectSummaries() {
+        return this.applyNameFilter(this.applySorting(this.projectSummaries));
+      }
+
+    },
+
+    created() {
+      let projectID = null; // If we have no user logged in, automatically redirect to the login page.
+
+      if (this.$store.state.currentUser.displayname === undefined) {
+        this.getAppRouter().push('/login');
+      } else {
+        // Get the active project ID if there is an active project.
+        if (this.$store.state.activeProject.project !== undefined) {
+          projectID = this.$store.state.activeProject.project.id;
+        }
+
+        this.getDefaultPrograms();
+        this.getDemoOptions(); // Load the frameworks so the new project dialog is populated
+
+        this.updateFrameworkSummaries(); // Load the project summaries of the current user.
+
+        this.updateProjectSummaries(projectID); // This can take a surprisingly long time...
+
+        sciris.sleep(2000).then(response => {
+          // This isn't ideal, but this ensures that the drop-down boxes are actually populated
+          this.progStartYear = this.simYears[0];
+          this.progEndYear = this.simYears[this.simYears.length - 1];
+        });
+      }
+    },
+
+    methods: {
+      updateSorting() {
+        return sciris.updateSorting(this);
+      },
+
+      projectLoaded(uid) {
+        console.log('projectLoaded called');
+
+        if (this.$store.state.activeProject.project !== undefined) {
+          if (this.$store.state.activeProject.project.id === uid) {
+            console.log('Project ' + uid + ' is loaded');
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      },
+
+      getDemoOptions() {
+        console.log('getDemoOptions() called');
+        sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
+        .then(response => {
+          this.demoOptions = response.data; // Set the frameworks to what we received.
+
+          this.demoOption = this.demoOptions[0];
+          console.log('Loaded demo options:');
+          console.log(this.demoOptions);
+          console.log(this.demoOption);
+        }).catch(error => {
+          sciris.fail(this, 'Could not load demo project options', error);
+        });
+      },
+
+      getDefaultPrograms() {
+        console.log('getDefaultPrograms() called');
+        sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
+        .then(response => {
+          this.defaultPrograms = response.data; // Set the frameworks to what we received.
+
+          console.log('Loaded default programs:');
+          console.log(this.defaultPrograms);
+        }).catch(error => {
+          sciris.fail(this, 'Could not load default programs', error);
+        });
+      },
+
+      updateFrameworkSummaries() {
+        console.log('updateFrameworkSummaries() called'); // Get the current user's framework summaries from the server.
+
+        sciris.rpc('jsonify_frameworks', [this.userName]).then(response => {
+          // Set the frameworks to what we received.
+          this.frameworkSummaries = response.data.frameworks;
+
+          if (this.frameworkSummaries.length) {
+            console.log('Framework summaries found');
+            console.log(this.frameworkSummaries);
+            this.currentFramework = this.frameworkSummaries[0].framework.name;
+            console.log('Current framework: ' + this.currentFramework);
+          } else {
+            console.log('No framework summaries found');
+          }
+        }).catch(error => {
+          sciris.fail(this, 'Could not load frameworks', error);
+        });
+      },
+
+      updateProjectSummaries(setActiveID) {
+        console.log('updateProjectSummaries() called');
+        sciris.start(this);
+        sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
+        .then(response => {
+          let lastCreationTime = null;
+          let lastCreatedID = null;
+          this.projectSummaries = response.data.projects; // Set the projects to what we received.
+
+          if (this.projectSummaries.length > 0) {
+            // Initialize the last creation time stuff if we have a non-empty list.
+            lastCreationTime = new Date(this.projectSummaries[0].project.creationTime);
+            lastCreatedID = this.projectSummaries[0].project.id;
+          }
+
+          this.projectToRename = null; // Unset the link to a project being renamed.
+
+          this.projectSummaries.forEach(theProj => {
+            // Preprocess all projects.
+            theProj.selected = false; // Set to not selected.
+
+            theProj.renaming = ''; // Set to not being renamed.
+
+            if (theProj.project.creationTime >= lastCreationTime) {
+              // Update the last creation time and ID if what se see is later.
+              lastCreationTime = theProj.project.creationTime;
+              lastCreatedID = theProj.project.id;
+            }
+          });
+
+          if (this.projectSummaries.length > 0) {
+            // If we have a project on the list...
+            if (setActiveID === null) {
+              // If no ID is passed in, set the active project to the last-created project.
+              this.openProject(lastCreatedID);
+            } else {
+              // Otherwise, set the active project to the one passed in.
+              this.openProject(setActiveID);
+            }
+          }
+
+          sciris.succeed(this, ''); // No green popup.
+        }).catch(error => {
+          sciris.fail(this, 'Could not load projects', error);
+        });
+      },
+
+      addDemoProject() {
+        console.log('addDemoProject() called');
+        this.$modal.hide('demo-project');
+        sciris.start(this);
+        var demoOption = 'default'; // Have the server create a new project.
+
+        sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
+          // Update the project summaries so the new project shows up on the list.
+          this.updateProjectSummaries(response.data.projectID); // Already have notification from project
+
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not add demo project', error);
+        });
+      },
+
+      addDemoProjectModal() {
+        // Open a model dialog for creating a new project
+        console.log('addDemoProjectModal() called');
+        this.$modal.show('demo-project');
+      },
+
+      createNewProjectModal() {
+        console.log('createNewProjectModal() called');
+        this.$modal.show('create-project');
+      },
+
+      // Open a model dialog for creating a progbook
+      createProgbookModal(uid) {
+        this.activeuid = uid; // Find the project that matches the UID passed in.
+
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
+        console.log('createProgbookModal() called for ' + matchProject.project.name);
+        this.$modal.show('create-progbook');
+      },
+
+      createNewProject() {
+        console.log('createNewProject() called');
+        this.$modal.hide('create-project');
+        sciris.start(this);
+        var frameworkID = this.getFrameworkID();
+        sciris.download('create_new_project', // Have the server create a new project.
+        [this.userName, frameworkID, this.proj_name, this.num_pops, this.num_progs, this.data_start, this.data_end], {
+          tool: this.toolName()
+        }).then(response => {
+          // Update the project summaries so the new project shows up on the list. 
+          // Note: There's no easy way to get the new project UID to tell the 
+          // project update to choose the new project because the RPC cannot pass it back.
+          this.updateProjectSummaries(null);
+          sciris.succeed(this, 'New project "' + this.proj_name + '" created');
+        }).catch(error => {
+          sciris.fail(this, 'Could not add new project:' + error.message);
+        });
+      },
+
+      uploadProjectFromFile() {
+        console.log('uploadProjectFromFile() called');
+        sciris.upload('upload_project', [this.userName], {}, '.prj') // Have the server upload the project.
+        .then(response => {
+          // This line needs to be here to avoid the spinner being up during the user modal.
+          sciris.start(this); // Update the project summaries so the new project shows up on the list.
+
+          this.updateProjectSummaries(response.data.projectID);
+          sciris.succeed(this, 'New project uploaded');
+        }).catch(error => {
+          sciris.fail(this, 'Could not upload file', error);
+        });
+      },
+
+      projectIsActive(uid) {
+        // If the project is undefined, it is not active.
+        if (this.$store.state.activeProject.project === undefined) {
+          return false;
+        } else {
+          // Otherwise, the project is active if the UIDs match.
+          return this.$store.state.activeProject.project.id === uid;
+        }
+      },
+
+      selectAll() {
+        console.log('selectAll() called'); // For each of the projects, set the selection of the project to the
+        // _opposite_ of the state of the all-select checkbox's state.
+        // NOTE: This function depends on it getting called before the
+        // v-model state is updated.  If there are some cases of Vue
+        // implementation where these happen in the opposite order, then
+        // this will not give the desired result.
+
+        this.projectSummaries.forEach(theProject => theProject.selected = !this.allSelected);
+      },
+
+      uncheckSelectAll() {
+        this.allSelected = false;
+      },
+
+      applyNameFilter(projects) {
+        return projects.filter(theProject => theProject.project.name.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1);
+      },
+
+      applySorting(projects) {
+        return projects.slice(0).sort((proj1, proj2) => {
+          let sortDir = this.sortReverse ? -1 : 1;
+
+          if (this.sortColumn === 'name') {
+            return proj1.project.name.toLowerCase() > proj2.project.name.toLowerCase() ? sortDir : -sortDir;
+          } else if (this.sortColumn === 'creationTime') {
+            return proj1.project.creationTime > proj2.project.creationTime ? sortDir : -sortDir;
+          } else if (this.sortColumn === 'updatedTime') {
+            return proj1.project.updatedTime > proj2.project.updatedTime ? sortDir : -sortDir;
+          }
+        });
+      },
+
+      openProject(uid) {
+        // Find the project that matches the UID passed in.
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
+        console.log('openProject() called for ' + matchProject.project.name);
+        this.$store.commit('newActiveProject', matchProject); // Set the active project to the matched project.
+
+        sciris.succeed(this, 'Project "' + matchProject.project.name + '" loaded'); // Success popup.
+      },
+
+      copyProject(uid) {
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid); // Find the project that matches the UID passed in.
+
+        console.log('copyProject() called for ' + matchProject.project.name);
+        sciris.start(this);
+        sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
+        .then(response => {
+          // Update the project summaries so the copied program shows up on the list.
+          this.updateProjectSummaries(response.data.projectID); // Indicate success.
+
+          sciris.succeed(this, 'Project "' + matchProject.project.name + '" copied');
+        }).catch(error => {
+          sciris.fail(this, 'Could not copy project', error);
+        });
+      },
+
+      finishRename(event) {
+        // Grab the element of the open textbox for the project name to be renamed.
+        let renameboxElem = document.querySelector('.renamebox'); // If the click is outside the textbox, rename the remembered project.
+
+        if (!renameboxElem.contains(event.target)) {
+          this.renameProject(this.projectToRename);
+        }
+      },
+
+      renameProject(projectSummary) {
+        console.log('renameProject() called for ' + projectSummary.project.name);
+
+        if (projectSummary.renaming === '') {
+          // If the project is not in a mode to be renamed, make it so.
+          projectSummary.renaming = projectSummary.project.name; // Add a click listener to run the rename when outside the input box is click, and remember
+          // which project needs to be renamed.
+
+          window.addEventListener('click', this.finishRename);
+          this.projectToRename = projectSummary;
+        } else {
+          // Otherwise (it is to be renamed)...
+          // Remove the listener for reading the clicks outside the input box, and null out the project
+          // to be renamed.
+          window.removeEventListener('click', this.finishRename);
+          this.projectToRename = null; // Make a deep copy of the projectSummary object by 
+          // JSON-stringifying the old object, and then parsing 
+          // the result back into a new object.
+
+          let newProjectSummary = _.cloneDeep(projectSummary); // Rename the project name in the client list from what's in the textbox.
+
+
+          newProjectSummary.project.name = projectSummary.renaming;
+          sciris.start(this); // Have the server change the name of the project by passing in the new copy of the summary.
+
+          sciris.rpc('rename_project', [newProjectSummary]).then(response => {
+            // Update the project summaries so the rename shows up on the list.
+            this.updateProjectSummaries(newProjectSummary.project.id); // Turn off the renaming mode.
+
+            projectSummary.renaming = '';
+            sciris.succeed(this, '');
+          }).catch(error => {
+            sciris.fail(this, 'Could not rename project', error);
+          });
+        } // This silly hack is done to make sure that the Vue component gets updated by this function call.
+        // Something about resetting the project name informs the Vue component it needs to
+        // update, whereas the renaming attribute fails to update it.
+        // We should find a better way to do this.
+
+
+        let theName = projectSummary.project.name;
+        projectSummary.project.name = 'newname';
+        projectSummary.project.name = theName;
+      },
+
+      downloadProjectFile(uid) {
+        // Find the project that matches the UID passed in.
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
+        console.log('downloadProjectFile() called for ' + matchProject.project.name);
+        sciris.start(this); // Make the server call to download the project to a .prj file.
+
+        sciris.download('download_project', [uid]).then(response => {
+          // Indicate success.
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not download project', error);
+        });
+      },
+
+      downloadFramework(uid) {
+        // Find the project that matches the UID passed in.
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
+        console.log('downloadFramework() called for ' + matchProject.project.name);
+        sciris.start(this, 'Downloading framework...');
+        sciris.download('download_framework_from_project', [uid]).then(response => {
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not download framework', error);
+        });
+      },
+
+      downloadDatabook(uid) {
+        console.log('downloadDatabook() called');
+        sciris.start(this, 'Downloading data book...');
+        sciris.download('download_databook', [uid]).then(response => {
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not download databook', error);
+        });
+      },
+
+      downloadProgbook(uid) {
+        // Find the project that matches the UID passed in.
+        let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
+        console.log('downloadProgbook() called for ' + matchProject.project.name);
+        sciris.start(this, 'Downloading program book...');
+        sciris.download('download_progbook', [uid]).then(response => {
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not download program book', error);
+        });
+      },
+
+      createProgbook() {
+        // Find the project that matches the UID passed in.
+        let uid = this.activeuid;
+        console.log('createProgbook() called');
+        this.$modal.hide('create-progbook');
+        sciris.start(this, 'Creating program book...');
+        sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear]).then(response => {
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not create program book', error);
+        });
+      },
+
+      createDefaultProgbook() {
+        // Find the project that matches the UID passed in.
+        let uid = this.activeuid;
+        console.log('createDefaultProgbook() called');
+        this.$modal.hide('create-progbook');
+        sciris.start(this, 'Creating default program book...');
+        sciris.download('create_default_progbook', [uid, this.progStartYear, this.progEndYear, this.defaultPrograms]) // TODO: set years
+        .then(response => {
+          sciris.succeed(this, '');
+        }).catch(error => {
+          sciris.fail(this, 'Could not create program book', error);
+        });
+      },
+
+      uploadDatabook(uid) {
+        console.log('uploadDatabook() called');
+        sciris.upload('upload_databook', [uid], {}, '.xlsx').then(response => {
+          sciris.start(this, 'Uploading databook...'); // Update the project summaries so the copied program shows up on the list.
+
+          this.updateProjectSummaries(uid);
+          sciris.succeed(this, 'Data uploaded');
+        }).catch(error => {
+          sciris.fail(this, 'Could not upload databook', error);
+        });
+      },
+
+      uploadProgbook(uid) {
+        // Find the project that matches the UID passed in.
+        console.log('uploadProgbook() called');
+        sciris.upload('upload_progbook', [uid], {}, '.xlsx').then(response => {
+          sciris.start(this); // Update the project summaries so the copied program shows up on the list.
+
+          this.updateProjectSummaries(uid);
+          sciris.succeed(this, 'Programs uploaded'); // Indicate success.
+        }).catch(error => {
+          sciris.fail(this, 'Could not upload program book', error);
+        });
+      },
+
+      // Confirmation alert
+      deleteModal() {
+        // Pull out the names of the projects that are selected.
+        let selectProjectsUIDs = this.projectSummaries.filter(theProj => theProj.selected).map(theProj => theProj.project.id);
+
+        if (selectProjectsUIDs.length > 0) {
+          // Only if something is selected...
+          var obj = {
+            // Alert object data
+            message: 'Are you sure you want to delete the selected projects?',
+            useConfirmBtn: true,
+            customConfirmBtnClass: 'btn __red',
+            customCloseBtnClass: 'btn',
+            onConfirm: this.deleteSelectedProjects
+          };
+          this.$Simplert.open(obj);
+        }
+      },
+
+      deleteSelectedProjects() {
+        // Pull out the names of the projects that are selected.
+        let selectProjectsUIDs = this.projectSummaries.filter(theProj => theProj.selected).map(theProj => theProj.project.id);
+        console.log('deleteSelectedProjects() called for ', selectProjectsUIDs); // Have the server delete the selected projects.
+
+        if (selectProjectsUIDs.length > 0) {
+          sciris.start(this);
+          sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName]).then(response => {
+            // Get the active project ID.
+            let activeProjectId = this.$store.state.activeProject.project.id;
+
+            if (activeProjectId === undefined) {
+              activeProjectId = null;
+            } // If the active project ID is one of the ones deleted...
+
+
+            if (selectProjectsUIDs.find(theId => theId === activeProjectId)) {
+              // Set the active project to an empty project.
+              this.$store.commit('newActiveProject', {}); // Null out the project.
+
+              activeProjectId = null;
+            } // Update the project summaries so the deletions show up on the list.
+            // Make sure it tries to set the project that was active (if any).
+
+
+            this.updateProjectSummaries(activeProjectId);
+            sciris.succeed(this, '');
+          }).catch(error => {
+            sciris.fail(this, 'Could not delete project/s', error);
+          });
+        }
+      },
+
+      downloadSelectedProjects() {
+        // Pull out the names of the projects that are selected.
+        let selectProjectsUIDs = this.projectSummaries.filter(theProj => theProj.selected).map(theProj => theProj.project.id);
+        console.log('downloadSelectedProjects() called for ', selectProjectsUIDs); // Have the server download the selected projects.
+
+        if (selectProjectsUIDs.length > 0) {
+          sciris.start(this);
+          sciris.download('download_projects', [selectProjectsUIDs, this.userName]).then(response => {
+            sciris.succeed(this, '');
+          }).catch(error => {
+            sciris.fail(this, 'Could not download project/s', error);
+          });
+        }
+      }
+
+    }
+  };
+
+  var OptimizationMixin = {
+    data() {
+      return {
+        // Parameter and program set information
+        activeParset: -1,
+        activeProgset: -1,
+        parsetOptions: [],
+        progsetOptions: [],
+        // Plotting data
+        showPlotControls: false,
+        hasGraphs: false,
+        table: null,
+        startYear: 0,
+        endYear: 2018,
+        // TEMP FOR DEMO
+        activePop: "All",
+        popOptions: [],
+        plotOptions: [],
+        yearOptions: [],
+        serverDatastoreId: '',
+        openDialogs: [],
+        showGraphDivs: [],
+        // These don't actually do anything, but they're here for future use
+        showLegendDivs: [],
+        mousex: -1,
+        mousey: -1,
+        figscale: 1.0,
+        // Page-specific data
+        optimSummaries: [],
+        optimsLoaded: false,
+        pollingTasks: false,
+        defaultOptim: {},
+        modalOptim: {},
+        objectiveOptions: [],
+        displayResultName: '',
+        displayResultDatastoreId: '',
+        addEditDialogMode: 'add',
+        // or 'edit'
+        addEditDialogOldName: ''
+      };
+    },
+
+    computed: {
+      projectID() {
+        return sciris.projectID(this);
+      },
+
+      hasData() {
+        return sciris.hasData(this);
+      },
+
+      hasPrograms() {
+        return sciris.hasPrograms(this);
+      },
+
+      simStart() {
+        return sciris.simStart(this);
+      },
+
+      simEnd() {
+        return sciris.simEnd(this);
+      },
+
+      projectionYears() {
+        return sciris.projectionYears(this);
+      },
+
+      activePops() {
+        return sciris.activePops(this);
+      },
+
+      placeholders() {
+        return sciris.placeholders(this, 1);
+      }
+
+    },
+
+    created() {
+      sciris.addListener(this);
+      sciris.createDialogs(this);
+
+      if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
+        console.log('created() called');
+        this.startYear = this.simStart;
+        this.endYear = this.simEnd;
+        this.popOptions = this.activePops;
+        this.getPlotOptions(this.$store.state.activeProject.project.id).then(response => {
+          this.updateSets().then(response2 => {
+            this.getOptimSummaries();
+          });
+        });
+      }
+    },
+
+    methods: {
+      validateYears() {
+        return sciris.validateYears(this);
+      },
+
+      updateSets() {
+        return sciris.updateSets(this);
+      },
+
+      exportGraphs() {
+        return sciris.exportGraphs(this);
+      },
+
+      exportResults(datastoreID) {
+        return sciris.exportResults(this, datastoreID);
+      },
+
+      scaleFigs(frac) {
+        return sciris.scaleFigs(this, frac);
+      },
+
+      clearGraphs() {
+        return sciris.clearGraphs(this);
+      },
+
+      togglePlotControls() {
+        return sciris.togglePlotControls(this);
+      },
+
+      getPlotOptions(project_id) {
+        return sciris.getPlotOptions(this, project_id);
+      },
+
+      makeGraphs(graphdata) {
+        return sciris.makeGraphs(this, graphdata, '/optimizations');
+      },
+
+      reloadGraphs(cache_id, showErr) {
+        return sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true);
+      },
+
+      // Set to calibration=false, plotbudget=True
+      maximize(legend_id) {
+        return sciris.maximize(this, legend_id);
+      },
+
+      minimize(legend_id) {
+        return sciris.minimize(this, legend_id);
+      },
+
+      statusFormatStr(optimSummary) {
+        if (optimSummary.status === 'not started') {
+          return '';
+        } else if (optimSummary.status === 'queued') {
+          return 'Initializing... ';
+        } // + this.timeFormatStr(optimSummary.pendingTime)
+        else if (optimSummary.status === 'started') {
+            return 'Running for ';
+          } // + this.timeFormatStr(optimSummary.executionTime)
+          else if (optimSummary.status === 'completed') {
+              return 'Completed after ';
+            } // + this.timeFormatStr(optimSummary.executionTime)
+            else if (optimSummary.status === 'error') {
+                return 'Error after ';
+              } // + this.timeFormatStr(optimSummary.executionTime)
+              else {
+                  return '';
+                }
+      },
+
+      timeFormatStr(optimSummary) {
+        let rawValue = '';
+        let is_queued = optimSummary.status === 'queued';
+        let is_executing = optimSummary.status === 'started' || optimSummary.status === 'completed' || optimSummary.status === 'error';
+
+        if (is_queued) {
+          rawValue = optimSummary.pendingTime;
+        } else if (is_executing) {
+          rawValue = optimSummary.executionTime;
+        } else {
+          return '';
+        }
+
+        if (rawValue === '--') {
+          return '--';
+        } else {
+          let numSecs = Number(rawValue).toFixed();
+          let numHours = Math.floor(numSecs / 3600);
+          numSecs -= numHours * 3600;
+          let numMins = Math.floor(numSecs / 60);
+          numSecs -= numMins * 60;
+
+          let output = _.padStart(numHours.toString(), 2, '0') + ':' + _.padStart(numMins.toString(), 2, '0') + ':' + _.padStart(numSecs.toString(), 2, '0');
+
+          return output;
+        }
+      },
+
+      canRunTask(optimSummary) {
+        return optimSummary.status === 'not started';
+      },
+
+      canCancelTask(optimSummary) {
+        return optimSummary.status !== 'not started';
+      },
+
+      canPlotResults(optimSummary) {
+        return optimSummary.status === 'completed';
+      },
+
+      getOptimTaskState(optimSummary) {
+        return new Promise((resolve, reject) => {
+          console.log('getOptimTaskState() called for with: ' + optimSummary.status);
+          let statusStr = '';
+          sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
+          .then(result => {
+            statusStr = result.data.task.status;
+            optimSummary.status = statusStr;
+            optimSummary.pendingTime = result.data.pendingTime;
+            optimSummary.executionTime = result.data.executionTime;
+
+            if (optimSummary.status == 'error') {
+              console.log('Error in task: ', optimSummary.serverDatastoreId);
+              console.log(result.data.task.errorText);
+            }
+
+            resolve(result);
+          }).catch(error => {
+            optimSummary.status = 'not started';
+            optimSummary.pendingTime = '--';
+            optimSummary.executionTime = '--';
+            resolve(error); // yes, resolve, not reject, because this means non-started task
+          });
+        });
+      },
+
+      needToPoll() {
+        // Check if we're still on the Optimizations page.
+        let routePath = this.$route.path === '/optimizations'; // Check if we have a queued or started task.
+
+        let runningState = false;
+        this.optimSummaries.forEach(optimSum => {
+          if (optimSum.status === 'queued' || optimSum.status === 'started') {
+            runningState = true;
+          }
+        }); // We need to poll if we are in the page and a task is going.
+
+        return routePath && runningState;
+      },
+
+      pollAllTaskStates(checkAllTasks) {
+        return new Promise((resolve, reject) => {
+          console.log('Polling all tasks...'); // Clear the poll states.
+
+          this.optimSummaries.forEach(optimSum => {
+            optimSum.polled = false;
+          }); // For each of the optimization summaries...
+
+          this.optimSummaries.forEach(optimSum => {
+            console.log(optimSum.serverDatastoreId, optimSum.status); // If we are to check all tasks OR there is a valid task running, check it.
+
+            if (checkAllTasks || optimSum.status !== 'not started' && optimSum.status !== 'completed' && optimSum.status !== 'error') {
+              this.getOptimTaskState(optimSum).then(response => {
+                // Flag as polled.
+                optimSum.polled = true; // Resolve the main promise when all of the optimSummaries are polled.
+
+                let done = true;
+                this.optimSummaries.forEach(optimSum2 => {
+                  if (!optimSum2.polled) {
+                    done = false;
+                  }
+                });
+
+                if (done) {
+                  resolve();
+                }
+              });
+            } // Otherwise (no task to check), we are done polling for it.
+            else {
+                // Flag as polled.
+                optimSum.polled = true; // Resolve the main promise when all of the optimSummaries are polled.
+
+                let done = true;
+                this.optimSummaries.forEach(optimSum2 => {
+                  if (!optimSum2.polled) {
+                    done = false;
+                  }
+                });
+
+                if (done) {
+                  resolve();
+                }
+              }
+          });
+        });
+      },
+
+      doTaskPolling(checkAllTasks) {
+        // Flag that we're polling.
+        this.pollingTasks = true; // Do the polling of the task states.
+
+        this.pollAllTaskStates(checkAllTasks).then(() => {
+          // Hack to get the Vue display of optimSummaries to update
+          this.optimSummaries.push(this.optimSummaries[0]);
+          this.optimSummaries.pop(); // Only if we need to continue polling...
+
+          if (this.needToPoll()) {
+            // Sleep waitingtime seconds.
+            let waitingtime = 1;
+            sciris.sleep(waitingtime * 1000).then(response => {
+              this.doTaskPolling(false); // Call the next polling, in a way that doesn't check_task() for _every_ task.
+            });
+          } // Otherwise, flag that we're no longer polling.
+          else {
+              this.pollingTasks = false;
+            }
+        });
+      },
+
+      clearTask(optimSummary) {
+        return new Promise((resolve, reject) => {
+          let datastoreId = optimSummary.serverDatastoreId; // hack because this gets overwritten soon by caller
+
+          console.log('clearTask() called for ' + this.currentOptim);
+          sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
+          .then(response => {
+            sciris.rpc('delete_task', [datastoreId]).then(response => {
+              this.getOptimTaskState(optimSummary); // Get the task state for the optimization.
+
+              if (!this.pollingTasks) {
+                this.doTaskPolling(true);
+              }
+
+              resolve(response);
+            }).catch(error => {
+              resolve(error); // yes, resolve because at least cache entry deletion succeeded
+            });
+          }).catch(error => {
+            reject(error);
+          });
+        });
+      },
+
+      getOptimSummaries() {
+        console.log('getOptimSummaries() called');
+        sciris.start(this);
+        sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
+        .then(response => {
+          this.optimSummaries = response.data; // Set the optimizations to what we received.
+
+          this.optimSummaries.forEach(optimSum => {
+            // For each of the optimization summaries...
+            optimSum.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + optimSum.name; // Build a task and results cache ID from the project's hex UID and the optimization name.
+
+            optimSum.status = 'not started'; // Set the status to 'not started' by default, and the pending and execution times to '--'.
+
+            optimSum.pendingTime = '--';
+            optimSum.executionTime = '--';
+          });
+          this.doTaskPolling(true); // start task polling, kicking off with running check_task() for all optimizations
+
+          this.optimsLoaded = true;
+          sciris.succeed(this, 'Optimizations loaded');
+        }).catch(error => {
+          sciris.fail(this, 'Could not load optimizations', error);
+        });
+      },
+
+      setOptimSummaries() {
+        console.log('setOptimSummaries() called');
+        sciris.start(this);
+        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          sciris.succeed(this, 'Optimizations saved');
+        }).catch(error => {
+          sciris.fail(this, 'Could not save optimizations', error);
+        });
+      },
+
+      addOptimModal(optim_type) {
+        // Open a model dialog for creating a new project
+        console.log('addOptimModal() called for ' + optim_type);
+        sciris.rpc('get_default_optim', [this.projectID, this.toolName(), optim_type]).then(response => {
+          this.defaultOptim = response.data; // Set the optimization to what we received.
+
+          this.resetModal(response.data);
+          this.addEditDialogMode = 'add';
+          this.addEditDialogOldName = this.modalOptim.name;
+          this.$modal.show('add-optim');
+          console.log(this.defaultOptim);
+        });
+      },
+
+      saveOptim() {
+        console.log('saveOptim() called');
+        this.$modal.hide('add-optim');
+        sciris.start(this);
+        this.endYear = this.modalOptim.end_year;
+
+        let newOptim = _.cloneDeep(this.modalOptim); // Get the new optimization summary from the modal.
+
+
+        let optimNames = []; // Get the list of all of the current optimization names.
+
+        this.optimSummaries.forEach(optimSum => {
+          optimNames.push(optimSum.name);
+        });
+
+        if (this.addEditDialogMode === 'edit') {
+          // If we are editing an existing optimization...
+          let index = optimNames.indexOf(this.addEditDialogOldName); // Get the index of the original (pre-edited) name
+
+          if (index > -1) {
+            this.optimSummaries[index].name = newOptim.name; // hack to make sure Vue table updated
+
+            this.optimSummaries[index] = newOptim;
+
+            if (newOptim.name !== this.addEditDialogOldName) {
+              // If we've renamed an optimization
+              newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name; // Set a new server DataStore ID.
+            }
+
+            if (newOptim.status !== 'not started') {
+              // Clear the present task.
+              this.clearTask(newOptim); // Clear the task from the server.
+            }
+
+            newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name; // Build a task and results cache ID from the project's hex UID and the optimization name.
+
+            newOptim.status = 'not started'; // Set the status to 'not started' by default, and the pending and execution times to '--'.
+
+            newOptim.pendingTime = '--';
+            newOptim.executionTime = '--';
+          } else {
+            sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit');
+          }
+        } else {
+          // Else (we are adding a new optimization)...
+          newOptim.name = sciris.getUniqueName(newOptim.name, optimNames);
+          newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
+          this.optimSummaries.push(newOptim);
+          this.getOptimTaskState(newOptim).then(result => {
+            // Hack to get the Vue display of optimSummaries to update
+            this.optimSummaries.push(this.optimSummaries[0]);
+            this.optimSummaries.pop();
+          });
+        }
+
+        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          sciris.succeed(this, 'Optimization added');
+          this.resetModal(this.defaultOptim);
+        }).catch(error => {
+          sciris.fail(this, 'Could not add optimization', error);
+        });
+      },
+
+      cancelOptim() {
+        this.$modal.hide('add-optim');
+        this.resetModal(this.defaultOptim);
+      },
+
+      resetModal(optimData) {
+        console.log('resetModal() called');
+        this.modalOptim = _.cloneDeep(optimData);
+        console.log(this.modalOptim);
+      },
+
+      editOptim(optimSummary) {
+        // Open a model dialog for creating a new project
+        console.log('editOptim() called');
+        this.modalOptim = _.cloneDeep(optimSummary);
+        console.log('defaultOptim', this.defaultOptim.obj);
+        this.addEditDialogMode = 'edit';
+        this.addEditDialogOldName = this.modalOptim.name;
+        this.$modal.show('add-optim');
+      },
+
+      copyOptim(optimSummary) {
+        console.log('copyOptim() called');
+        sciris.start(this);
+
+        var newOptim = _.cloneDeep(optimSummary);
+
+        var otherNames = [];
+        this.optimSummaries.forEach(optimSum => {
+          otherNames.push(optimSum.name);
+        });
+        newOptim.name = sciris.getUniqueName(newOptim.name, otherNames);
+        newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
+        this.optimSummaries.push(newOptim);
+        this.getOptimTaskState(newOptim);
+        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          sciris.succeed(this, 'Optimization copied');
+        }).catch(error => {
+          sciris.fail(this, 'Could not copy optimization', error);
+        });
+      },
+
+      deleteOptim(optimSummary) {
+        console.log('deleteOptim() called');
+        sciris.start(this);
+
+        if (optimSummary.status !== 'not started') {
+          this.clearTask(optimSummary); // Clear the task from the server.
+        }
+
+        for (var i = 0; i < this.optimSummaries.length; i++) {
+          if (this.optimSummaries[i].name === optimSummary.name) {
+            this.optimSummaries.splice(i, 1);
+          }
+        }
+
+        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          sciris.succeed(this, 'Optimization deleted');
+        }).catch(error => {
+          sciris.fail(this, 'Could not delete optimization', error);
+        });
+      },
+
+      runOptim(optimSummary, maxtime) {
+        console.log('runOptim() called for ' + this.currentOptim + ' for time: ' + maxtime);
+        this.validateYears(); // Make sure the end year is sensibly set.
+
+        sciris.start(this);
+        var RPCname = this.getOptimizationRPCName();
+        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
+        .then(response => {
+          sciris.rpc('launch_task', [optimSummary.serverDatastoreId, RPCname, [this.projectID, optimSummary.serverDatastoreId, optimSummary.name], {
+            'plot_options': this.plotOptions,
+            'maxtime': maxtime,
+            'tool': this.toolName(),
+            'plotyear': this.endYear,
+            'pops': this.activePop,
+            'cascade': null
+          }]) // should this last be null?
+          .then(response => {
+            this.getOptimTaskState(optimSummary); // Get the task state for the optimization.
+
+            if (!this.pollingTasks) {
+              this.doTaskPolling(true);
+            }
+
+            sciris.succeed(this, 'Started optimization');
+          }).catch(error => {
+            sciris.fail(this, 'Could not start optimization', error);
+          });
+        }).catch(error => {
+          sciris.fail(this, 'Could not save optimizations', error);
+        });
+      },
+
+      plotResults(optimSummary) {
+        this.displayResultName = optimSummary.name;
+        this.displayResultDatastoreId = optimSummary.serverDatastoreId;
+        this.reloadGraphs(optimSummary.serverDatastoreId, true);
+      }
+
+    }
+  };
+
+  var index$1 = {
+    CalibrationMixin,
+    HelpMixin,
+    ScenarioMixin,
+    ProjectMixin,
+    OptimizationMixin
+  };
+
   require('vue2-simplert-plugin/dist/vue2-simplert-plugin.css');
 
   require("bootstrap");
@@ -32891,7 +34919,7 @@
     });
   }
 
-  var index$1 = {
+  var index$2 = {
     install: install$1
   };
   const views = {
@@ -32902,11 +34930,12 @@
     UserChangeInfoPage
   };
 
-  exports.default = index$1;
+  exports.default = index$2;
   exports.ScirisRoutes = ScirisRoutes;
   exports.EventBus = EventBus$1;
   exports.events = events$2;
   exports.views = views;
+  exports.mixins = index$1;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

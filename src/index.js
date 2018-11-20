@@ -18,6 +18,8 @@ require('vue2-simplert-plugin/dist/vue2-simplert-plugin.css')
 
 require("bootstrap");
 
+import mixins from "./mixins/index.js";
+
 function install(Vue, options={}) {
 
   Object.defineProperty(Vue.prototype, '$_', { value: _ });
@@ -79,5 +81,6 @@ export {
   ScirisRoutes,
   EventBus,
   events,
-  views 
+  views, 
+  mixins
 }
