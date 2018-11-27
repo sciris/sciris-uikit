@@ -8,33 +8,44 @@
         -->
     <!-- -->
     <div class="sidebar-wrapper" id="style-3">
-      <div class="logo">
-        <a href="#" class="simple-text">
-            <img :src="logo" width="160px" vertical-align="middle" alt>
-        </a>
+      <div class="sidebar-content">
+        <div class="logo" v-if="favicon">
+          <a href="#" class="simple-text">
+            <div class="logo-img">
+                <img :src="favicon" alt="">
+            </div>
+            <img :src="logo" class="logotype" :width="logoWidth" vertical-align="middle" alt>
+          </a>
+        </div>
+        <div class="logo" v-else>
+          <a href="#" class="simple-text">
+              <img :src="logo" :width="logoWidth" vertical-align="middle" alt>
+          </a>
+        </div>
+
+        <slot></slot>
+
+        <ul :class="navClasses">
+          <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
+          <router-link 
+            v-for="(link,index) in links" 
+            tag="li" 
+            class="nav-item"
+            :to="link.path" 
+            :ref="link.name" 
+            :key="link.name + index">
+              <a>
+                <i :class="link.icon"></i>
+
+                <p>{{link.name}}
+                </p>
+              </a>
+          </router-link>
+        </ul>
+        <moving-arrow :move-y="arrowMovePx">
+
+        </moving-arrow>
       </div>
-
-      <slot></slot>
-
-      <ul :class="navClasses">
-        <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
-        <router-link 
-          v-for="(link,index) in links" 
-          tag="li" 
-          :to="link.path" 
-          :ref="link.name" 
-          :key="link.name + index">
-            <a>
-              <i :class="link.icon"></i>
-
-              <p>{{link.name}}
-              </p>
-            </a>
-        </router-link>
-      </ul>
-      <moving-arrow :move-y="arrowMovePx">
-
-      </moving-arrow>
     </div>
   </div>
 </template>
@@ -67,9 +78,17 @@
           return acceptedValues.indexOf(value) !== -1
         }
       },
+      favicon: {
+        type: String,
+        default: ""
+      },
       logo: {
         type: String,
         default: ""
+      },
+      logoWidth: {
+        type: String,
+        default: "160px"
       },
       links: {
         type: Array,
@@ -104,7 +123,7 @@
     },
     data () {
       return {
-        linkHeight: 60,
+        linkHeight: 50,
         activeLinkIndex: 0,
 
         windowWidth: 0,
@@ -134,6 +153,3 @@
   }
 
 </script>
-<style>
-
-</style>

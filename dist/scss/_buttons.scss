@@ -239,7 +239,7 @@ $disabled-color: #FFF;
   &:disabled {
     background-color: $disabled-background;
     border-color: $disabled-border-color;
-    color: $disabled-color;      
+    color: $disabled-color; 
   }
     
   &:hover,

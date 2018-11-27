@@ -5,14 +5,15 @@ Last update: 2018sep23
 
 -->
 
-
 <template>
   <nav class="navbar navbar-light navbar-default">
-    <a class="navbar-brand" 
+    <a v-if="logo" 
+      class="navbar-brand" 
       target="_blank"
       :href="homepage">
         <img height="50px" vertical-align="middle" :src="logo">
     </a>
+    <span v-if="!hideRouteName" class="navabar-route-name">{{routeName}}</span>
     <button type="button" 
       class="navbar-toggle" 
       :class="{toggled: $sidebar.showSidebar}" 
@@ -72,6 +73,10 @@ Last update: 2018sep23
         type: String,
         default: ""
       },
+      showRouteName: {
+        type: String,
+        default: "hide" 
+      }
     },
 
     // Health prior function
@@ -83,6 +88,13 @@ Last update: 2018sep23
 
     computed: {
       // Health prior function
+      hideRouteName(){
+        if(this.showRouteName == "hide"){
+          return true 
+        } else {
+          return false 
+        }
+      },
       currentUser(){
         return this.$store.state.currentUser
       },

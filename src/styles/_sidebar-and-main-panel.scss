@@ -49,6 +49,16 @@
   }
 }
 
+@media (min-width: 992px) {
+  .nav-open .off-canvas-sidebar {
+      display: none;
+      visibility: hidden;
+  }
+  .nav-open .main-panel {
+    left: 0;
+  }
+}
+
 .sidebar,
 .off-canvas-sidebar {
   width: 260px;

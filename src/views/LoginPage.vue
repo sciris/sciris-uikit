@@ -6,16 +6,23 @@ Last update: 2018sep22
 
 <template>
   <div class="SitePage" style="background-color:#f8f8f4; position:fixed; min-height:100%; min-width:100%; padding:0 0 0 0" v-model="getVersionInfo"> <!-- Should match _variables.scss:$bg-nude -->
-    <div style="background-color:#0c2544; position:absolute; height:100%; width:260px">
+    <div style="background-color: #0c2544; position:absolute; height:100%; width:260px">
       <div class="logo">
         <div class="simple-text" style="font-size:20px; color:#fff; font-weight:bold; padding:20px">
+          <div v-if="favicon" class="logo-img" style="height:40px; width:40px; line-height:40px; border-radius:40px; background-color:#fff; text-align:center; display:inline-block">
+            <img :src="favicon" width="21px" vertical-align="middle" alt>
+          </div>
           <span style="padding-left:10px">
-            <a :href="homepage" target="_blank">
+            <a v-if="homepage" :href="homepage" target="_blank">
               <img :src="logo" width="160px" vertical-align="middle" alt>
             </a>
+            <img v-else :src="logo" width="160px" vertical-align="middle" alt>
           </span>
           <br/><br/>
           <div v-if="version" style="font-size:14px; font-weight:normal">
+            <div v-if="verboseToolName">
+              {{ verboseToolName }} 
+            </div>
             Version {{ version }} ({{ date }})
           </div>
         </div>
@@ -77,7 +84,19 @@ export default {
     logo: {
       type: String,
       default: ""
-    }
+    },
+    verboseToolName: {
+      type: String,
+      default: ""
+    },
+    authBackgroundColour: {
+      type: String,
+      default: "#0c2544"
+    },
+    favicon: {
+      type: String,
+      default: ""
+    },
   },
 
   data () {

@@ -5,6 +5,13 @@
   font-size: $font-size-navbar;
   z-index: 0;
 
+  .navabar-route-name {
+    font-weight: 600;
+    margin: 5px 0;
+    padding: 20px 15px;
+    font-size: 20px;
+  }
+
   .logo {
     padding: 15px 0;
   }
