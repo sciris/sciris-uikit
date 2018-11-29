@@ -16102,7 +16102,7 @@
   var DialogDrag = unwrapExports(vueDialogDrag_umd);
 
   /*!
-   * sciris-js v0.1.6
+   * sciris-js v0.1.8
    * (c) 2018-present Optima Consortium <info@ocds.co>
    */
 
@@ -20765,7 +20765,7 @@
 
   });
 
-  var Simplert = unwrapExports(vue2SimplertPlugin);
+  unwrapExports(vue2SimplertPlugin);
   var vue2SimplertPlugin_1 = vue2SimplertPlugin.Simplert;
 
   var lodash = createCommonjsModule(function (module, exports) {
@@ -39698,7 +39698,7 @@
     Object.defineProperty(Vue.prototype, '$_', {
       value: lodash
     });
-    Vue.use(Simplert);
+    Vue.use(vue2SimplertPlugin_1);
 
     if (!options.navigation) {
       options.navigation = {};

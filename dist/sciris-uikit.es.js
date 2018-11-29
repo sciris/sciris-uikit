@@ -4,7 +4,7 @@
  */
 import Vue from 'vue';
 import sciris from 'sciris-js';
-import Simplert from 'vue2-simplert-plugin';
+import { Simplert } from 'vue2-simplert-plugin';
 import 'vue-clickaway';
 import _$1 from 'lodash';
 

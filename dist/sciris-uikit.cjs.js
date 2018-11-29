@@ -10,7 +10,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var Vue = _interopDefault(require('vue'));
 var sciris = _interopDefault(require('sciris-js'));
-var Simplert = _interopDefault(require('vue2-simplert-plugin'));
+var vue2SimplertPlugin = require('vue2-simplert-plugin');
 require('vue-clickaway');
 var _$1 = _interopDefault(require('lodash'));
 
@@ -3114,7 +3114,7 @@ function install(Vue$$1, options = {}) {
   Object.defineProperty(Vue$$1.prototype, '$_', {
     value: _$1
   });
-  Vue$$1.use(Simplert);
+  Vue$$1.use(vue2SimplertPlugin.Simplert);
 
   if (!options.navigation) {
     options.navigation = {};

@@ -10,7 +10,7 @@ import HelpLink from './plugins/help/HelpLink.vue';
 
 import { events } from './eventbus.js';
 
-import Simplert from 'vue2-simplert-plugin';
+import { Simplert } from 'vue2-simplert-plugin';
 import { directive as vClickOutside } from 'vue-clickaway';
 import _ from 'lodash';
 
