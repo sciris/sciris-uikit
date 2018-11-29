@@ -8,6 +8,105 @@ import Simplert from 'vue2-simplert-plugin';
 import 'vue-clickaway';
 import _$1 from 'lodash';
 
+const EVENT_LOGIN_SUCCESS = 'sciris:login:success';
+const EVENT_LOGIN_FAIL = 'sciris:login:fail';
+const EVENT_PASSWORD_CHANGE_SUCCESS = 'sciris:passwordchange:success';
+const EVENT_PASSWORD_CHANGE_FAIL = 'sciris:passwordchange:fail';
+const EVENT_REGISTER_SUCCESS = 'sciris:register:success';
+const EVENT_REGISTER_FAIL = 'sciris:register:fail';
+const EVENT_INFO_CHANGE_SUCCESS$1 = 'sciris:infochange:success';
+const EVENT_INFO_CHANGE_FAIL$1 = 'sciris:infochange:fail';
+const EVENT_LOGOUT_SUCCESS = 'sciris:logout:success';
+const events = {
+  EVENT_LOGIN_FAIL,
+  EVENT_LOGIN_SUCCESS,
+  EVENT_REGISTER_SUCCESS,
+  EVENT_REGISTER_FAIL,
+  EVENT_PASSWORD_CHANGE_SUCCESS,
+  EVENT_PASSWORD_CHANGE_FAIL,
+  EVENT_INFO_CHANGE_SUCCESS: EVENT_INFO_CHANGE_SUCCESS$1,
+  EVENT_INFO_CHANGE_FAIL: EVENT_INFO_CHANGE_FAIL$1,
+  EVENT_LOGOUT_SUCCESS
+};
+const EventBus = new Vue();
+
+//
+var script = {
+  name: 'LoginPage',
+  props: {
+    homepage: {
+      type: String,
+      default: ""
+    },
+    logo: {
+      type: String,
+      default: ""
+    },
+    verboseToolName: {
+      type: String,
+      default: ""
+    },
+    authBackgroundColour: {
+      type: String,
+      default: "#0c2544"
+    },
+    favicon: {
+      type: String,
+      default: ""
+    }
+  },
+
+  data() {
+    return {
+      loginUserName: '',
+      loginPassword: '',
+      loginResult: '',
+      version: '',
+      date: ''
+    };
+  },
+
+  computed: {
+    getVersionInfo() {
+      sciris.rpc('get_version_info').then(response => {
+        this.version = response.data['version'];
+        this.date = response.data['date'];
+      });
+    }
+
+  },
+  methods: {
+    tryLogin() {
+      sciris.loginCall(this.loginUserName, this.loginPassword).then(response => {
+        if (response.data === 'success') {
+          // Set a success result to show.
+          this.loginResult = 'Logging in...'; // Read in the full current user information.
+
+          sciris.getCurrentUserInfo().then(response2 => {
+            // Set the username to what the server indicates.
+            let user = response2.data.user;
+            this.$store.commit('newUser', user); // Navigate automatically to the home page.
+
+            EventBus.$emit(events.EVENT_LOGIN_SUCCESS, user);
+          }).catch(error => {
+            // Set the username to {}.  An error probably means the
+            // user is not logged in.
+            this.$store.commit('newUser', {});
+          });
+        } else {
+          // Set a failure result to show.
+          this.loginResult = response.data;
+        }
+      }).catch(error => {
+        EventBus.$emit(events.EVENT_LOGIN_FAIL, error);
+        console.log('Login failed', error);
+        this.loginResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
+      });
+    }
+
+  }
+};
+
 function styleInject(css, ref) {
   if ( ref === void 0 ) ref = {};
   var insertAt = ref.insertAt;
@@ -35,321 +134,336 @@ function styleInject(css, ref) {
   }
 }
 
-var css = "\n";
+var css = "";
 styleInject(css);
 
-const EVENT_LOGIN_SUCCESS = 'sciris:login:success';
-const EVENT_LOGIN_FAIL = 'sciris:login:fail';
-const EVENT_PASSWORD_CHANGE_SUCCESS = 'sciris:passwordchange:success';
-const EVENT_PASSWORD_CHANGE_FAIL = 'sciris:passwordchange:fail';
-const EVENT_REGISTER_SUCCESS = 'sciris:register:success';
-const EVENT_REGISTER_FAIL = 'sciris:register:fail';
-const EVENT_INFO_CHANGE_SUCCESS$1 = 'sciris:infochange:success';
-const EVENT_INFO_CHANGE_FAIL$1 = 'sciris:infochange:fail';
-const EVENT_LOGOUT_SUCCESS = 'sciris:logout:success';
-const events = {
-  EVENT_LOGIN_FAIL,
-  EVENT_LOGIN_SUCCESS,
-  EVENT_REGISTER_SUCCESS,
-  EVENT_REGISTER_FAIL,
-  EVENT_PASSWORD_CHANGE_SUCCESS,
-  EVENT_PASSWORD_CHANGE_FAIL,
-  EVENT_INFO_CHANGE_SUCCESS: EVENT_INFO_CHANGE_SUCCESS$1,
-  EVENT_INFO_CHANGE_FAIL: EVENT_INFO_CHANGE_FAIL$1,
-  EVENT_LOGOUT_SUCCESS
-};
-const EventBus = new Vue();
+/* script */
+            const __vue_script__ = script;
+/* template */
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v("\n            "+_vm._s(_vm.verboseToolName)+" \n          ")]):_vm._e(),_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          New user?\n          "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v("\n            Register here\n          ")])],1)])])])])};
+var __vue_staticRenderFns__ = [];
 
-var LoginPage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v(" "+_vm._s(_vm.verboseToolName)+" ")]):_vm._e(),_vm._v(" Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+") ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v(" New user? "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v(" Register here ")])],1)])])])])},staticRenderFns: [],_scopeId: 'data-v-485424ce',
-  name: 'LoginPage',
+  /* style */
+  const __vue_inject_styles__ = undefined;
+  /* scoped */
+  const __vue_scope_id__ = "data-v-da0f2330";
+  /* module identifier */
+  const __vue_module_identifier__ = undefined;
+  /* functional template */
+  const __vue_is_functional_template__ = false;
+  /* component normalizer */
+  function __vue_normalize__(
+    template, style, script$$1,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
 
-  props: {
-    homepage: {
-      type: String,
-      default: ""
-    },
-    logo: {
-      type: String,
-      default: ""
-    },
-    verboseToolName: {
-      type: String,
-      default: ""
-    },
-    authBackgroundColour: {
-      type: String,
-      default: "#0c2544"
-    },
-    favicon: {
-      type: String,
-      default: ""
-    },
-  },
+    // For security concerns, we use only base name in production mode.
+    component.__file = "LoginPage.vue";
 
-  data () {
-    return {
-      loginUserName: '',
-      loginPassword: '',
-      loginResult: '',
-      version: '',
-      date: '',
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
     }
-  },
 
-  computed: {
-    getVersionInfo() {
-      sciris.rpc('get_version_info')
-      .then(response => {
-        this.version = response.data['version'];
-        this.date = response.data['date'];
-      });
-    },
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var LoginPage = __vue_normalize__(
+    { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
+    __vue_inject_styles__,
+    __vue_script__,
+    __vue_scope_id__,
+    __vue_is_functional_template__,
+    __vue_module_identifier__,
+    undefined,
+    undefined
+  );
+
+//
+var script$1 = {
+  name: 'ChangePasswordPage',
+
+  data() {
+    return {
+      oldPassword: '',
+      newPassword: '',
+      changeResult: ''
+    };
   },
 
   methods: {
-    tryLogin () {
-      sciris.loginCall(this.loginUserName, this.loginPassword)
-      .then(response => {
+    tryChangePassword() {
+      sciris.changeUserPassword(this.oldPassword, this.newPassword).then(response => {
         if (response.data === 'success') {
-          // Set a success result to show.
-          this.loginResult = 'Logging in...';
+          sciris.succeed(this, 'Password updated'); // Read in the full current user information.
 
-          // Read in the full current user information.
-          sciris.getCurrentUserInfo()
-          .then(response2 => {
+          sciris.getCurrentUserInfo().then(response2 => {
             // Set the username to what the server indicates.
             let user = response2.data.user;
-            this.$store.commit('newUser', user);
+            this.$store.commit('newUser', user); // Navigate automatically to the home page.
 
-            // Navigate automatically to the home page.
-            EventBus.$emit(events.EVENT_LOGIN_SUCCESS, user); 
-          })
-          .catch(error => {
+            EventBus.$emit(events.EVENT_PASSWORD_CHANGE_SUCCESS, user);
+          }).catch(error => {
             // Set the username to {}.  An error probably means the
             // user is not logged in.
             this.$store.commit('newUser', {});
           });
         } else {
-          // Set a failure result to show.
-          this.loginResult = response.data;
+          this.changeResult = response.data;
         }
-      })
-      .catch(error => {
-        EventBus.$emit(events.EVENT_LOGIN_FAIL, error); 
-        console.log('Login failed', error);
-        this.loginResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
+      }).catch(error => {
+        sciris.fail(this, 'Password updated failed', error);
+        EventBus.$emit(events.EVENT_PASSWORD_CHANGE_FAIL, error);
       });
     }
-  }
-}
 
-var css$1 = ".password-change-form {\n  max-width: 300px;\n  min-width: 100px;\n  margin: 0; }\n";
+  }
+};
+
+var css$1 = "\n.password-change-form[data-v-ef593f68]{max-width:300px;min-width:100px;margin:0\n}";
 styleInject(css$1);
 
-var ChangePasswordPage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])},staticRenderFns: [],_scopeId: 'data-v-2032be54',
+/* script */
+            const __vue_script__$1 = script$1;
+/* template */
+var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])};
+var __vue_staticRenderFns__$1 = [];
 
-  name: 'ChangePasswordPage',
+  /* style */
+  const __vue_inject_styles__$1 = undefined;
+  /* scoped */
+  const __vue_scope_id__$1 = "data-v-ef593f68";
+  /* module identifier */
+  const __vue_module_identifier__$1 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$1 = false;
+  /* component normalizer */
+  function __vue_normalize__$1(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
 
-  data () {
-    return {
-      oldPassword: '',
-      newPassword: '',
-      changeResult: ''
+    // For security concerns, we use only base name in production mode.
+    component.__file = "ChangePasswordPage.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
     }
-  },
 
-  methods: {
-    tryChangePassword () {
-      sciris.changeUserPassword(this.oldPassword, this.newPassword)
-        .then(response => {
-          if (response.data === 'success') {
-            sciris.succeed(this, 'Password updated');
-            // Read in the full current user information.
-            sciris.getCurrentUserInfo()
-              .then(response2 => {
-                // Set the username to what the server indicates.
-                let user = response2.data.user;
-                this.$store.commit('newUser', user);
+    component._scopeId = scope;
 
-                // Navigate automatically to the home page.
-                EventBus.$emit(events.EVENT_PASSWORD_CHANGE_SUCCESS, user); 
-              })
-              .catch(error => {
-                // Set the username to {}.  An error probably means the
-                // user is not logged in.
-                this.$store.commit('newUser', {});
-              });
-          } else {
-            this.changeResult = response.data;
-          }
-        })
-        .catch(error => {
-          sciris.fail(this, 'Password updated failed', error);
-          EventBus.$emit(events.EVENT_PASSWORD_CHANGE_FAIL, error); 
-        });
-    }
+    return component
   }
-}
+  /* style inject */
+  
+  /* style inject SSR */
+  
 
-var css$2 = "\n";
-styleInject(css$2);
+  
+  var ChangePasswordPage = __vue_normalize__$1(
+    { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+    __vue_inject_styles__$1,
+    __vue_script__$1,
+    __vue_scope_id__$1,
+    __vue_is_functional_template__$1,
+    __vue_module_identifier__$1,
+    undefined,
+    undefined
+  );
 
-var MainAdminPage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}],_scopeId: 'data-v-4078727b',
-
+//
+var script$2 = {
   name: 'MainAdminPage',
 
-  data () {
+  data() {
     return {
       usersList: [],
       adminResult: ''
-    }
+    };
   },
 
-  created () {
+  created() {
     this.getUsersInfo();
   },
 
   methods: {
-    getUsersInfo () {
-      sciris.getAllUsersInfo()
-      .then(response => {
+    getUsersInfo() {
+      sciris.getAllUsersInfo().then(response => {
         this.usersList = response.data;
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Could not load users from server.';
       });
     },
 
-    activateAccount (username) {
-      sciris.activateUserAccount(username)
-      .then(response => {
+    activateAccount(username) {
+      sciris.activateUserAccount(username).then(response => {
         // If the response was successful...
-        if (response.data == 'success')
-          // Give result message.
-          this.adminResult = 'User account activated.';
-        // Otherwise (failure)
-        else
-          // Give result message.
-          this.adminResult = 'Account activation not successful.';
+        if (response.data == 'success') // Give result message.
+          this.adminResult = 'User account activated.'; // Otherwise (failure)
+        else // Give result message.
+          this.adminResult = 'Account activation not successful.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Account activation not successful.';
       });
     },
 
-    deactivateAccount (username) {
-      sciris.deactivateUserAccount(username)
-      .then(response => {
+    deactivateAccount(username) {
+      sciris.deactivateUserAccount(username).then(response => {
         // If the response was successful...
-        if (response.data == 'success')
-          // Give result message.
-          this.adminResult = 'User account deactivated.';
-        // Otherwise (failure)
-        else
-          // Give result message.
-          this.adminResult = 'Account deactivation not successful.';
+        if (response.data == 'success') // Give result message.
+          this.adminResult = 'User account deactivated.'; // Otherwise (failure)
+        else // Give result message.
+          this.adminResult = 'Account deactivation not successful.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Account deactivation not successful.';
       });
     },
 
-    grantAdmin (username) {
-      sciris.grantUserAdminRights(username)
-      .then(response => {
+    grantAdmin(username) {
+      sciris.grantUserAdminRights(username).then(response => {
         // If the response was successful...
-        if (response.data == 'success')
-          // Give result message.
-          this.adminResult = 'Admin access granted.';
-        // Otherwise (failure)
-        else
-          // Give result message.
-          this.adminResult = 'Admin granting not successful.';
+        if (response.data == 'success') // Give result message.
+          this.adminResult = 'Admin access granted.'; // Otherwise (failure)
+        else // Give result message.
+          this.adminResult = 'Admin granting not successful.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Admin granting not successful.';
       });
     },
 
-    revokeAdmin (username) {
-      sciris.revokeUserAdminRights(username)
-      .then(response => {
+    revokeAdmin(username) {
+      sciris.revokeUserAdminRights(username).then(response => {
         // If the response was successful...
-        if (response.data == 'success')
-          // Give result message.
-          this.adminResult = 'Admin access revoked.';
-        // Otherwise (failure)
-        else
-          // Give result message.
-          this.adminResult = 'Admin revocation not successful.';
+        if (response.data == 'success') // Give result message.
+          this.adminResult = 'Admin access revoked.'; // Otherwise (failure)
+        else // Give result message.
+          this.adminResult = 'Admin revocation not successful.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Admin revocation not successful.';
       });
     },
 
-    resetPassword (username) {
-      sciris.resetUserPassword(username)
-      .then(response => {
+    resetPassword(username) {
+      sciris.resetUserPassword(username).then(response => {
         // If the response was successful...
-        if (response.data == 'success')
-          // Give result message.
-          this.adminResult = 'Password reset.';
-        // Otherwise (failure)
-        else
-          // Give result message.
-          this.adminResult = 'Password reset not successful.';
+        if (response.data == 'success') // Give result message.
+          this.adminResult = 'Password reset.'; // Otherwise (failure)
+        else // Give result message.
+          this.adminResult = 'Password reset not successful.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Password reset not successful.';
       });
     },
 
-    deleteUser (username) {
-      sciris.deleteUser(username)
-      .then(response => {
+    deleteUser(username) {
+      sciris.deleteUser(username).then(response => {
         // Give result message.
-        this.adminResult = 'User deleted.';
+        this.adminResult = 'User deleted.'; // Get the users info again.
 
-        // Get the users info again.
         this.getUsersInfo();
-      })
-      .catch(error => {
+      }).catch(error => {
         // Give result message.
         this.adminResult = 'Deletion not successful.';
       });
     }
 
   }
-}
+};
 
-var css$3 = "\n";
-styleInject(css$3);
+var css$2 = "";
+styleInject(css$2);
 
-var RegisterPage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v(" Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+") ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v(" Already registered? "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v(" Login ")])],1)])])])])},staticRenderFns: [],_scopeId: 'data-v-216897e8',
+/* script */
+            const __vue_script__$2 = script$2;
+/* template */
+var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])};
+var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}];
+
+  /* style */
+  const __vue_inject_styles__$2 = undefined;
+  /* scoped */
+  const __vue_scope_id__$2 = "data-v-7333a836";
+  /* module identifier */
+  const __vue_module_identifier__$2 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$2 = false;
+  /* component normalizer */
+  function __vue_normalize__$2(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "MainAdminPage.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var MainAdminPage = __vue_normalize__$2(
+    { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+    __vue_inject_styles__$2,
+    __vue_script__$2,
+    __vue_scope_id__$2,
+    __vue_is_functional_template__$2,
+    __vue_module_identifier__$2,
+    undefined,
+    undefined
+  );
+
+//
+var script$3 = {
   name: 'RegisterPage',
-
   props: {
     homepage: {
       type: String,
@@ -365,7 +479,7 @@ var RegisterPage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     }
   },
 
-  data () {
+  data() {
     return {
       registerUserName: '',
       registerPassword: '',
@@ -373,98 +487,203 @@ var RegisterPage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       registerEmail: '',
       registerResult: '',
       version: '',
-      date: '',
-    }
+      date: ''
+    };
   },
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info')
-        .then(response => {
-          this.version = response.data['version'];
-          this.date = response.data['date'];
-        });
-    },
-  },
-
-  methods: {
-    tryRegister () {
-      sciris.registerUser(
-        this.registerUserName, 
-        this.registerPassword,
-        this.registerDisplayName, 
-        this.registerEmail
-      ).then(response => {
-        if (response.data === 'success') { // Set a success result to show.
-          this.registerResult = 'Success! Please wait while you are redirected...';
-          EventBus.$emit(events.EVENT_REGISTER_SUCCESS); 
-        } else { // Set a failure result to show.
-          this.registerResult = response.data;
-        }
-      })
-      .catch(error => {
-          EventBus.$emit(events.EVENT_REGISTER_FAIL, error); 
-          console.log('Register failed', error);
-          this.registerResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
+      sciris.rpc('get_version_info').then(response => {
+        this.version = response.data['version'];
+        this.date = response.data['date'];
       });
     }
+
+  },
+  methods: {
+    tryRegister() {
+      sciris.registerUser(this.registerUserName, this.registerPassword, this.registerDisplayName, this.registerEmail).then(response => {
+        if (response.data === 'success') {
+          // Set a success result to show.
+          this.registerResult = 'Success! Please wait while you are redirected...';
+          EventBus.$emit(events.EVENT_REGISTER_SUCCESS);
+        } else {
+          // Set a failure result to show.
+          this.registerResult = response.data;
+        }
+      }).catch(error => {
+        EventBus.$emit(events.EVENT_REGISTER_FAIL, error);
+        console.log('Register failed', error);
+        this.registerResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
+      });
+    }
+
   }
-}
+};
 
-var css$4 = "\n";
-styleInject(css$4);
+var css$3 = "";
+styleInject(css$3);
 
-var UserChangeInfoPage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])},staticRenderFns: [],_scopeId: 'data-v-20ca7892',
+/* script */
+            const __vue_script__$3 = script$3;
+/* template */
+var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          Already registered?\n          "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v("\n            Login\n          ")])],1)])])])])};
+var __vue_staticRenderFns__$3 = [];
+
+  /* style */
+  const __vue_inject_styles__$3 = undefined;
+  /* scoped */
+  const __vue_scope_id__$3 = "data-v-62629de9";
+  /* module identifier */
+  const __vue_module_identifier__$3 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$3 = false;
+  /* component normalizer */
+  function __vue_normalize__$3(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "RegisterPage.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var RegisterPage = __vue_normalize__$3(
+    { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+    __vue_inject_styles__$3,
+    __vue_script__$3,
+    __vue_scope_id__$3,
+    __vue_is_functional_template__$3,
+    __vue_module_identifier__$3,
+    undefined,
+    undefined
+  );
+
+//
+var script$4 = {
   name: 'UserChangeInfoPage',
 
-  data () {
+  data() {
     return {
-      changeUserName:    this.$store.state.currentUser.username,
+      changeUserName: this.$store.state.currentUser.username,
       changeDisplayName: this.$store.state.currentUser.displayname,
-      changeEmail:       this.$store.state.currentUser.email,
-      changePassword:    '',
-      changeResult:      ''
-    }
+      changeEmail: this.$store.state.currentUser.email,
+      changePassword: '',
+      changeResult: ''
+    };
   },
 
   methods: {
-    tryChangeInfo () {
-      sciris.changeUserInfo(
-        this.changeUserName, 
-        this.changePassword,
-        this.changeDisplayName, 
-        this.changeEmail
-      ).then(response => {
-          if (response.data === 'success') {
-            sciris.succeed(this, 'User info updated'); // Set a success result to show.
-            sciris.getCurrentUserInfo() // Read in the full current user information.
-              .then(response2 => {
-                let user = response2.data.user;
-                this.$store.commit('newUser', user); // Set the username to what the server indicates.
-                EventBus.$emit(EVENT_INFO_CHANGE_SUCCESS, user);
-                /**
-                router.push('/') // Navigate automatically to the home page.
-                **/
-              })
-              .catch(error => {
-                this.$store.commit('newUser', {}); // Set the username to {}.  An error probably means the user is not logged in.
-              });
-          } else {
-            this.changeResult = response.data;
-          }
-        })
-        .catch(error => {
-          sciris.fail(this, 'Failed to update user info, please check password and try again', error);
-          EventBus.$emit(EVENT_INFO_CHANGE_FAIL, error);
-        });
+    tryChangeInfo() {
+      sciris.changeUserInfo(this.changeUserName, this.changePassword, this.changeDisplayName, this.changeEmail).then(response => {
+        if (response.data === 'success') {
+          sciris.succeed(this, 'User info updated'); // Set a success result to show.
+
+          sciris.getCurrentUserInfo() // Read in the full current user information.
+          .then(response2 => {
+            let user = response2.data.user;
+            this.$store.commit('newUser', user); // Set the username to what the server indicates.
+
+            EventBus.$emit(EVENT_INFO_CHANGE_SUCCESS, user);
+            /**
+            router.push('/') // Navigate automatically to the home page.
+            **/
+          }).catch(error => {
+            this.$store.commit('newUser', {}); // Set the username to {}.  An error probably means the user is not logged in.
+          });
+        } else {
+          this.changeResult = response.data;
+        }
+      }).catch(error => {
+        sciris.fail(this, 'Failed to update user info, please check password and try again', error);
+        EventBus.$emit(EVENT_INFO_CHANGE_FAIL, error);
+      });
     }
+
   }
-}
+};
 
-var css$5 = ".moving-arrow {\n  border-right: 17px solid #f4f3ef;\n  border-top: 17px solid transparent;\n  border-bottom: 17px solid transparent;\n  display: inline-block;\n  position: absolute;\n  left: 243px;\n  top: 82px;\n  transition: all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1); }\n";
-styleInject(css$5);
+var css$4 = "";
+styleInject(css$4);
 
-var MovingArrow = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})},staticRenderFns: [],_scopeId: 'data-v-e7a3f2b0',
+/* script */
+            const __vue_script__$4 = script$4;
+/* template */
+var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])};
+var __vue_staticRenderFns__$4 = [];
+
+  /* style */
+  const __vue_inject_styles__$4 = undefined;
+  /* scoped */
+  const __vue_scope_id__$4 = "data-v-1187d274";
+  /* module identifier */
+  const __vue_module_identifier__$4 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$4 = false;
+  /* component normalizer */
+  function __vue_normalize__$4(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "UserChangeInfoPage.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var UserChangeInfoPage = __vue_normalize__$4(
+    { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+    __vue_inject_styles__$4,
+    __vue_script__$4,
+    __vue_scope_id__$4,
+    __vue_is_functional_template__$4,
+    __vue_module_identifier__$4,
+    undefined,
+    undefined
+  );
+
+//
+//
+//
+//
+var script$5 = {
   props: {
     moveY: {
       type: Number,
@@ -476,39 +695,98 @@ var MovingArrow = {render: function(){var _vm=this;var _h=_vm.$createElement;var
      * Styles to animate the arrow
      * @returns {{transform: string}}
      */
-    arrowStyle () {
+    arrowStyle() {
       return {
         transform: `translate3d(0px, ${this.moveY}px, 0px)`
-      }
+      };
     }
-  }
-}
 
-var Sidebar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+" ")])])])})),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])},staticRenderFns: [],
+  }
+};
+
+var css$5 = "\n.moving-arrow[data-v-056facd8]{border-right:17px solid #f4f3ef;border-top:17px solid transparent;border-bottom:17px solid transparent;display:inline-block;position:absolute;left:243px;top:82px;transition:all .5s cubic-bezier(.29,1.42,.79,1)\n}";
+styleInject(css$5);
+
+/* script */
+            const __vue_script__$5 = script$5;
+/* template */
+var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})};
+var __vue_staticRenderFns__$5 = [];
+
+  /* style */
+  const __vue_inject_styles__$5 = undefined;
+  /* scoped */
+  const __vue_scope_id__$5 = "data-v-056facd8";
+  /* module identifier */
+  const __vue_module_identifier__$5 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$5 = false;
+  /* component normalizer */
+  function __vue_normalize__$5(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "MovingArrow.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var MovingArrow = __vue_normalize__$5(
+    { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+    __vue_inject_styles__$5,
+    __vue_script__$5,
+    __vue_scope_id__$5,
+    __vue_is_functional_template__$5,
+    __vue_module_identifier__$5,
+    undefined,
+    undefined
+  );
+
+//
+var script$6 = {
   name: "Sidebar",
   props: {
     type: {
       type: String,
       default: 'sidebar',
-      validator: (value) => {
+      validator: value => {
         let acceptedValues = ['sidebar', 'navbar'];
-        return acceptedValues.indexOf(value) !== -1
+        return acceptedValues.indexOf(value) !== -1;
       }
     },
     backgroundColor: {
       type: String,
       default: 'darkblue',
-      validator: (value) => {
+      validator: value => {
         let acceptedValues = ['white', 'black', 'darkblue'];
-        return acceptedValues.indexOf(value) !== -1
+        return acceptedValues.indexOf(value) !== -1;
       }
     },
     activeColor: {
       type: String,
       default: 'success',
-      validator: (value) => {
+      validator: value => {
         let acceptedValues = ['primary', 'info', 'success', 'warning', 'danger'];
-        return acceptedValues.indexOf(value) !== -1
+        return acceptedValues.indexOf(value) !== -1;
       }
     },
     favicon: {
@@ -532,65 +810,126 @@ var Sidebar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     MovingArrow
   },
   computed: {
-    sidebarClasses () {
+    sidebarClasses() {
       if (this.type === 'sidebar') {
-        return 'sidebar'
+        return 'sidebar';
       } else {
-        return 'collapse navbar-collapse off-canvas-sidebar'
+        return 'collapse navbar-collapse off-canvas-sidebar';
       }
     },
-    navClasses () {
+
+    navClasses() {
       if (this.type === 'sidebar') {
-        return 'nav'
+        return 'nav';
       } else {
-        return 'nav navbar-nav'
+        return 'nav navbar-nav';
       }
     },
+
     /**
      * Styles to animate the arrow near the current active sidebar link
      * @returns {{transform: string}}
      */
-    arrowMovePx () {
-      return this.linkHeight * this.activeLinkIndex
+    arrowMovePx() {
+      return this.linkHeight * this.activeLinkIndex;
     }
+
   },
-  data () {
+
+  data() {
     return {
       linkHeight: 50,
       activeLinkIndex: 0,
-
       windowWidth: 0,
       isWindows: false,
       hasAutoHeight: false
-    }
+    };
   },
+
   methods: {
-    findActiveLink () {
+    findActiveLink() {
       this.links.find((element, index) => {
         let found = element.path === this.$route.path;
+
         if (found) {
           this.activeLinkIndex = index;
         }
-        return found
+
+        return found;
       });
     }
+
   },
-  mounted () {
+
+  mounted() {
     this.findActiveLink();
   },
+
   watch: {
     $route: function (newRoute, oldRoute) {
       this.findActiveLink();
     }
   }
-}
+};
 
-var css$6 = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.dropdown-icon {\n  position: absolute;\n  top: 50%;\n  margin-top: -8px;\n  left: 5px;\n}\n";
-styleInject(css$6);
+/* script */
+            const __vue_script__$6 = script$6;
+            
+/* template */
+var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+"\n              ")])])])})),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])};
+var __vue_staticRenderFns__$6 = [];
 
-var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)})),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])},staticRenderFns: [],
+  /* style */
+  const __vue_inject_styles__$6 = undefined;
+  /* scoped */
+  const __vue_scope_id__$6 = undefined;
+  /* module identifier */
+  const __vue_module_identifier__$6 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$6 = false;
+  /* component normalizer */
+  function __vue_normalize__$6(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "Sidebar.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var Sidebar = __vue_normalize__$6(
+    { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
+    __vue_inject_styles__$6,
+    __vue_script__$6,
+    __vue_scope_id__$6,
+    __vue_is_functional_template__$6,
+    __vue_module_identifier__$6,
+    undefined,
+    undefined
+  );
+
+//
+var script$7 = {
   name: 'Navbar',
-
   props: {
     links: {
       type: Array,
@@ -606,7 +945,7 @@ var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     showRouteName: {
       type: String,
-      default: "hide" 
+      default: "hide"
     }
   },
 
@@ -614,28 +953,30 @@ var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   data() {
     return {
       activePage: 'manage projects'
-    }
+    };
   },
 
   computed: {
     // Health prior function
-    hideRouteName(){
-      if(this.showRouteName == "hide"){
-        return true 
+    hideRouteName() {
+      if (this.showRouteName == "hide") {
+        return true;
       } else {
-        return false 
+        return false;
       }
     },
-    currentUser(){
-      return this.$store.state.currentUser
+
+    currentUser() {
+      return this.$store.state.currentUser;
     },
 
     activeProjectName() {
       console.log(this.links);
+
       if (this.$store.state.activeProject.project === undefined) {
-        return 'none'
+        return 'none';
       } else {
-        return this.$store.state.activeProject.project.name
+        return this.$store.state.activeProject.project.name;
       }
     },
 
@@ -644,19 +985,22 @@ var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       var username = this.$store.state.currentUser.username;
       var dispname = this.$store.state.currentUser.displayname;
       var userlabel = '';
+
       if (dispname === undefined || dispname === '') {
         userlabel = username;
       } else {
         userlabel = dispname;
       }
-      return 'User: '+userlabel
+
+      return 'User: ' + userlabel;
     },
 
     // Theme function
-    routeName () {
+    routeName() {
       const route_name = this.$route.name;
-      return this.capitalizeFirstLetter(route_name)
-    },
+      return this.capitalizeFirstLetter(route_name);
+    }
+
   },
 
   // Health prior function
@@ -665,11 +1009,12 @@ var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
 
   // Theme function
-  data () {
+  data() {
     return {
       activeNotifications: false
-    }
+    };
   },
+
   methods: {
     // Health prior functions
     checkLoggedIn() {
@@ -681,41 +1026,96 @@ var Navbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
 
     logOut() {
-      sciris.logoutCall()
-      .then(response => {
+      sciris.logoutCall().then(response => {
         // Update the user info.
-        sciris.getUserInfo(this.$store);
+        sciris.getUserInfo(this.$store); // Clear out the active project.
 
-        // Clear out the active project.
-        this.$store.commit('newActiveProject', {});
+        this.$store.commit('newActiveProject', {}); // Navigate to the login page automatically.
 
-        // Navigate to the login page automatically.
-        EventBus.$emit(events.EVENT_LOGOUT_SUCCESS); 
+        EventBus.$emit(events.EVENT_LOGOUT_SUCCESS);
       });
     },
 
     // Theme functions
-    capitalizeFirstLetter (string) {
-      return string.charAt(0).toUpperCase() + string.slice(1)
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
-    toggleNotificationDropDown () {
+    toggleNotificationDropDown() {
       this.activeNotifications = !this.activeNotifications;
     },
 
-    closeDropDown () {
+    closeDropDown() {
       this.activeNotifications = false;
     },
 
-    toggleSidebar () {
+    toggleSidebar() {
       this.$sidebar.displaySidebar(!this.$sidebar.showSidebar);
     },
 
-    hideSidebar () {
+    hideSidebar() {
       this.$sidebar.displaySidebar(false);
     }
+
   }
-}
+};
+
+var css$6 = "\n.dropdown-icon{position:absolute;top:50%;margin-top:-8px;left:5px\n}";
+styleInject(css$6);
+
+/* script */
+            const __vue_script__$7 = script$7;
+/* template */
+var __vue_render__$7 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)})),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])};
+var __vue_staticRenderFns__$7 = [];
+
+  /* style */
+  const __vue_inject_styles__$7 = undefined;
+  /* scoped */
+  const __vue_scope_id__$7 = undefined;
+  /* module identifier */
+  const __vue_module_identifier__$7 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$7 = false;
+  /* component normalizer */
+  function __vue_normalize__$7(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "Navbar.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var Navbar = __vue_normalize__$7(
+    { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
+    __vue_inject_styles__$7,
+    __vue_script__$7,
+    __vue_scope_id__$7,
+    __vue_is_functional_template__$7,
+    __vue_module_identifier__$7,
+    undefined,
+    undefined
+  );
 
 const SidebarStore = {
   showSidebar: false,
@@ -747,55 +1147,123 @@ const NavigationPlugin = {
 
 };
 
-var css$7 = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.small-button {\n  padding: 4px 4px 2px 2px;\n  margin-bottom: 5px;\n}\n.helplink-label {\n  display:inline-block; \n  font-size:1.4em; \n  margin: 0px 5px 10px 0px;\n}\n";
-styleInject(css$7);
-
-var HelpLink = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])},staticRenderFns: [],_scopeId: 'data-v-36d4825e',
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+var script$8 = {
   name: 'help',
-  
   props: {
     reflink: {
       type: String,
       default: ''
-    }, 
-
+    },
     label: {
       type: String,
       default: ''
-    },
+    }
   },
 
   data() {
     return {
       baseURL: this.$store.state.helpLinks.baseURL,
-      linkMap: this.$store.state.helpLinks.linkMap,
-    }
+      linkMap: this.$store.state.helpLinks.linkMap
+    };
   },
 
   methods: {
     openLink(linkKey) {
       // Build the full link from the base URL and the specific link info.
-      let fullLink = this.baseURL + this.linkMap[linkKey];
-      
-      // Set the parameters for a new browser window.
+      let fullLink = this.baseURL + this.linkMap[linkKey]; // Set the parameters for a new browser window.
+
       let scrh = screen.height;
       let scrw = screen.width;
-      let h = scrh * 0.8;  // Height of window
-      let w = scrw * 0.6;  // Width of window
-      let t = scrh * 0.1;  // Position from top of screen -- centered
-      let l = scrw * 0.37; // Position from left of screen -- almost all the way right
+      let h = scrh * 0.8; // Height of window
 
+      let w = scrw * 0.6; // Width of window
+
+      let t = scrh * 0.1; // Position from top of screen -- centered
+
+      let l = scrw * 0.37; // Position from left of screen -- almost all the way right
       // Open a new browser window.        
-      let newWindow = window.open(fullLink, 
-        'Reference manual', 'width=' + w + ', height=' + h + ', top=' + t + ',left=' + l);
-        
-      // If the main browser window is in focus, cause the new window to come into focus.
+
+      let newWindow = window.open(fullLink, 'Reference manual', 'width=' + w + ', height=' + h + ', top=' + t + ',left=' + l); // If the main browser window is in focus, cause the new window to come into focus.
+
       if (window.focus) {
         newWindow.focus();
-      }        
+      }
     }
+
   }
-}
+};
+
+var css$7 = "\n.small-button[data-v-26b3b065]{padding:4px 4px 2px 2px;margin-bottom:5px\n}\n.helplink-label[data-v-26b3b065]{display:inline-block;font-size:1.4em;margin:0 5px 10px 0\n}";
+styleInject(css$7);
+
+/* script */
+            const __vue_script__$8 = script$8;
+/* template */
+var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])};
+var __vue_staticRenderFns__$8 = [];
+
+  /* style */
+  const __vue_inject_styles__$8 = undefined;
+  /* scoped */
+  const __vue_scope_id__$8 = "data-v-26b3b065";
+  /* module identifier */
+  const __vue_module_identifier__$8 = undefined;
+  /* functional template */
+  const __vue_is_functional_template__$8 = false;
+  /* component normalizer */
+  function __vue_normalize__$8(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    const component = (typeof script === 'function' ? script.options : script) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "HelpLink.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) component.functional = true;
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var HelpLink = __vue_normalize__$8(
+    { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
+    __vue_inject_styles__$8,
+    __vue_script__$8,
+    __vue_scope_id__$8,
+    __vue_is_functional_template__$8,
+    __vue_module_identifier__$8,
+    undefined,
+    undefined
+  );
 
 var CalibrationMixin = {
   data() {
