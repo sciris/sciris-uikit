@@ -7,7 +7,7 @@ Last update: 2018-08-23
 <template>
   <span>
       <div v-if="label!==''" class="helplink-label">{{ label }}</div> 
-      <button class="btn __blue small-button" @click="openLink(reflink)" data-tooltip="Help">
+      <button class="btn __blue small-button btn-helplink" @click="openLink(reflink)" data-tooltip="Help">
         <i class="ti-help"></i>
       </button>
   </span>
@@ -63,8 +63,8 @@ Last update: 2018-08-23
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.small-button {
+<style lang="scss">
+.btn-helplink {
   padding: 4px 4px 2px 2px;
   margin-bottom: 5px;
 }

@@ -91,12 +91,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.password-change-form 
-{
-max-width: 300px; 
-min-width: 100px; 
-margin: 0;
-}
-</style>

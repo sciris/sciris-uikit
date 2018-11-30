@@ -381,3 +381,14 @@ $disabled-color: #FFF;
   color: $main-dark;
   border: 1px solid $main-dark;
 }
+
+.btn-helplink {
+  padding: 4px 4px 2px 2px;
+  margin-bottom: 5px;
+}
+
+.helplink-label {
+  display:inline-block; 
+  font-size:1.4em; 
+  margin: 0px 5px 10px 0px;
+}

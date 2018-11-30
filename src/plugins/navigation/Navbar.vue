@@ -187,11 +187,3 @@ Last update: 2018sep23
   }
 
 </script>
-<style>
-.dropdown-icon {
-  position: absolute;
-  top: 50%;
-  margin-top: -8px;
-  left: 5px;
-}
-</style>
