@@ -3,9 +3,23 @@
 Shared components for ScirisApps
 
 
-# install the plugin
+## Instalation 
 
-NOTE: Documentation on this is a WIP
+**Step 1** Install the package using NPM
+
+`npm install --save git+https://github.com/sciris/sciris-uikit.git`
+
+**Step 2** install the plugin with Vue by added the following to your project (most likey in a `index.js`):
+
+```
+mport Vuex from 'vuex';
+import ScirisUIKit from 'sciris-uikit';
+Vue.use(ScirisUIKit, {
+  router: router
+});
+```
+
+## Example `index.js` 
 
 ```js
 import Vuex from 'vuex';
