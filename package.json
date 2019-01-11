@@ -68,7 +68,7 @@
     "sciris-js": "^0.1.11",
     "vue": "^2.5.17",
     "vue-paper-dashboard": "git+https://github.com/creativetimofficial/vue-paper-dashboard.git",
-    "vue2-simplert-plugin": "^0.4.1"
+    "vue2-simplert-plugin": "0.4.1"
   },
   "devDependencies": {
     "bili": "^3.4.2",
