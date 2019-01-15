@@ -141,7 +141,14 @@ var ProjectMixin = {
       console.log('addDemoProject() called')
       this.$modal.hide('demo-project')
       sciris.start(this)
-      var demoOption = 'default'
+
+      if (this.toolName() === 'cascade') {
+        var demoOption = this.demoOption
+      }
+      else {
+        var demoOption = 'tb'
+      }
+
       // Have the server create a new project.
       sciris.rpc('add_demo_project', [
         this.userName, 
