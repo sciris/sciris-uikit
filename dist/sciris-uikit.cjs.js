@@ -1968,8 +1968,14 @@ var ProjectMixin = {
       console.log('addDemoProject() called');
       this.$modal.hide('demo-project');
       sciris.start(this);
-      var demoOption = 'default'; // Have the server create a new project.
 
+      if (this.toolName() === 'cascade') {
+        var demoOption = this.demoOption
+      }
+      else {
+        var demoOption = 'tb'
+      }
+      
       sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
         // Update the project summaries so the new project shows up on the list.
         this.updateProjectSummaries(response.data.projectID); // Already have notification from project
