@@ -33,6 +33,7 @@ var HelpMixin = {
           this.githash   = response.data['githash'];
           this.atversion = response.data['atversion'];
           this.scversion = response.data['scversion'];
+          this.swversion = response.data['swversion'];
           this.server    = response.data['server'];
           this.cpu       = response.data['cpu'];
         })
