@@ -31,6 +31,8 @@ var HelpMixin = {
           this.date      = response.data['date'];
           this.gitbranch = response.data['gitbranch'];
           this.githash   = response.data['githash'];
+          this.atversion = response.data['atversion'];
+          this.scversion = response.data['scversion'];
           this.server    = response.data['server'];
           this.cpu       = response.data['cpu'];
         })
