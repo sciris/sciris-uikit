@@ -1,6 +1,6 @@
 {
   "name": "sciris-uikit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Sciris <info@sciris.org>",
   "scripts": {
     "build": "bili"
@@ -49,6 +49,7 @@
     "name": "sciris-uikit",
     "moduleName": "sciris-uikit"
   },
+  "bundleDependencies": false,
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.1.3",

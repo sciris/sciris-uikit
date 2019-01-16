@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.1.1
+ * sciris-uikit v0.2.0
  * (c) 2019-present Sciris <info@sciris.org>
  */
 'use strict';
