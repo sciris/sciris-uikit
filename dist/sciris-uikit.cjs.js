@@ -1,6 +1,6 @@
 /*!
- * sciris-uikit v0.1.0
- * (c) 2019-present Optima Consortium <info@ocds.co>
+ * sciris-uikit v0.1.1
+ * (c) 2019-present Sciris <info@sciris.org>
  */
 'use strict';
 
