@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.2.0
+ * sciris-uikit v0.2.1
  * (c) 2019-present Sciris <info@sciris.org>
  */
 'use strict';
@@ -10,7 +10,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var Vue = _interopDefault(require('vue'));
 var sciris = _interopDefault(require('sciris-js'));
-var __vue_normalize__ = _interopDefault(require('vue-runtime-helpers/normalize-component.js'));
 var Simplert = _interopDefault(require('vue2-simplert-plugin'));
 require('vue-clickaway');
 var _$1 = _interopDefault(require('lodash'));
@@ -114,9 +113,86 @@ var script = {
   }
 };
 
+function normalizeComponent(compiledTemplate, injectStyle, defaultExport, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, isShadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
+    if (typeof isShadowMode === 'function') {
+        createInjectorSSR = createInjector;
+        createInjector = isShadowMode;
+        isShadowMode = false;
+    }
+    // Vue.extend constructor export interop
+    const options = typeof defaultExport === 'function' ? defaultExport.options : defaultExport;
+    // render functions
+    if (compiledTemplate && compiledTemplate.render) {
+        options.render = compiledTemplate.render;
+        options.staticRenderFns = compiledTemplate.staticRenderFns;
+        options._compiled = true;
+        // functional template
+        if (isFunctionalTemplate) {
+            options.functional = true;
+        }
+    }
+    // scopedId
+    if (scopeId) {
+        options._scopeId = scopeId;
+    }
+    let hook;
+    if (moduleIdentifier) {
+        // server build
+        hook = function (context) {
+            // 2.3 injection
+            context =
+                context || // cached call
+                    (this.$vnode && this.$vnode.ssrContext) || // stateful
+                    (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
+            // 2.2 with runInNewContext: true
+            if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+                context = __VUE_SSR_CONTEXT__;
+            }
+            // inject component styles
+            if (injectStyle) {
+                injectStyle.call(this, createInjectorSSR(context));
+            }
+            // register component module identifier for async chunk inference
+            if (context && context._registeredComponents) {
+                context._registeredComponents.add(moduleIdentifier);
+            }
+        };
+        // used by ssr in case component is cached and beforeCreate
+        // never gets called
+        options._ssrRegister = hook;
+    }
+    else if (injectStyle) {
+        hook = isShadowMode
+            ? function () {
+                injectStyle.call(this, createInjectorShadow(this.$root.$options.shadowRoot));
+            }
+            : function (context) {
+                injectStyle.call(this, createInjector(context));
+            };
+    }
+    if (hook) {
+        if (options.functional) {
+            // register for functional component in vue file
+            const originalRender = options.render;
+            options.render = function renderWithStyleInjection(h, context) {
+                hook.call(context);
+                return originalRender(h, context);
+            };
+        }
+        else {
+            // inject component registration as beforeCreate hook
+            const existing = options.beforeCreate;
+            options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+        }
+    }
+    return defaultExport;
+}
+
 /* script */
-            const __vue_script__ = script;
-            
+const __vue_script__ = script;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script.__file = "LoginPage.vue";
+
 /* template */
 var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v("\n            "+_vm._s(_vm.verboseToolName)+" \n          ")]):_vm._e(),_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          New user?\n          "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v("\n            Register here\n          ")])],1)])])])])};
 var __vue_staticRenderFns__ = [];
@@ -135,7 +211,7 @@ var __vue_staticRenderFns__ = [];
   
 
   
-  var LoginPage = __vue_normalize__(
+  var LoginPage = normalizeComponent(
     { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
     __vue_inject_styles__,
     __vue_script__,
@@ -188,8 +264,10 @@ var script$1 = {
 };
 
 /* script */
-            const __vue_script__$1 = script$1;
-            
+const __vue_script__$1 = script$1;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$1.__file = "ChangePasswordPage.vue";
+
 /* template */
 var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])};
 var __vue_staticRenderFns__$1 = [];
@@ -208,7 +286,7 @@ var __vue_staticRenderFns__$1 = [];
   
 
   
-  var ChangePasswordPage = __vue_normalize__(
+  var ChangePasswordPage = normalizeComponent(
     { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
     __vue_inject_styles__$1,
     __vue_script__$1,
@@ -335,8 +413,10 @@ var script$2 = {
 };
 
 /* script */
-            const __vue_script__$2 = script$2;
-            
+const __vue_script__$2 = script$2;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$2.__file = "MainAdminPage.vue";
+
 /* template */
 var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])};
 var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}];
@@ -355,7 +435,7 @@ var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createEle
   
 
   
-  var MainAdminPage = __vue_normalize__(
+  var MainAdminPage = normalizeComponent(
     { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
     __vue_inject_styles__$2,
     __vue_script__$2,
@@ -427,8 +507,10 @@ var script$3 = {
 };
 
 /* script */
-            const __vue_script__$3 = script$3;
-            
+const __vue_script__$3 = script$3;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$3.__file = "RegisterPage.vue";
+
 /* template */
 var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          Already registered?\n          "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v("\n            Login\n          ")])],1)])])])])};
 var __vue_staticRenderFns__$3 = [];
@@ -447,7 +529,7 @@ var __vue_staticRenderFns__$3 = [];
   
 
   
-  var RegisterPage = __vue_normalize__(
+  var RegisterPage = normalizeComponent(
     { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
     __vue_inject_styles__$3,
     __vue_script__$3,
@@ -503,8 +585,10 @@ var script$4 = {
 };
 
 /* script */
-            const __vue_script__$4 = script$4;
-            
+const __vue_script__$4 = script$4;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$4.__file = "UserChangeInfoPage.vue";
+
 /* template */
 var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])};
 var __vue_staticRenderFns__$4 = [];
@@ -523,7 +607,7 @@ var __vue_staticRenderFns__$4 = [];
   
 
   
-  var UserChangeInfoPage = __vue_normalize__(
+  var UserChangeInfoPage = normalizeComponent(
     { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
     __vue_inject_styles__$4,
     __vue_script__$4,
@@ -560,8 +644,10 @@ var script$5 = {
 };
 
 /* script */
-            const __vue_script__$5 = script$5;
-            
+const __vue_script__$5 = script$5;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$5.__file = "MovingArrow.vue";
+
 /* template */
 var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})};
 var __vue_staticRenderFns__$5 = [];
@@ -580,7 +666,7 @@ var __vue_staticRenderFns__$5 = [];
   
 
   
-  var MovingArrow = __vue_normalize__(
+  var MovingArrow = normalizeComponent(
     { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
     __vue_inject_styles__$5,
     __vue_script__$5,
@@ -703,8 +789,10 @@ var script$6 = {
 };
 
 /* script */
-            const __vue_script__$6 = script$6;
-            
+const __vue_script__$6 = script$6;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$6.__file = "Sidebar.vue";
+
 /* template */
 var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+"\n              ")])])])}),1),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])};
 var __vue_staticRenderFns__$6 = [];
@@ -723,7 +811,7 @@ var __vue_staticRenderFns__$6 = [];
   
 
   
-  var Sidebar = __vue_normalize__(
+  var Sidebar = normalizeComponent(
     { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
     __vue_inject_styles__$6,
     __vue_script__$6,
@@ -868,8 +956,10 @@ var script$7 = {
 };
 
 /* script */
-            const __vue_script__$7 = script$7;
-            
+const __vue_script__$7 = script$7;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$7.__file = "Navbar.vue";
+
 /* template */
 var __vue_render__$7 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)}),0),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])};
 var __vue_staticRenderFns__$7 = [];
@@ -888,7 +978,7 @@ var __vue_staticRenderFns__$7 = [];
   
 
   
-  var Navbar = __vue_normalize__(
+  var Navbar = normalizeComponent(
     { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
     __vue_inject_styles__$7,
     __vue_script__$7,
@@ -1021,7 +1111,9 @@ var css = ".btn-helplink{padding:4px 4px 2px 2px;margin-bottom:5px}.helplink-lab
 styleInject(css);
 
 /* script */
-            const __vue_script__$8 = script$8;
+const __vue_script__$8 = script$8;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$8.__file = "HelpLink.vue";
 /* template */
 var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button btn-helplink",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])};
 var __vue_staticRenderFns__$8 = [];
@@ -1040,7 +1132,7 @@ var __vue_staticRenderFns__$8 = [];
   
 
   
-  var HelpLink = __vue_normalize__(
+  var HelpLink = normalizeComponent(
     { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
     __vue_inject_styles__$8,
     __vue_script__$8,
