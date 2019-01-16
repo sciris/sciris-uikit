@@ -36288,6 +36288,9 @@
         date: '',
         gitbranch: '',
         githash: '',
+        scversion: '',
+        swversion: '',
+        atversion: '',
         server: '',
         cpu: '',
         timestamp: '',
@@ -36308,6 +36311,9 @@
           this.date = response.data['date'];
           this.gitbranch = response.data['gitbranch'];
           this.githash = response.data['githash'];
+          this.scversion = response.data['scversion'];
+          this.swversion = response.data['swversion'];
+          this.atversion = response.data['atversion'];
           this.server = response.data['server'];
           this.cpu = response.data['cpu'];
         });
@@ -36838,13 +36844,13 @@
         console.log('addDemoProject() called');
         this.$modal.hide('demo-project');
         sciris.start(this);
-      
+
         if (this.toolName() === 'cascade') {
-            var demoOption = this.demoOption
-        }
-        else {
-            var demoOption = 'tb'
-        }
+          var demoOption = this.demoOption;
+        } else {
+          var demoOption = 'tb';
+        } // Have the server create a new project.
+
 
         sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
           // Update the project summaries so the new project shows up on the list.
