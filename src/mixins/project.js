@@ -1,5 +1,3 @@
-import sciris from 'sciris-js';
-
 var ProjectMixin = {
   data() {
     return {
@@ -25,9 +23,9 @@ var ProjectMixin = {
   },
 
   computed: {
-    projectID()    { return sciris.projectID(this) },
+    projectID()    { return this.$sciris.projectID(this) },
     userName()     { return this.$store.state.currentUser.username },
-    simYears()     { return sciris.simYears(this) },
+    simYears()     { return this.$sciris.simYears(this) },
     sortedFilteredProjectSummaries() {
       return this.applyNameFilter(this.applySorting(this.projectSummaries))
     },
@@ -35,7 +33,7 @@ var ProjectMixin = {
 
   methods: {
 
-    updateSorting() { return sciris.updateSorting(this) },
+    updateSorting() { return this.$sciris.updateSorting(this) },
 
     projectLoaded(uid) {
       console.log('projectLoaded called')
@@ -53,7 +51,7 @@ var ProjectMixin = {
 
     getDemoOptions() {
       console.log('getDemoOptions() called')
-      sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
+      this.$sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
         .then(response => {
           this.demoOptions = response.data // Set the frameworks to what we received.
           this.demoOption = this.demoOptions[0]
@@ -62,20 +60,20 @@ var ProjectMixin = {
           console.log(this.demoOption)
         })
         .catch(error => {
-          sciris.fail(this, 'Could not load demo project options', error)
+          this.$sciris.fail(this, 'Could not load demo project options', error)
         })
     },
 
     getDefaultPrograms() {
       console.log('getDefaultPrograms() called')
-      sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
+      this.$sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
         .then(response => {
           this.defaultPrograms = response.data // Set the frameworks to what we received.
           console.log('Loaded default programs:')
           console.log(this.defaultPrograms)
         })
         .catch(error => {
-          sciris.fail(this, 'Could not load default programs', error)
+          this.$sciris.fail(this, 'Could not load default programs', error)
         })
     },
 
@@ -83,7 +81,7 @@ var ProjectMixin = {
       console.log('updateFrameworkSummaries() called')
 
       // Get the current user's framework summaries from the server.
-      sciris.rpc('jsonify_frameworks', [this.userName])
+      this.$sciris.rpc('jsonify_frameworks', [this.userName])
         .then(response => {
           // Set the frameworks to what we received.
           this.frameworkSummaries = response.data.frameworks
@@ -98,14 +96,14 @@ var ProjectMixin = {
           }
         })
         .catch(error => {
-          sciris.fail(this, 'Could not load frameworks', error)
+          this.$sciris.fail(this, 'Could not load frameworks', error)
         })
     },
 
     updateProjectSummaries(setActiveID) {
       console.log('updateProjectSummaries() called')
-      sciris.start(this)
-      sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
+      this.$sciris.start(this)
+      this.$sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
         .then(response => {
           let lastCreationTime = null
           let lastCreatedID = null
@@ -130,17 +128,17 @@ var ProjectMixin = {
               this.openProject(setActiveID)
             }
           }
-          sciris.succeed(this, '')  // No green popup.
+          this.$sciris.succeed(this, '')  // No green popup.
         })
         .catch(error => {
-          sciris.fail(this, 'Could not load projects', error)
+          this.$sciris.fail(this, 'Could not load projects', error)
         })
     },
 
     addDemoProject() {
       console.log('addDemoProject() called')
       this.$modal.hide('demo-project')
-      sciris.start(this)
+      this.$sciris.start(this)
 
       if (this.toolName() === 'cascade') {
         var demoOption = this.demoOption
@@ -150,7 +148,7 @@ var ProjectMixin = {
       }
 
       // Have the server create a new project.
-      sciris.rpc('add_demo_project', [
+      this.$sciris.rpc('add_demo_project', [
         this.userName, 
         demoOption, 
         this.toolName(),
@@ -159,10 +157,10 @@ var ProjectMixin = {
         // Update the project summaries so the new project shows up on the list.
         this.updateProjectSummaries(response.data.projectID) 
         // Already have notification from project
-        sciris.succeed(this, '') 
+        this.$sciris.succeed(this, '') 
       })
       .catch(error => {
-        sciris.fail(this, 'Could not add demo project', error)
+        this.$sciris.fail(this, 'Could not add demo project', error)
       })
     },
 
@@ -189,9 +187,9 @@ var ProjectMixin = {
     createNewProject() {
       console.log('createNewProject() called')
       this.$modal.hide('create-project')
-      sciris.start(this)
+      this.$sciris.start(this)
       var frameworkID = this.getFrameworkID()
-      sciris.download('create_new_project',  // Have the server create a new project.
+      this.$sciris.download('create_new_project',  // Have the server create a new project.
         [
           this.userName, 
           frameworkID, 
@@ -208,27 +206,27 @@ var ProjectMixin = {
           // Note: There's no easy way to get the new project UID to tell the 
           // project update to choose the new project because the RPC cannot pass it back.
           this.updateProjectSummaries(null) 
-          sciris.succeed(this, 'New project "' + this.proj_name + '" created')
+          this.$sciris.succeed(this, 'New project "' + this.proj_name + '" created')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not add new project:' + error.message)
+          this.$sciris.fail(this, 'Could not add new project:' + error.message)
         })
     },
 
     uploadProjectFromFile() {
       console.log('uploadProjectFromFile() called')
-      sciris.upload('upload_project', [this.userName], {}, '.prj') 
+      this.$sciris.upload('upload_project', [this.userName], {}, '.prj') 
         // Have the server upload the project.
         .then(response => { 
           // This line needs to be here to avoid the spinner being up during the user modal.
-          sciris.start(this) 
+          this.$sciris.start(this) 
 
           // Update the project summaries so the new project shows up on the list.
           this.updateProjectSummaries(response.data.projectID) 
-          sciris.succeed(this, 'New project uploaded')
+          this.$sciris.succeed(this, 'New project uploaded')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not upload file', error)
+          this.$sciris.fail(this, 'Could not upload file', error)
         })
     },
 
@@ -284,25 +282,25 @@ var ProjectMixin = {
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid)
       console.log('openProject() called for ' + matchProject.project.name)
       this.$store.commit('newActiveProject', matchProject) // Set the active project to the matched project.
-      sciris.succeed(this, 'Project "'+matchProject.project.name+'" loaded') // Success popup.
+      this.$sciris.succeed(this, 'Project "'+matchProject.project.name+'" loaded') // Success popup.
     },
 
     copyProject(uid) {
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid) // Find the project that matches the UID passed in.
       console.log('copyProject() called for ' + matchProject.project.name)
-      sciris.start(this)
-      sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this)
+      this.$sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
         .then(response => {
           // Update the project summaries so the copied program shows up on the list.
           this.updateProjectSummaries(response.data.projectID) 
 
           // Indicate success.
-          sciris.succeed(
+          this.$sciris.succeed(
             this, 'Project "'+matchProject.project.name+'" copied'
           )
         })
         .catch(error => {
-          sciris.fail(this, 'Could not copy project', error)
+          this.$sciris.fail(this, 'Could not copy project', error)
         })
     },
 
@@ -336,20 +334,20 @@ var ProjectMixin = {
         let newProjectSummary = _.cloneDeep(projectSummary)
         // Rename the project name in the client list from what's in the textbox.
         newProjectSummary.project.name = projectSummary.renaming
-        sciris.start(this)
+        this.$sciris.start(this)
 
         // Have the server change the name of the project by passing in the new copy of the summary.
-        sciris.rpc('rename_project', [newProjectSummary]) 
+        this.$sciris.rpc('rename_project', [newProjectSummary]) 
           .then(response => {
             // Update the project summaries so the rename shows up on the list.
             this.updateProjectSummaries(newProjectSummary.project.id) 
 
             // Turn off the renaming mode.
             projectSummary.renaming = ''
-            sciris.succeed(this, '')
+            this.$sciris.succeed(this, '')
           })
           .catch(error => {
-            sciris.fail(this, 'Could not rename project', error)
+            this.$sciris.fail(this, 'Could not rename project', error)
           })
       }
 
@@ -366,15 +364,15 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid) 
       console.log('downloadProjectFile() called for ' + matchProject.project.name)
-      sciris.start(this)
+      this.$sciris.start(this)
 
       // Make the server call to download the project to a .prj file.
-      sciris.download('download_project', [uid]) 
+      this.$sciris.download('download_project', [uid]) 
         .then(response => { // Indicate success.
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not download project', error)
+          this.$sciris.fail(this, 'Could not download project', error)
         })
     },
 
@@ -382,25 +380,25 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid)
       console.log('downloadFramework() called for ' + matchProject.project.name)
-      sciris.start(this, 'Downloading framework...')
-      sciris.download('download_framework_from_project', [uid])
+      this.$sciris.start(this, 'Downloading framework...')
+      this.$sciris.download('download_framework_from_project', [uid])
         .then(response => {
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not download framework', error)
+          this.$sciris.fail(this, 'Could not download framework', error)
         })
     },
 
     downloadDatabook(uid) {
       console.log('downloadDatabook() called')
-      sciris.start(this, 'Downloading data book...')
-      sciris.download('download_databook', [uid])
+      this.$sciris.start(this, 'Downloading data book...')
+      this.$sciris.download('download_databook', [uid])
         .then(response => {
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not download databook', error)
+          this.$sciris.fail(this, 'Could not download databook', error)
         })
     },
 
@@ -408,13 +406,13 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid)
       console.log('downloadProgbook() called for ' + matchProject.project.name)
-      sciris.start(this, 'Downloading program book...')
-      sciris.download('download_progbook', [uid])
+      this.$sciris.start(this, 'Downloading program book...')
+      this.$sciris.download('download_progbook', [uid])
         .then(response => {
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not download program book', error)
+          this.$sciris.fail(this, 'Could not download program book', error)
         })
     },
 
@@ -423,13 +421,13 @@ var ProjectMixin = {
       let uid = this.activeuid
       console.log('createProgbook() called')
       this.$modal.hide('create-progbook')
-      sciris.start(this, 'Creating program book...')
-      sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear])
+      this.$sciris.start(this, 'Creating program book...')
+      this.$sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear])
         .then(response => {
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not create program book', error)
+          this.$sciris.fail(this, 'Could not create program book', error)
         })
     },
 
@@ -438,8 +436,8 @@ var ProjectMixin = {
       let uid = this.activeuid
       console.log('createDefaultProgbook() called')
       this.$modal.hide('create-progbook')
-      sciris.start(this, 'Creating default program book...')
-      sciris.download(
+      this.$sciris.start(this, 'Creating default program book...')
+      this.$sciris.download(
         'create_default_progbook', [
           uid, 
           this.progStartYear, 
@@ -447,39 +445,39 @@ var ProjectMixin = {
           this.defaultPrograms
         ]) // TODO: set years
         .then(response => {
-          sciris.succeed(this, '')
+          this.$sciris.succeed(this, '')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not create program book', error)
+          this.$sciris.fail(this, 'Could not create program book', error)
         })
     },
 
     uploadDatabook(uid) {
       console.log('uploadDatabook() called')
-      sciris.upload('upload_databook', [uid], {}, '.xlsx')
+      this.$sciris.upload('upload_databook', [uid], {}, '.xlsx')
         .then(response => {
-          sciris.start(this, 'Uploading databook...')
+          this.$sciris.start(this, 'Uploading databook...')
           // Update the project summaries so the copied program shows up on the list.
           this.updateProjectSummaries(uid)
-          sciris.succeed(this, 'Data uploaded')
+          this.$sciris.succeed(this, 'Data uploaded')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not upload databook', error)
+          this.$sciris.fail(this, 'Could not upload databook', error)
         })
     },
 
     uploadProgbook(uid) {
       // Find the project that matches the UID passed in.
       console.log('uploadProgbook() called')
-      sciris.upload('upload_progbook', [uid], {}, '.xlsx')
+      this.$sciris.upload('upload_progbook', [uid], {}, '.xlsx')
         .then(response => {
-          sciris.start(this)
+          this.$sciris.start(this)
           // Update the project summaries so the copied program shows up on the list.
           this.updateProjectSummaries(uid) 
-          sciris.succeed(this, 'Programs uploaded')   // Indicate success.
+          this.$sciris.succeed(this, 'Programs uploaded')   // Indicate success.
         })
         .catch(error => {
-          sciris.fail(this, 'Could not upload program book', error)
+          this.$sciris.fail(this, 'Could not upload program book', error)
         })
     },
 
@@ -512,8 +510,8 @@ var ProjectMixin = {
       console.log('deleteSelectedProjects() called for ', selectProjectsUIDs)
       // Have the server delete the selected projects.
       if (selectProjectsUIDs.length > 0) { 
-        sciris.start(this)
-        sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName])
+        this.$sciris.start(this)
+        this.$sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName])
           .then(response => {
             // Get the active project ID.
             let activeProjectId = this.$store.state.activeProject.project.id 
@@ -530,10 +528,10 @@ var ProjectMixin = {
             // Update the project summaries so the deletions show up on the list.
             // Make sure it tries to set the project that was active (if any).
             this.updateProjectSummaries(activeProjectId) 
-            sciris.succeed(this, '')
+            this.$sciris.succeed(this, '')
           })
           .catch(error => {
-            sciris.fail(this, 'Could not delete project/s', error)
+            this.$sciris.fail(this, 'Could not delete project/s', error)
           })
       }
     },
@@ -546,13 +544,13 @@ var ProjectMixin = {
       console.log('downloadSelectedProjects() called for ', selectProjectsUIDs)
       // Have the server download the selected projects.
       if (selectProjectsUIDs.length > 0) {
-        sciris.start(this)
-        sciris.download('download_projects', [selectProjectsUIDs, this.userName])
+        this.$sciris.start(this)
+        this.$sciris.download('download_projects', [selectProjectsUIDs, this.userName])
           .then(response => {
-            sciris.succeed(this, '')
+            this.$sciris.succeed(this, '')
           })
           .catch(error => {
-            sciris.fail(this, 'Could not download project/s', error)
+            this.$sciris.fail(this, 'Could not download project/s', error)
           })
       }
     }

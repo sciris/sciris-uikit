@@ -42,7 +42,6 @@ Last update: 2018-08-26
 </template>
 
 <script>
-import sciris from 'sciris-js';
 import EventBus from '../eventbus.js'; 
 import { events } from '../eventbus.js'; 
 
@@ -60,12 +59,12 @@ export default {
 
   methods: {
     tryChangePassword () {
-      sciris.changeUserPassword(this.oldPassword, this.newPassword)
+      this.$sciris.changeUserPassword(this.oldPassword, this.newPassword)
         .then(response => {
           if (response.data === 'success') {
-            sciris.succeed(this, 'Password updated')
+            this.$sciris.succeed(this, 'Password updated')
             // Read in the full current user information.
-            sciris.getCurrentUserInfo()
+            this.$sciris.getCurrentUserInfo()
               .then(response2 => {
                 // Set the username to what the server indicates.
                 let user = response2.data.user;
@@ -84,7 +83,7 @@ export default {
           }
         })
         .catch(error => {
-          sciris.fail(this, 'Password updated failed', error);
+          this.$sciris.fail(this, 'Password updated failed', error);
           EventBus.$emit(events.EVENT_PASSWORD_CHANGE_FAIL, error); 
         })
     }

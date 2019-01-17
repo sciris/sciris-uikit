@@ -69,7 +69,6 @@ Last update: 2018sep22
 </template>
 
 <script>
-import sciris from 'sciris-js';
 import EventBus from '../eventbus.js'; 
 import { events } from '../eventbus.js'; 
 
@@ -111,7 +110,7 @@ export default {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info')
+      this.$sciris.rpc('get_version_info')
       .then(response => {
         this.version = response.data['version'];
         this.date = response.data['date'];
@@ -121,14 +120,14 @@ export default {
 
   methods: {
     tryLogin () {
-      sciris.loginCall(this.loginUserName, this.loginPassword)
+      this.$sciris.loginCall(this.loginUserName, this.loginPassword)
       .then(response => {
         if (response.data === 'success') {
           // Set a success result to show.
           this.loginResult = 'Logging in...'
 
           // Read in the full current user information.
-          sciris.getCurrentUserInfo()
+          this.$sciris.getCurrentUserInfo()
           .then(response2 => {
             // Set the username to what the server indicates.
             let user = response2.data.user;

@@ -1,5 +1,3 @@
-import sciris from 'sciris-js';
-
 var ScenarioMixin = {
 
   data() {
@@ -41,19 +39,19 @@ var ScenarioMixin = {
   },
 
   computed: {
-    projectID()    { return sciris.projectID(this) },
-    hasData()      { return sciris.hasData(this) },
-    hasPrograms()  { return sciris.hasPrograms(this) },
-    simStart()     { return sciris.dataEnd(this) },
-    simEnd()       { return sciris.simEnd(this) },
-    projectionYears()     { return sciris.projectionYears(this) },
-    activePops()   { return sciris.activePops(this) },
-    placeholders() { return sciris.placeholders(this, 1) },
+    projectID()    { return this.$sciris.projectID(this) },
+    hasData()      { return this.$sciris.hasData(this) },
+    hasPrograms()  { return this.$sciris.hasPrograms(this) },
+    simStart()     { return this.$sciris.dataEnd(this) },
+    simEnd()       { return this.$sciris.simEnd(this) },
+    projectionYears()     { return this.$sciris.projectionYears(this) },
+    activePops()   { return this.$sciris.activePops(this) },
+    placeholders() { return this.$sciris.placeholders(this, 1) },
   },
 
   created() {
-    sciris.addListener(this)
-    sciris.createDialogs(this)
+    this.$sciris.addListener(this)
+    this.$sciris.createDialogs(this)
     if ((this.$store.state.activeProject.project !== undefined) &&
       (this.$store.state.activeProject.project.hasData) &&
       (this.$store.state.activeProject.project.hasPrograms)) {
@@ -77,64 +75,64 @@ var ScenarioMixin = {
 
   methods: {
 
-    validateYears()                   { return sciris.validateYears(this) },
-    updateSets()                      { return sciris.updateSets(this) },
-    exportGraphs()                    { return sciris.exportGraphs(this) },
-    exportResults(datastoreID)        { return sciris.exportResults(this, datastoreID) },
-    scaleFigs(frac)                   { return sciris.scaleFigs(this, frac)},
-    clearGraphs()                     { return sciris.clearGraphs(this) },
-    togglePlotControls()              { return sciris.togglePlotControls(this) },
-    getPlotOptions(project_id)        { return sciris.getPlotOptions(this, project_id) },
-    makeGraphs(graphdata)             { return sciris.makeGraphs(this, graphdata, '/scenarios') },
-    reloadGraphs(showErr)             { return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true) }, // Set to calibration=false, plotbudget=true
-    maximize(legend_id)               { return sciris.maximize(this, legend_id) },
-    minimize(legend_id)               { return sciris.minimize(this, legend_id) },
+    validateYears()                   { return this.$sciris.validateYears(this) },
+    updateSets()                      { return this.$sciris.updateSets(this) },
+    exportGraphs()                    { return this.$sciris.exportGraphs(this) },
+    exportResults(datastoreID)        { return this.$sciris.exportResults(this, datastoreID) },
+    scaleFigs(frac)                   { return this.$sciris.scaleFigs(this, frac)},
+    clearGraphs()                     { return this.$sciris.clearGraphs(this) },
+    togglePlotControls()              { return this.$sciris.togglePlotControls(this) },
+    getPlotOptions(project_id)        { return this.$sciris.getPlotOptions(this, project_id) },
+    makeGraphs(graphdata)             { return this.$sciris.makeGraphs(this, graphdata, '/scenarios') },
+    reloadGraphs(showErr)             { return this.$sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true) }, // Set to calibration=false, plotbudget=true
+    maximize(legend_id)               { return this.$sciris.maximize(this, legend_id) },
+    minimize(legend_id)               { return this.$sciris.minimize(this, legend_id) },
 
     getDefaultBudgetScen() {
       console.log('getDefaultBudgetScen() called')
-      sciris.rpc('get_default_budget_scen', [this.projectID])
+      this.$sciris.rpc('get_default_budget_scen', [this.projectID])
         .then(response => {
           this.defaultBudgetScen = response.data // Set the scenario to what we received.
           console.log('This is the default:')
           console.log(this.defaultBudgetScen);
         })
         .catch(error => {
-          sciris.fail(this, 'Could not get default budget scenario', error)
+          this.$sciris.fail(this, 'Could not get default budget scenario', error)
         })
     },
 
     getScenSummaries() {
       console.log('getScenSummaries() called')
-      sciris.start(this)
-      sciris.rpc('get_scen_info', [this.projectID])
+      this.$sciris.start(this)
+      this.$sciris.rpc('get_scen_info', [this.projectID])
         .then(response => {
           this.scenSummaries = response.data // Set the scenarios to what we received.
           console.log('Scenario summaries:')
           console.log(this.scenSummaries)
           this.scenariosLoaded = true
-          sciris.succeed(this, 'Scenarios loaded')
+          this.$sciris.succeed(this, 'Scenarios loaded')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not get scenarios', error)
+          this.$sciris.fail(this, 'Could not get scenarios', error)
         })
     },
 
     setScenSummaries() {
       console.log('setScenSummaries() called')
-      sciris.start(this)
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
+      this.$sciris.start(this)
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
         .then( response => {
-          sciris.succeed(this, 'Scenarios saved')
+          this.$sciris.succeed(this, 'Scenarios saved')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not save scenarios', error)
+          this.$sciris.fail(this, 'Could not save scenarios', error)
         })
     },
 
     addBudgetScenModal() {
       // Open a model dialog for creating a new project
       console.log('addBudgetScenModal() called');
-      sciris.rpc('get_default_budget_scen', [this.projectID])
+      this.$sciris.rpc('get_default_budget_scen', [this.projectID])
         .then(response => {
           this.defaultBudgetScen = response.data // Set the scenario to what we received.
           this.addEditModal.scenSummary = _.cloneDeep(this.defaultBudgetScen)
@@ -144,14 +142,14 @@ var ScenarioMixin = {
           console.log(this.defaultBudgetScen)
         })
         .catch(error => {
-          sciris.fail(this, 'Could not open add scenario modal', error)
+          this.$sciris.fail(this, 'Could not open add scenario modal', error)
         })
     },
 
     addBudgetScen() {
       console.log('addBudgetScen() called')
       this.$modal.hide('add-budget-scen')
-      sciris.start(this)
+      this.$sciris.start(this)
       let newScen = _.cloneDeep(this.addEditModal.scenSummary) // Get the new scenario summary from the modal.
       let scenNames = [] // Get the list of all of the current scenario names.
       this.scenSummaries.forEach(scenSum => {
@@ -168,17 +166,17 @@ var ScenarioMixin = {
         }
       }
       else { // Else (we are adding a new scenario)...
-        newScen.name = sciris.getUniqueName(newScen.name, scenNames)
+        newScen.name = this.$sciris.getUniqueName(newScen.name, scenNames)
         this.scenSummaries.push(newScen)
       }
       console.log(newScen)
       console.log(this.scenSummaries)
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
         .then( response => {
-          sciris.succeed(this, 'Scenario added')
+          this.$sciris.succeed(this, 'Scenario added')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not add scenario', error)
+          this.$sciris.fail(this, 'Could not add scenario', error)
         })
     },
 
@@ -196,48 +194,48 @@ var ScenarioMixin = {
 
     copyScen(scenSummary) {
       console.log('copyScen() called')
-      sciris.start(this)
+      this.$sciris.start(this)
       var newScen = _.cloneDeep(scenSummary);
       var otherNames = []
       this.scenSummaries.forEach(scenSum => {
         otherNames.push(scenSum.name)
       })
-      newScen.name = sciris.getUniqueName(newScen.name, otherNames)
+      newScen.name = this.$sciris.getUniqueName(newScen.name, otherNames)
       this.scenSummaries.push(newScen)
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
         .then( response => {
-          sciris.succeed(this, 'Scenario copied')
+          this.$sciris.succeed(this, 'Scenario copied')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not copy scenario', error)
+          this.$sciris.fail(this, 'Could not copy scenario', error)
         })
     },
 
     deleteScen(scenSummary) {
       console.log('deleteScen() called')
-      sciris.start(this)
+      this.$sciris.start(this)
       for(var i = 0; i< this.scenSummaries.length; i++) {
         if(this.scenSummaries[i].name === scenSummary.name) {
           this.scenSummaries.splice(i, 1);
         }
       }
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries])
         .then( response => {
-          sciris.succeed(this, 'Scenario deleted')
+          this.$sciris.succeed(this, 'Scenario deleted')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not delete scenario', error)
+          this.$sciris.fail(this, 'Could not delete scenario', error)
         })
     },
 
     runScens() {
       console.log('runScens() called')
       this.validateYears()  // Make sure the start end years are in the right range.
-      sciris.start(this)
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
+      this.$sciris.start(this)
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
         .then(response => {
           // Go to the server to get the results from the package set.
-          sciris.rpc('run_scenarios', [
+          this.$sciris.rpc('run_scenarios', [
             this.projectID, 
             this.serverDatastoreId, 
             this.plotOptions
@@ -251,14 +249,14 @@ var ScenarioMixin = {
             .then(response => {
               this.table = response.data.table
               this.makeGraphs(response.data)
-              sciris.succeed(this, '') // Success message in graphs function
+              this.$sciris.succeed(this, '') // Success message in graphs function
             })
             .catch(error => {
-              sciris.fail(this, 'Could not run scenarios', error)
+              this.$sciris.fail(this, 'Could not run scenarios', error)
             })
         })
         .catch(error => {
-          sciris.fail(this, 'Could not set scenarios', error)
+          this.$sciris.fail(this, 'Could not set scenarios', error)
         })
     },
   }

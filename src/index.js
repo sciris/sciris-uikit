@@ -24,6 +24,8 @@ function install(Vue, options={}) {
 
   Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
+  Object.defineProperty(Vue.prototype, '$sciris', { value: options.sciris });
+
   Vue.use(Simplert);
 
   if (!options.navigation){
@@ -80,6 +82,7 @@ const views = {
 export {
   ScirisRoutes,
   EventBus,
+  sciris,
   events,
   views, 
   mixins

@@ -85,7 +85,6 @@ Last update: 2018-08-26
 
 
 <script>
-import sciris from 'sciris-js';
 import EventBus from '../eventbus.js'; 
 import { events } from '../eventbus.js'; 
 
@@ -121,7 +120,7 @@ export default {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info')
+      this.$sciris.rpc('get_version_info')
         .then(response => {
           this.version = response.data['version'];
           this.date = response.data['date'];
@@ -131,7 +130,7 @@ export default {
 
   methods: {
     tryRegister () {
-      sciris.registerUser(
+      this.$sciris.registerUser(
         this.registerUserName, 
         this.registerPassword,
         this.registerDisplayName, 
