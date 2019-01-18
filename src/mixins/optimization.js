@@ -1,5 +1,3 @@
-import sciris from 'sciris-js';
-
 var OptimizationMixin = {
   data() {
     return {
@@ -42,19 +40,19 @@ var OptimizationMixin = {
   },
 
   computed: {
-    projectID()    { return sciris.projectID(this) },
-    hasData()      { return sciris.hasData(this) },
-    hasPrograms()  { return sciris.hasPrograms(this) },
-    simStart()     { return sciris.simStart(this) },
-    simEnd()       { return sciris.simEnd(this) },
-    projectionYears()     { return sciris.projectionYears(this) },
-    activePops()   { return sciris.activePops(this) },
-    placeholders() { return sciris.placeholders(this, 1) },
+    projectID()    { return this.$sciris.projectID(this) },
+    hasData()      { return this.$sciris.hasData(this) },
+    hasPrograms()  { return this.$sciris.hasPrograms(this) },
+    simStart()     { return this.$sciris.simStart(this) },
+    simEnd()       { return this.$sciris.simEnd(this) },
+    projectionYears()     { return this.$sciris.projectionYears(this) },
+    activePops()   { return this.$sciris.activePops(this) },
+    placeholders() { return this.$sciris.placeholders(this, 1) },
   },
 
   created() {
-    sciris.addListener(this)
-    sciris.createDialogs(this)
+    this.$sciris.addListener(this)
+    this.$sciris.createDialogs(this)
     if ((this.$store.state.activeProject.project !== undefined) &&
       (this.$store.state.activeProject.project.hasData) &&
       (this.$store.state.activeProject.project.hasPrograms)) {
@@ -74,18 +72,18 @@ var OptimizationMixin = {
 
   methods: {
 
-    validateYears()                   { return sciris.validateYears(this) },
-    updateSets()                      { return sciris.updateSets(this) },
-    exportGraphs()                    { return sciris.exportGraphs(this) },
-    exportResults(datastoreID)        { return sciris.exportResults(this, datastoreID) },
-    scaleFigs(frac)                   { return sciris.scaleFigs(this, frac)},
-    clearGraphs()                     { return sciris.clearGraphs(this) },
-    togglePlotControls()              { return sciris.togglePlotControls(this) },
-    getPlotOptions(project_id)        { return sciris.getPlotOptions(this, project_id) },
-    makeGraphs(graphdata)             { return sciris.makeGraphs(this, graphdata, '/optimizations') },
-    reloadGraphs(cache_id, showErr)   { return sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true) }, // Set to calibration=false, plotbudget=True
-    maximize(legend_id)               { return sciris.maximize(this, legend_id) },
-    minimize(legend_id)               { return sciris.minimize(this, legend_id) },
+    validateYears()                   { return this.$sciris.validateYears(this) },
+    updateSets()                      { return this.$sciris.updateSets(this) },
+    exportGraphs()                    { return this.$sciris.exportGraphs(this) },
+    exportResults(datastoreID)        { return this.$sciris.exportResults(this, datastoreID) },
+    scaleFigs(frac)                   { return this.$sciris.scaleFigs(this, frac)},
+    clearGraphs()                     { return this.$sciris.clearGraphs(this) },
+    togglePlotControls()              { return this.$sciris.togglePlotControls(this) },
+    getPlotOptions(project_id)        { return this.$sciris.getPlotOptions(this, project_id) },
+    makeGraphs(graphdata)             { return this.$sciris.makeGraphs(this, graphdata, '/optimizations') },
+    reloadGraphs(cache_id, showErr)   { return this.$sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true) }, // Set to calibration=false, plotbudget=True
+    maximize(legend_id)               { return this.$sciris.maximize(this, legend_id) },
+    minimize(legend_id)               { return this.$sciris.minimize(this, legend_id) },
 
     statusFormatStr(optimSummary) {
       if      (optimSummary.status === 'not started') {return ''}
@@ -126,7 +124,7 @@ var OptimizationMixin = {
       return new Promise((resolve, reject) => {
         console.log('getOptimTaskState() called for with: ' + optimSummary.status)
         let statusStr = '';
-        sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
+        this.$sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
           .then(result => {
             statusStr = result.data.task.status
             optimSummary.status = statusStr
@@ -233,7 +231,7 @@ var OptimizationMixin = {
         if (this.needToPoll()) {
           // Sleep waitingtime seconds.
           let waitingtime = 1
-          sciris.sleep(waitingtime * 1000)
+          this.$sciris.sleep(waitingtime * 1000)
             .then(response => {
               this.doTaskPolling(false) // Call the next polling, in a way that doesn't check_task() for _every_ task.
             })         
@@ -250,9 +248,9 @@ var OptimizationMixin = {
       return new Promise((resolve, reject) => {
         let datastoreId = optimSummary.serverDatastoreId  // hack because this gets overwritten soon by caller
         console.log('clearTask() called for '+this.currentOptim)
-        sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
+        this.$sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
           .then(response => {
-            sciris.rpc('delete_task', [datastoreId])
+            this.$sciris.rpc('delete_task', [datastoreId])
               .then(response => {
                 this.getOptimTaskState(optimSummary) // Get the task state for the optimization.
                 if (!this.pollingTasks) {
@@ -272,8 +270,8 @@ var OptimizationMixin = {
 
     getOptimSummaries() {
       console.log('getOptimSummaries() called')
-      sciris.start(this)
-      sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
+      this.$sciris.start(this)
+      this.$sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
         .then(response => {
           this.optimSummaries = response.data // Set the optimizations to what we received.
           this.optimSummaries.forEach(optimSum => { // For each of the optimization summaries...
@@ -284,28 +282,28 @@ var OptimizationMixin = {
           })
           this.doTaskPolling(true)  // start task polling, kicking off with running check_task() for all optimizations
           this.optimsLoaded = true
-          sciris.succeed(this, 'Optimizations loaded')
+          this.$sciris.succeed(this, 'Optimizations loaded')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not load optimizations', error)
+          this.$sciris.fail(this, 'Could not load optimizations', error)
         })
     },
 
     setOptimSummaries() {
       console.log('setOptimSummaries() called')
-      sciris.start(this)
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
+      this.$sciris.start(this)
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
         .then( response => {
-          sciris.succeed(this, 'Optimizations saved')
+          this.$sciris.succeed(this, 'Optimizations saved')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not save optimizations', error)
+          this.$sciris.fail(this, 'Could not save optimizations', error)
         })
     },
 
     addOptimModal(optim_type) { // Open a model dialog for creating a new project
       console.log('addOptimModal() called for ' + optim_type);
-      sciris.rpc('get_default_optim', [
+      this.$sciris.rpc('get_default_optim', [
         this.projectID, 
         this.toolName(), 
         optim_type
@@ -323,7 +321,7 @@ var OptimizationMixin = {
     saveOptim() {
       console.log('saveOptim() called')
       this.$modal.hide('add-optim')
-      sciris.start(this)
+      this.$sciris.start(this)
       this.endYear = this.modalOptim.end_year
       let newOptim = _.cloneDeep(this.modalOptim) // Get the new optimization summary from the modal.
       let optimNames = [] // Get the list of all of the current optimization names.
@@ -347,11 +345,11 @@ var OptimizationMixin = {
           newOptim.executionTime = '--'
         }
         else {
-          sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit')
+          this.$sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit')
         }
       }
       else { // Else (we are adding a new optimization)...
-        newOptim.name = sciris.getUniqueName(newOptim.name, optimNames)
+        newOptim.name = this.$sciris.getUniqueName(newOptim.name, optimNames)
         newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name
         this.optimSummaries.push(newOptim)
         this.getOptimTaskState(newOptim)
@@ -362,13 +360,13 @@ var OptimizationMixin = {
         })          
       }
 
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
         .then( response => {
-          sciris.succeed(this, 'Optimization added')
+          this.$sciris.succeed(this, 'Optimization added')
           this.resetModal(this.defaultOptim)
         })
         .catch(error => {
-          sciris.fail(this, 'Could not add optimization', error)
+          this.$sciris.fail(this, 'Could not add optimization', error)
         })
     },
 
@@ -395,28 +393,28 @@ var OptimizationMixin = {
 
     copyOptim(optimSummary) {
       console.log('copyOptim() called')
-      sciris.start(this)
+      this.$sciris.start(this)
       var newOptim = _.cloneDeep(optimSummary);
       var otherNames = []
       this.optimSummaries.forEach(optimSum => {
         otherNames.push(optimSum.name)
       })
-      newOptim.name = sciris.getUniqueName(newOptim.name, otherNames)
+      newOptim.name = this.$sciris.getUniqueName(newOptim.name, otherNames)
       newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name
       this.optimSummaries.push(newOptim)
       this.getOptimTaskState(newOptim)
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
         .then( response => {
-          sciris.succeed(this, 'Optimization copied')
+          this.$sciris.succeed(this, 'Optimization copied')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not copy optimization', error)
+          this.$sciris.fail(this, 'Could not copy optimization', error)
         })
     },
 
     deleteOptim(optimSummary) {
       console.log('deleteOptim() called')
-      sciris.start(this)
+      this.$sciris.start(this)
       if (optimSummary.status !== 'not started') {
         this.clearTask(optimSummary)  // Clear the task from the server.
       }
@@ -425,12 +423,12 @@ var OptimizationMixin = {
           this.optimSummaries.splice(i, 1);
         }
       }
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries])
         .then(response => {
-          sciris.succeed(this, 'Optimization deleted')
+          this.$sciris.succeed(this, 'Optimization deleted')
         })
         .catch(error => {
-          sciris.fail(this, 'Could not delete optimization', error)
+          this.$sciris.fail(this, 'Could not delete optimization', error)
         })
     },
 
@@ -438,11 +436,11 @@ var OptimizationMixin = {
     runOptim(optimSummary, maxtime) {
       console.log('runOptim() called for '+this.currentOptim + ' for time: ' + maxtime)
       this.validateYears()  // Make sure the end year is sensibly set.
-      sciris.start(this)
+      this.$sciris.start(this)
       var RPCname = this.getOptimizationRPCName();
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
         .then(response => {
-          sciris.rpc('launch_task', [
+          this.$sciris.rpc('launch_task', [
               optimSummary.serverDatastoreId, 
               RPCname,
               [
@@ -464,14 +462,14 @@ var OptimizationMixin = {
               if (!this.pollingTasks) {
                 this.doTaskPolling(true)
               }                
-              sciris.succeed(this, 'Started optimization')
+              this.$sciris.succeed(this, 'Started optimization')
             })
             .catch(error => {
-              sciris.fail(this, 'Could not start optimization', error)
+              this.$sciris.fail(this, 'Could not start optimization', error)
             })
         })
         .catch(error => {
-          sciris.fail(this, 'Could not save optimizations', error)
+          this.$sciris.fail(this, 'Could not save optimizations', error)
         })
     },
 

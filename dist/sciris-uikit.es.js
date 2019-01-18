@@ -1,10 +1,8 @@
 /*!
- * sciris-uikit v0.1.1
+ * sciris-uikit v0.2.1
  * (c) 2019-present Sciris <info@sciris.org>
  */
 import Vue from 'vue';
-import sciris from 'sciris-js';
-import __vue_normalize__ from 'vue-runtime-helpers/normalize-component.js';
 import Simplert from 'vue2-simplert-plugin';
 import 'vue-clickaway';
 import _$1 from 'lodash';
@@ -69,7 +67,7 @@ var script = {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info').then(response => {
+      this.$sciris.rpc('get_version_info').then(response => {
         this.version = response.data['version'];
         this.date = response.data['date'];
       });
@@ -78,12 +76,12 @@ var script = {
   },
   methods: {
     tryLogin() {
-      sciris.loginCall(this.loginUserName, this.loginPassword).then(response => {
+      this.$sciris.loginCall(this.loginUserName, this.loginPassword).then(response => {
         if (response.data === 'success') {
           // Set a success result to show.
           this.loginResult = 'Logging in...'; // Read in the full current user information.
 
-          sciris.getCurrentUserInfo().then(response2 => {
+          this.$sciris.getCurrentUserInfo().then(response2 => {
             // Set the username to what the server indicates.
             let user = response2.data.user;
             this.$store.commit('newUser', user); // Navigate automatically to the home page.
@@ -108,9 +106,86 @@ var script = {
   }
 };
 
+function normalizeComponent(compiledTemplate, injectStyle, defaultExport, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, isShadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
+    if (typeof isShadowMode === 'function') {
+        createInjectorSSR = createInjector;
+        createInjector = isShadowMode;
+        isShadowMode = false;
+    }
+    // Vue.extend constructor export interop
+    const options = typeof defaultExport === 'function' ? defaultExport.options : defaultExport;
+    // render functions
+    if (compiledTemplate && compiledTemplate.render) {
+        options.render = compiledTemplate.render;
+        options.staticRenderFns = compiledTemplate.staticRenderFns;
+        options._compiled = true;
+        // functional template
+        if (isFunctionalTemplate) {
+            options.functional = true;
+        }
+    }
+    // scopedId
+    if (scopeId) {
+        options._scopeId = scopeId;
+    }
+    let hook;
+    if (moduleIdentifier) {
+        // server build
+        hook = function (context) {
+            // 2.3 injection
+            context =
+                context || // cached call
+                    (this.$vnode && this.$vnode.ssrContext) || // stateful
+                    (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
+            // 2.2 with runInNewContext: true
+            if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+                context = __VUE_SSR_CONTEXT__;
+            }
+            // inject component styles
+            if (injectStyle) {
+                injectStyle.call(this, createInjectorSSR(context));
+            }
+            // register component module identifier for async chunk inference
+            if (context && context._registeredComponents) {
+                context._registeredComponents.add(moduleIdentifier);
+            }
+        };
+        // used by ssr in case component is cached and beforeCreate
+        // never gets called
+        options._ssrRegister = hook;
+    }
+    else if (injectStyle) {
+        hook = isShadowMode
+            ? function () {
+                injectStyle.call(this, createInjectorShadow(this.$root.$options.shadowRoot));
+            }
+            : function (context) {
+                injectStyle.call(this, createInjector(context));
+            };
+    }
+    if (hook) {
+        if (options.functional) {
+            // register for functional component in vue file
+            const originalRender = options.render;
+            options.render = function renderWithStyleInjection(h, context) {
+                hook.call(context);
+                return originalRender(h, context);
+            };
+        }
+        else {
+            // inject component registration as beforeCreate hook
+            const existing = options.beforeCreate;
+            options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+        }
+    }
+    return defaultExport;
+}
+
 /* script */
-            const __vue_script__ = script;
-            
+const __vue_script__ = script;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script.__file = "LoginPage.vue";
+
 /* template */
 var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v("\n            "+_vm._s(_vm.verboseToolName)+" \n          ")]):_vm._e(),_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          New user?\n          "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v("\n            Register here\n          ")])],1)])])])])};
 var __vue_staticRenderFns__ = [];
@@ -129,7 +204,7 @@ var __vue_staticRenderFns__ = [];
   
 
   
-  var LoginPage = __vue_normalize__(
+  var LoginPage = normalizeComponent(
     { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
     __vue_inject_styles__,
     __vue_script__,
@@ -154,11 +229,11 @@ var script$1 = {
 
   methods: {
     tryChangePassword() {
-      sciris.changeUserPassword(this.oldPassword, this.newPassword).then(response => {
+      this.$sciris.changeUserPassword(this.oldPassword, this.newPassword).then(response => {
         if (response.data === 'success') {
-          sciris.succeed(this, 'Password updated'); // Read in the full current user information.
+          this.$sciris.succeed(this, 'Password updated'); // Read in the full current user information.
 
-          sciris.getCurrentUserInfo().then(response2 => {
+          this.$sciris.getCurrentUserInfo().then(response2 => {
             // Set the username to what the server indicates.
             let user = response2.data.user;
             this.$store.commit('newUser', user); // Navigate automatically to the home page.
@@ -173,7 +248,7 @@ var script$1 = {
           this.changeResult = response.data;
         }
       }).catch(error => {
-        sciris.fail(this, 'Password updated failed', error);
+        this.$sciris.fail(this, 'Password updated failed', error);
         EventBus.$emit(events.EVENT_PASSWORD_CHANGE_FAIL, error);
       });
     }
@@ -182,8 +257,10 @@ var script$1 = {
 };
 
 /* script */
-            const __vue_script__$1 = script$1;
-            
+const __vue_script__$1 = script$1;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$1.__file = "ChangePasswordPage.vue";
+
 /* template */
 var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])};
 var __vue_staticRenderFns__$1 = [];
@@ -202,7 +279,7 @@ var __vue_staticRenderFns__$1 = [];
   
 
   
-  var ChangePasswordPage = __vue_normalize__(
+  var ChangePasswordPage = normalizeComponent(
     { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
     __vue_inject_styles__$1,
     __vue_script__$1,
@@ -213,6 +290,44 @@ var __vue_staticRenderFns__$1 = [];
     undefined
   );
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 var script$2 = {
   name: 'MainAdminPage',
@@ -230,7 +345,7 @@ var script$2 = {
 
   methods: {
     getUsersInfo() {
-      sciris.getAllUsersInfo().then(response => {
+      this.$sciris.getAllUsersInfo().then(response => {
         this.usersList = response.data;
       }).catch(error => {
         // Give result message.
@@ -239,7 +354,7 @@ var script$2 = {
     },
 
     activateAccount(username) {
-      sciris.activateUserAccount(username).then(response => {
+      this.$sciris.activateUserAccount(username).then(response => {
         // If the response was successful...
         if (response.data == 'success') // Give result message.
           this.adminResult = 'User account activated.'; // Otherwise (failure)
@@ -254,7 +369,7 @@ var script$2 = {
     },
 
     deactivateAccount(username) {
-      sciris.deactivateUserAccount(username).then(response => {
+      this.$sciris.deactivateUserAccount(username).then(response => {
         // If the response was successful...
         if (response.data == 'success') // Give result message.
           this.adminResult = 'User account deactivated.'; // Otherwise (failure)
@@ -269,7 +384,7 @@ var script$2 = {
     },
 
     grantAdmin(username) {
-      sciris.grantUserAdminRights(username).then(response => {
+      this.$sciris.grantUserAdminRights(username).then(response => {
         // If the response was successful...
         if (response.data == 'success') // Give result message.
           this.adminResult = 'Admin access granted.'; // Otherwise (failure)
@@ -284,7 +399,7 @@ var script$2 = {
     },
 
     revokeAdmin(username) {
-      sciris.revokeUserAdminRights(username).then(response => {
+      this.$sciris.revokeUserAdminRights(username).then(response => {
         // If the response was successful...
         if (response.data == 'success') // Give result message.
           this.adminResult = 'Admin access revoked.'; // Otherwise (failure)
@@ -299,7 +414,7 @@ var script$2 = {
     },
 
     resetPassword(username) {
-      sciris.resetUserPassword(username).then(response => {
+      this.$sciris.resetUserPassword(username).then(response => {
         // If the response was successful...
         if (response.data == 'success') // Give result message.
           this.adminResult = 'Password reset.'; // Otherwise (failure)
@@ -314,7 +429,7 @@ var script$2 = {
     },
 
     deleteUser(username) {
-      sciris.deleteUser(username).then(response => {
+      this.$sciris.deleteUser(username).then(response => {
         // Give result message.
         this.adminResult = 'User deleted.'; // Get the users info again.
 
@@ -329,8 +444,10 @@ var script$2 = {
 };
 
 /* script */
-            const __vue_script__$2 = script$2;
-            
+const __vue_script__$2 = script$2;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$2.__file = "MainAdminPage.vue";
+
 /* template */
 var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])};
 var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}];
@@ -349,7 +466,7 @@ var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createEle
   
 
   
-  var MainAdminPage = __vue_normalize__(
+  var MainAdminPage = normalizeComponent(
     { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
     __vue_inject_styles__$2,
     __vue_script__$2,
@@ -392,7 +509,7 @@ var script$3 = {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info').then(response => {
+      this.$sciris.rpc('get_version_info').then(response => {
         this.version = response.data['version'];
         this.date = response.data['date'];
       });
@@ -401,7 +518,7 @@ var script$3 = {
   },
   methods: {
     tryRegister() {
-      sciris.registerUser(this.registerUserName, this.registerPassword, this.registerDisplayName, this.registerEmail).then(response => {
+      this.$sciris.registerUser(this.registerUserName, this.registerPassword, this.registerDisplayName, this.registerEmail).then(response => {
         if (response.data === 'success') {
           // Set a success result to show.
           this.registerResult = 'Success! Please wait while you are redirected...';
@@ -421,8 +538,10 @@ var script$3 = {
 };
 
 /* script */
-            const __vue_script__$3 = script$3;
-            
+const __vue_script__$3 = script$3;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$3.__file = "RegisterPage.vue";
+
 /* template */
 var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          Already registered?\n          "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v("\n            Login\n          ")])],1)])])])])};
 var __vue_staticRenderFns__$3 = [];
@@ -441,7 +560,7 @@ var __vue_staticRenderFns__$3 = [];
   
 
   
-  var RegisterPage = __vue_normalize__(
+  var RegisterPage = normalizeComponent(
     { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
     __vue_inject_styles__$3,
     __vue_script__$3,
@@ -468,11 +587,11 @@ var script$4 = {
 
   methods: {
     tryChangeInfo() {
-      sciris.changeUserInfo(this.changeUserName, this.changePassword, this.changeDisplayName, this.changeEmail).then(response => {
+      this.$sciris.changeUserInfo(this.changeUserName, this.changePassword, this.changeDisplayName, this.changeEmail).then(response => {
         if (response.data === 'success') {
-          sciris.succeed(this, 'User info updated'); // Set a success result to show.
+          this.$sciris.succeed(this, 'User info updated'); // Set a success result to show.
 
-          sciris.getCurrentUserInfo() // Read in the full current user information.
+          this.$sciris.getCurrentUserInfo() // Read in the full current user information.
           .then(response2 => {
             let user = response2.data.user;
             this.$store.commit('newUser', user); // Set the username to what the server indicates.
@@ -488,7 +607,7 @@ var script$4 = {
           this.changeResult = response.data;
         }
       }).catch(error => {
-        sciris.fail(this, 'Failed to update user info, please check password and try again', error);
+        this.$sciris.fail(this, 'Failed to update user info, please check password and try again', error);
         EventBus.$emit(EVENT_INFO_CHANGE_FAIL, error);
       });
     }
@@ -497,8 +616,10 @@ var script$4 = {
 };
 
 /* script */
-            const __vue_script__$4 = script$4;
-            
+const __vue_script__$4 = script$4;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$4.__file = "UserChangeInfoPage.vue";
+
 /* template */
 var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])};
 var __vue_staticRenderFns__$4 = [];
@@ -517,7 +638,7 @@ var __vue_staticRenderFns__$4 = [];
   
 
   
-  var UserChangeInfoPage = __vue_normalize__(
+  var UserChangeInfoPage = normalizeComponent(
     { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
     __vue_inject_styles__$4,
     __vue_script__$4,
@@ -554,8 +675,10 @@ var script$5 = {
 };
 
 /* script */
-            const __vue_script__$5 = script$5;
-            
+const __vue_script__$5 = script$5;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$5.__file = "MovingArrow.vue";
+
 /* template */
 var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})};
 var __vue_staticRenderFns__$5 = [];
@@ -574,7 +697,7 @@ var __vue_staticRenderFns__$5 = [];
   
 
   
-  var MovingArrow = __vue_normalize__(
+  var MovingArrow = normalizeComponent(
     { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
     __vue_inject_styles__$5,
     __vue_script__$5,
@@ -697,8 +820,10 @@ var script$6 = {
 };
 
 /* script */
-            const __vue_script__$6 = script$6;
-            
+const __vue_script__$6 = script$6;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$6.__file = "Sidebar.vue";
+
 /* template */
 var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+"\n              ")])])])}),1),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])};
 var __vue_staticRenderFns__$6 = [];
@@ -717,7 +842,7 @@ var __vue_staticRenderFns__$6 = [];
   
 
   
-  var Sidebar = __vue_normalize__(
+  var Sidebar = normalizeComponent(
     { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
     __vue_inject_styles__$6,
     __vue_script__$6,
@@ -806,7 +931,7 @@ var script$7 = {
 
   // Health prior function
   created() {
-    sciris.getUserInfo(this.$store);
+    this.$sciris.getUserInfo(this.$store);
   },
 
   // Theme function
@@ -819,17 +944,17 @@ var script$7 = {
   methods: {
     // Health prior functions
     checkLoggedIn() {
-      sciris.checkLoggedIn;
+      this.$sciris.checkLoggedIn;
     },
 
     checkAdminLoggedIn() {
-      sciris.checkAdminLoggedIn;
+      this.$sciris.checkAdminLoggedIn;
     },
 
     logOut() {
-      sciris.logoutCall().then(response => {
+      this.$sciris.logoutCall().then(response => {
         // Update the user info.
-        sciris.getUserInfo(this.$store); // Clear out the active project.
+        this.$sciris.getUserInfo(this.$store); // Clear out the active project.
 
         this.$store.commit('newActiveProject', {}); // Navigate to the login page automatically.
 
@@ -862,8 +987,10 @@ var script$7 = {
 };
 
 /* script */
-            const __vue_script__$7 = script$7;
-            
+const __vue_script__$7 = script$7;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$7.__file = "Navbar.vue";
+
 /* template */
 var __vue_render__$7 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)}),0),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])};
 var __vue_staticRenderFns__$7 = [];
@@ -882,7 +1009,7 @@ var __vue_staticRenderFns__$7 = [];
   
 
   
-  var Navbar = __vue_normalize__(
+  var Navbar = normalizeComponent(
     { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
     __vue_inject_styles__$7,
     __vue_script__$7,
@@ -1015,7 +1142,9 @@ var css = ".btn-helplink{padding:4px 4px 2px 2px;margin-bottom:5px}.helplink-lab
 styleInject(css);
 
 /* script */
-            const __vue_script__$8 = script$8;
+const __vue_script__$8 = script$8;
+// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+script$8.__file = "HelpLink.vue";
 /* template */
 var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button btn-helplink",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])};
 var __vue_staticRenderFns__$8 = [];
@@ -1034,7 +1163,7 @@ var __vue_staticRenderFns__$8 = [];
   
 
   
-  var HelpLink = __vue_normalize__(
+  var HelpLink = normalizeComponent(
     { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
     __vue_inject_styles__$8,
     __vue_script__$8,
@@ -1089,35 +1218,35 @@ var CalibrationMixin = {
 
   computed: {
     projectID() {
-      return sciris.projectID(this);
+      return this.$sciris.projectID(this);
     },
 
     hasData() {
-      return sciris.hasData(this);
+      return this.$sciris.hasData(this);
     },
 
     hasPrograms() {
-      return sciris.hasPrograms(this);
+      return this.$sciris.hasPrograms(this);
     },
 
     simStart() {
-      return sciris.simStart(this);
+      return this.$sciris.simStart(this);
     },
 
     simEnd() {
-      return sciris.simEnd(this);
+      return this.$sciris.simEnd(this);
     },
 
     simYears() {
-      return sciris.simYears(this);
+      return this.$sciris.simYears(this);
     },
 
     activePops() {
-      return sciris.activePops(this);
+      return this.$sciris.activePops(this);
     },
 
     placeholders() {
-      return sciris.placeholders(this, 1);
+      return this.$sciris.placeholders(this, 1);
     },
 
     filteredParlist() {
@@ -1127,8 +1256,8 @@ var CalibrationMixin = {
   },
 
   created() {
-    sciris.addListener(this);
-    sciris.createDialogs(this);
+    this.$sciris.addListener(this);
+    this.$sciris.createDialogs(this);
 
     if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData) {
       console.log('created() called');
@@ -1153,52 +1282,52 @@ var CalibrationMixin = {
   },
   methods: {
     validateYears() {
-      return sciris.validateYears(this);
+      return this.$sciris.validateYears(this);
     },
 
     updateSets() {
-      return sciris.updateSets(this);
+      return this.$sciris.updateSets(this);
     },
 
     exportGraphs() {
-      return sciris.exportGraphs(this);
+      return this.$sciris.exportGraphs(this);
     },
 
     exportResults(datastoreID) {
-      return sciris.exportResults(this, datastoreID);
+      return this.$sciris.exportResults(this, datastoreID);
     },
 
     scaleFigs(frac) {
-      return sciris.scaleFigs(this, frac);
+      return this.$sciris.scaleFigs(this, frac);
     },
 
     clearGraphs() {
-      return sciris.clearGraphs(this);
+      return this.$sciris.clearGraphs(this);
     },
 
     togglePlotControls() {
-      return sciris.togglePlotControls(this);
+      return this.$sciris.togglePlotControls(this);
     },
 
     getPlotOptions(project_id) {
-      return sciris.getPlotOptions(this, project_id);
+      return this.$sciris.getPlotOptions(this, project_id);
     },
 
     makeGraphs(graphdata) {
-      return sciris.makeGraphs(this, graphdata, '/calibration');
+      return this.$sciris.makeGraphs(this, graphdata, '/calibration');
     },
 
     reloadGraphs(showErr) {
       // Set to calibration=true
-      return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, true);
+      return this.$sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, true);
     },
 
     maximize(legend_id) {
-      return sciris.maximize(this, legend_id);
+      return this.$sciris.maximize(this, legend_id);
     },
 
     minimize(legend_id) {
-      return sciris.minimize(this, legend_id);
+      return this.$sciris.minimize(this, legend_id);
     },
 
     toggleParams() {
@@ -1209,13 +1338,13 @@ var CalibrationMixin = {
       return new Promise((resolve, reject) => {
         console.log('loadParTable() called for ' + this.activeParset); // TODO: Get spinners working right for this leg of initialization.
 
-        sciris.rpc('get_y_factors', [this.projectID, this.activeParset, this.toolName()]).then(response => {
+        this.$sciris.rpc('get_y_factors', [this.projectID, this.activeParset, this.toolName()]).then(response => {
           this.parlist = response.data.parlist; // Get the parameter values
 
           var tmpParset = _.cloneDeep(this.activeParset);
 
           this.activeParset = null;
-          sciris.sleep(500).then(response => {
+          this.$sciris.sleep(500).then(response => {
             this.activeParset = tmpParset;
           });
           this.parlist.push('Update Vue DOM');
@@ -1226,7 +1355,7 @@ var CalibrationMixin = {
           console.log(this.parlist);
           resolve(response);
         }).catch(error => {
-          sciris.fail(this, 'Could not load parameters', error);
+          this.$sciris.fail(this, 'Could not load parameters', error);
           reject(error);
         });
       });
@@ -1234,15 +1363,15 @@ var CalibrationMixin = {
 
     saveParTable() {
       return new Promise((resolve, reject) => {
-        sciris.rpc('set_y_factors', [this.projectID, this.activeParset, this.parlist, this.toolName()]).then(response => {
+        this.$sciris.rpc('set_y_factors', [this.projectID, this.activeParset, this.parlist, this.toolName()]).then(response => {
           this.loadParTable().then(response2 => {
-            sciris.succeed(this, 'Parameters updated');
+            this.$sciris.succeed(this, 'Parameters updated');
             this.manualCalibration(this.projectID);
             resolve(response2);
           });
           resolve(response);
         }).catch(error => {
-          sciris.fail(this, 'Could not save parameters', error);
+          this.$sciris.fail(this, 'Could not save parameters', error);
           reject(error);
         });
       });
@@ -1262,75 +1391,75 @@ var CalibrationMixin = {
     renameParset() {
       console.log('renameParset() called for ' + this.activeParset);
       this.$modal.hide('rename-parset');
-      sciris.start(this);
-      sciris.rpc('rename_parset', [this.projectID, this.origParsetName, this.activeParset]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this);
+      this.$sciris.rpc('rename_parset', [this.projectID, this.origParsetName, this.activeParset]) // Have the server copy the project, giving it a new name.
       .then(response => {
         this.updateSets(); // Update the project summaries so the copied program shows up on the list.
         // TODO: look into whether the above line is necessary
 
-        sciris.succeed(this, 'Parameter set "' + this.activeParset + '" renamed'); // Indicate success.
+        this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" renamed'); // Indicate success.
       }).catch(error => {
-        sciris.fail(this, 'Could not rename parameter set', error);
+        this.$sciris.fail(this, 'Could not rename parameter set', error);
       });
     },
 
     copyParset() {
       console.log('copyParset() called for ' + this.activeParset);
-      sciris.start(this);
-      sciris.rpc('copy_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this);
+      this.$sciris.rpc('copy_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
       .then(response => {
         this.updateSets(); // Update the project summaries so the copied program shows up on the list.
         // TODO: look into whether the above line is necessary
 
         this.activeParset = response.data;
-        sciris.succeed(this, 'Parameter set "' + this.activeParset + '" copied'); // Indicate success.
+        this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" copied'); // Indicate success.
       }).catch(error => {
-        sciris.fail(this, 'Could not copy parameter set', error);
+        this.$sciris.fail(this, 'Could not copy parameter set', error);
       });
     },
 
     deleteParset() {
       console.log('deleteParset() called for ' + this.activeParset);
-      sciris.start(this);
-      sciris.rpc('delete_parset', [this.projectID, this.activeParset]) // Have the server delete the parset.
+      this.$sciris.start(this);
+      this.$sciris.rpc('delete_parset', [this.projectID, this.activeParset]) // Have the server delete the parset.
       .then(response => {
         this.updateSets() // Update the project summaries so the deleted parset shows up on the list.
         .then(response2 => {
           this.loadParTable(); // Reload the parameters.
 
-          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" deleted'); // Indicate success.
+          this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" deleted'); // Indicate success.
         });
       }).catch(error => {
-        sciris.fail(this, 'Cannot delete last parameter set: ensure there are at least 2 parameter sets before deleting one', error);
+        this.$sciris.fail(this, 'Cannot delete last parameter set: ensure there are at least 2 parameter sets before deleting one', error);
       });
     },
 
     downloadParset() {
       console.log('downloadParset() called for ' + this.activeParset);
-      sciris.start(this);
-      sciris.download('download_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this);
+      this.$sciris.download('download_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
       .then(response => {
         // Indicate success.
-        sciris.succeed(this, ''); // No green popup message.
+        this.$sciris.succeed(this, ''); // No green popup message.
       }).catch(error => {
-        sciris.fail(this, 'Could not download parameter set', error);
+        this.$sciris.fail(this, 'Could not download parameter set', error);
       });
     },
 
     uploadParset() {
       console.log('uploadParset() called');
-      sciris.upload('upload_parset', [this.projectID], {}, '.par') // Have the server copy the project, giving it a new name.
+      this.$sciris.upload('upload_parset', [this.projectID], {}, '.par') // Have the server copy the project, giving it a new name.
       .then(response => {
-        sciris.start(this);
+        this.$sciris.start(this);
         this.updateSets() // Update the project summaries so the copied program shows up on the list.
         .then(response2 => {
           this.activeParset = response.data;
           this.loadParTable(); // Reload the parameters.
 
-          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" uploaded'); // Indicate success.
+          this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" uploaded'); // Indicate success.
         });
       }).catch(error => {
-        sciris.fail(this, 'Could not upload parameter set', error);
+        this.$sciris.fail(this, 'Could not upload parameter set', error);
       });
     },
 
@@ -1338,8 +1467,8 @@ var CalibrationMixin = {
       console.log('manualCalibration() called');
       this.validateYears(); // Make sure the start end years are in the right range.
 
-      sciris.start(this);
-      sciris.rpc('manual_calibration', [project_id, this.serverDatastoreId], {
+      this.$sciris.start(this);
+      this.$sciris.rpc('manual_calibration', [project_id, this.serverDatastoreId], {
         'parsetname': this.activeParset,
         'plot_options': this.plotOptions,
         'plotyear': this.endYear,
@@ -1350,10 +1479,10 @@ var CalibrationMixin = {
       .then(response => {
         this.makeGraphs(response.data);
         this.table = response.data.table;
-        sciris.succeed(this, 'Simulation run, graphs now rendering...');
+        this.$sciris.succeed(this, 'Simulation run, graphs now rendering...');
       }).catch(error => {
         console.log(error.message);
-        sciris.fail(this, 'Could not run manual calibration', error);
+        this.$sciris.fail(this, 'Could not run manual calibration', error);
       });
     },
 
@@ -1361,7 +1490,7 @@ var CalibrationMixin = {
       console.log('autoCalibrate() called');
       this.validateYears(); // Make sure the start end years are in the right range.
 
-      sciris.start(this);
+      this.$sciris.start(this);
 
       if (this.calibTime === '30 seconds') {
         var maxtime = 30;
@@ -1369,7 +1498,7 @@ var CalibrationMixin = {
         var maxtime = 9999;
       }
 
-      sciris.rpc('automatic_calibration', [project_id, this.serverDatastoreId], {
+      this.$sciris.rpc('automatic_calibration', [project_id, this.serverDatastoreId], {
         'parsetname': this.activeParset,
         'max_time': maxtime,
         'plot_options': this.plotOptions,
@@ -1381,22 +1510,22 @@ var CalibrationMixin = {
       .then(response => {
         this.table = response.data.table;
         this.makeGraphs(response.data.graphs);
-        sciris.succeed(this, 'Simulation run, graphs now rendering...');
+        this.$sciris.succeed(this, 'Simulation run, graphs now rendering...');
       }).catch(error => {
         console.log(error.message);
-        sciris.fail(this, 'Could not run automatic calibration', error);
+        this.$sciris.fail(this, 'Could not run automatic calibration', error);
       });
     },
 
     reconcile() {
       console.log('reconcile() called for ' + this.activeParset);
-      sciris.start(this);
-      sciris.download('reconcile', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this);
+      this.$sciris.download('reconcile', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
       .then(response => {
         // Indicate success.
-        sciris.succeed(this, ''); // No green popup message.
+        this.$sciris.succeed(this, ''); // No green popup message.
       }).catch(error => {
-        sciris.fail(this, 'Could not reconcile program set', error);
+        this.$sciris.fail(this, 'Could not reconcile program set', error);
       });
     }
 
@@ -1427,7 +1556,7 @@ var HelpMixin = {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info').then(response => {
+      this.$sciris.rpc('get_version_info').then(response => {
         this.username = this.$store.state.currentUser.username;
         this.useragent = window.navigator.userAgent;
         this.timestamp = Date(Date.now()).toLocaleString();
@@ -1469,13 +1598,13 @@ var HelpMixin = {
 
     adv_submit() {
       console.log('adv_submit() called');
-      sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
+      this.$sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
       .then(response => {
         console.log(response.data);
         this.adv_response = response.data.replace(/\n/g, '<br>');
-        sciris.succeed(this, 'Query run'); // Indicate success.
+        this.$sciris.succeed(this, 'Query run'); // Indicate success.
       }).catch(error => {
-        sciris.fail(this, 'Could not run query', error);
+        this.$sciris.fail(this, 'Could not run query', error);
       });
     }
 
@@ -1523,42 +1652,42 @@ var ScenarioMixin = {
 
   computed: {
     projectID() {
-      return sciris.projectID(this);
+      return this.$sciris.projectID(this);
     },
 
     hasData() {
-      return sciris.hasData(this);
+      return this.$sciris.hasData(this);
     },
 
     hasPrograms() {
-      return sciris.hasPrograms(this);
+      return this.$sciris.hasPrograms(this);
     },
 
     simStart() {
-      return sciris.dataEnd(this);
+      return this.$sciris.dataEnd(this);
     },
 
     simEnd() {
-      return sciris.simEnd(this);
+      return this.$sciris.simEnd(this);
     },
 
     projectionYears() {
-      return sciris.projectionYears(this);
+      return this.$sciris.projectionYears(this);
     },
 
     activePops() {
-      return sciris.activePops(this);
+      return this.$sciris.activePops(this);
     },
 
     placeholders() {
-      return sciris.placeholders(this, 1);
+      return this.$sciris.placeholders(this, 1);
     }
 
   },
 
   created() {
-    sciris.addListener(this);
-    sciris.createDialogs(this);
+    this.$sciris.addListener(this);
+    this.$sciris.createDialogs(this);
 
     if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
       console.log('created() called');
@@ -1579,95 +1708,95 @@ var ScenarioMixin = {
 
   methods: {
     validateYears() {
-      return sciris.validateYears(this);
+      return this.$sciris.validateYears(this);
     },
 
     updateSets() {
-      return sciris.updateSets(this);
+      return this.$sciris.updateSets(this);
     },
 
     exportGraphs() {
-      return sciris.exportGraphs(this);
+      return this.$sciris.exportGraphs(this);
     },
 
     exportResults(datastoreID) {
-      return sciris.exportResults(this, datastoreID);
+      return this.$sciris.exportResults(this, datastoreID);
     },
 
     scaleFigs(frac) {
-      return sciris.scaleFigs(this, frac);
+      return this.$sciris.scaleFigs(this, frac);
     },
 
     clearGraphs() {
-      return sciris.clearGraphs(this);
+      return this.$sciris.clearGraphs(this);
     },
 
     togglePlotControls() {
-      return sciris.togglePlotControls(this);
+      return this.$sciris.togglePlotControls(this);
     },
 
     getPlotOptions(project_id) {
-      return sciris.getPlotOptions(this, project_id);
+      return this.$sciris.getPlotOptions(this, project_id);
     },
 
     makeGraphs(graphdata) {
-      return sciris.makeGraphs(this, graphdata, '/scenarios');
+      return this.$sciris.makeGraphs(this, graphdata, '/scenarios');
     },
 
     reloadGraphs(showErr) {
-      return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true);
+      return this.$sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true);
     },
 
     // Set to calibration=false, plotbudget=true
     maximize(legend_id) {
-      return sciris.maximize(this, legend_id);
+      return this.$sciris.maximize(this, legend_id);
     },
 
     minimize(legend_id) {
-      return sciris.minimize(this, legend_id);
+      return this.$sciris.minimize(this, legend_id);
     },
 
     getDefaultBudgetScen() {
       console.log('getDefaultBudgetScen() called');
-      sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+      this.$sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
         this.defaultBudgetScen = response.data; // Set the scenario to what we received.
 
         console.log('This is the default:');
         console.log(this.defaultBudgetScen);
       }).catch(error => {
-        sciris.fail(this, 'Could not get default budget scenario', error);
+        this.$sciris.fail(this, 'Could not get default budget scenario', error);
       });
     },
 
     getScenSummaries() {
       console.log('getScenSummaries() called');
-      sciris.start(this);
-      sciris.rpc('get_scen_info', [this.projectID]).then(response => {
+      this.$sciris.start(this);
+      this.$sciris.rpc('get_scen_info', [this.projectID]).then(response => {
         this.scenSummaries = response.data; // Set the scenarios to what we received.
 
         console.log('Scenario summaries:');
         console.log(this.scenSummaries);
         this.scenariosLoaded = true;
-        sciris.succeed(this, 'Scenarios loaded');
+        this.$sciris.succeed(this, 'Scenarios loaded');
       }).catch(error => {
-        sciris.fail(this, 'Could not get scenarios', error);
+        this.$sciris.fail(this, 'Could not get scenarios', error);
       });
     },
 
     setScenSummaries() {
       console.log('setScenSummaries() called');
-      sciris.start(this);
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-        sciris.succeed(this, 'Scenarios saved');
+      this.$sciris.start(this);
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Scenarios saved');
       }).catch(error => {
-        sciris.fail(this, 'Could not save scenarios', error);
+        this.$sciris.fail(this, 'Could not save scenarios', error);
       });
     },
 
     addBudgetScenModal() {
       // Open a model dialog for creating a new project
       console.log('addBudgetScenModal() called');
-      sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+      this.$sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
         this.defaultBudgetScen = response.data; // Set the scenario to what we received.
 
         this.addEditModal.scenSummary = _.cloneDeep(this.defaultBudgetScen);
@@ -1676,14 +1805,14 @@ var ScenarioMixin = {
         this.$modal.show('add-budget-scen');
         console.log(this.defaultBudgetScen);
       }).catch(error => {
-        sciris.fail(this, 'Could not open add scenario modal', error);
+        this.$sciris.fail(this, 'Could not open add scenario modal', error);
       });
     },
 
     addBudgetScen() {
       console.log('addBudgetScen() called');
       this.$modal.hide('add-budget-scen');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       let newScen = _.cloneDeep(this.addEditModal.scenSummary); // Get the new scenario summary from the modal.
 
@@ -1707,16 +1836,16 @@ var ScenarioMixin = {
         }
       } else {
         // Else (we are adding a new scenario)...
-        newScen.name = sciris.getUniqueName(newScen.name, scenNames);
+        newScen.name = this.$sciris.getUniqueName(newScen.name, scenNames);
         this.scenSummaries.push(newScen);
       }
 
       console.log(newScen);
       console.log(this.scenSummaries);
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-        sciris.succeed(this, 'Scenario added');
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Scenario added');
       }).catch(error => {
-        sciris.fail(this, 'Could not add scenario', error);
+        this.$sciris.fail(this, 'Could not add scenario', error);
       });
     },
 
@@ -1734,7 +1863,7 @@ var ScenarioMixin = {
 
     copyScen(scenSummary) {
       console.log('copyScen() called');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       var newScen = _.cloneDeep(scenSummary);
 
@@ -1742,18 +1871,18 @@ var ScenarioMixin = {
       this.scenSummaries.forEach(scenSum => {
         otherNames.push(scenSum.name);
       });
-      newScen.name = sciris.getUniqueName(newScen.name, otherNames);
+      newScen.name = this.$sciris.getUniqueName(newScen.name, otherNames);
       this.scenSummaries.push(newScen);
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-        sciris.succeed(this, 'Scenario copied');
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Scenario copied');
       }).catch(error => {
-        sciris.fail(this, 'Could not copy scenario', error);
+        this.$sciris.fail(this, 'Could not copy scenario', error);
       });
     },
 
     deleteScen(scenSummary) {
       console.log('deleteScen() called');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       for (var i = 0; i < this.scenSummaries.length; i++) {
         if (this.scenSummaries[i].name === scenSummary.name) {
@@ -1761,10 +1890,10 @@ var ScenarioMixin = {
         }
       }
 
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-        sciris.succeed(this, 'Scenario deleted');
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Scenario deleted');
       }).catch(error => {
-        sciris.fail(this, 'Could not delete scenario', error);
+        this.$sciris.fail(this, 'Could not delete scenario', error);
       });
     },
 
@@ -1772,11 +1901,11 @@ var ScenarioMixin = {
       console.log('runScens() called');
       this.validateYears(); // Make sure the start end years are in the right range.
 
-      sciris.start(this);
-      sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
+      this.$sciris.start(this);
+      this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
       .then(response => {
         // Go to the server to get the results from the package set.
-        sciris.rpc('run_scenarios', [this.projectID, this.serverDatastoreId, this.plotOptions], {
+        this.$sciris.rpc('run_scenarios', [this.projectID, this.serverDatastoreId, this.plotOptions], {
           saveresults: false,
           tool: this.toolName(),
           plotyear: this.endYear,
@@ -1784,12 +1913,12 @@ var ScenarioMixin = {
         }).then(response => {
           this.table = response.data.table;
           this.makeGraphs(response.data);
-          sciris.succeed(this, ''); // Success message in graphs function
+          this.$sciris.succeed(this, ''); // Success message in graphs function
         }).catch(error => {
-          sciris.fail(this, 'Could not run scenarios', error);
+          this.$sciris.fail(this, 'Could not run scenarios', error);
         });
       }).catch(error => {
-        sciris.fail(this, 'Could not set scenarios', error);
+        this.$sciris.fail(this, 'Could not set scenarios', error);
       });
     }
 
@@ -1833,7 +1962,7 @@ var ProjectMixin = {
 
   computed: {
     projectID() {
-      return sciris.projectID(this);
+      return this.$sciris.projectID(this);
     },
 
     userName() {
@@ -1841,7 +1970,7 @@ var ProjectMixin = {
     },
 
     simYears() {
-      return sciris.simYears(this);
+      return this.$sciris.simYears(this);
     },
 
     sortedFilteredProjectSummaries() {
@@ -1851,7 +1980,7 @@ var ProjectMixin = {
   },
   methods: {
     updateSorting() {
-      return sciris.updateSorting(this);
+      return this.$sciris.updateSorting(this);
     },
 
     projectLoaded(uid) {
@@ -1871,7 +2000,7 @@ var ProjectMixin = {
 
     getDemoOptions() {
       console.log('getDemoOptions() called');
-      sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
+      this.$sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
       .then(response => {
         this.demoOptions = response.data; // Set the frameworks to what we received.
 
@@ -1880,27 +2009,27 @@ var ProjectMixin = {
         console.log(this.demoOptions);
         console.log(this.demoOption);
       }).catch(error => {
-        sciris.fail(this, 'Could not load demo project options', error);
+        this.$sciris.fail(this, 'Could not load demo project options', error);
       });
     },
 
     getDefaultPrograms() {
       console.log('getDefaultPrograms() called');
-      sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
+      this.$sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
       .then(response => {
         this.defaultPrograms = response.data; // Set the frameworks to what we received.
 
         console.log('Loaded default programs:');
         console.log(this.defaultPrograms);
       }).catch(error => {
-        sciris.fail(this, 'Could not load default programs', error);
+        this.$sciris.fail(this, 'Could not load default programs', error);
       });
     },
 
     updateFrameworkSummaries() {
       console.log('updateFrameworkSummaries() called'); // Get the current user's framework summaries from the server.
 
-      sciris.rpc('jsonify_frameworks', [this.userName]).then(response => {
+      this.$sciris.rpc('jsonify_frameworks', [this.userName]).then(response => {
         // Set the frameworks to what we received.
         this.frameworkSummaries = response.data.frameworks;
 
@@ -1913,14 +2042,14 @@ var ProjectMixin = {
           console.log('No framework summaries found');
         }
       }).catch(error => {
-        sciris.fail(this, 'Could not load frameworks', error);
+        this.$sciris.fail(this, 'Could not load frameworks', error);
       });
     },
 
     updateProjectSummaries(setActiveID) {
       console.log('updateProjectSummaries() called');
-      sciris.start(this);
-      sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
+      this.$sciris.start(this);
+      this.$sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
       .then(response => {
         let lastCreationTime = null;
         let lastCreatedID = null;
@@ -1958,16 +2087,16 @@ var ProjectMixin = {
           }
         }
 
-        sciris.succeed(this, ''); // No green popup.
+        this.$sciris.succeed(this, ''); // No green popup.
       }).catch(error => {
-        sciris.fail(this, 'Could not load projects', error);
+        this.$sciris.fail(this, 'Could not load projects', error);
       });
     },
 
     addDemoProject() {
       console.log('addDemoProject() called');
       this.$modal.hide('demo-project');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       if (this.toolName() === 'cascade') {
         var demoOption = this.demoOption;
@@ -1976,13 +2105,13 @@ var ProjectMixin = {
       } // Have the server create a new project.
 
 
-      sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
+      this.$sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
         // Update the project summaries so the new project shows up on the list.
         this.updateProjectSummaries(response.data.projectID); // Already have notification from project
 
-        sciris.succeed(this, '');
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not add demo project', error);
+        this.$sciris.fail(this, 'Could not add demo project', error);
       });
     },
 
@@ -2009,9 +2138,9 @@ var ProjectMixin = {
     createNewProject() {
       console.log('createNewProject() called');
       this.$modal.hide('create-project');
-      sciris.start(this);
+      this.$sciris.start(this);
       var frameworkID = this.getFrameworkID();
-      sciris.download('create_new_project', // Have the server create a new project.
+      this.$sciris.download('create_new_project', // Have the server create a new project.
       [this.userName, frameworkID, this.proj_name, this.num_pops, this.num_progs, this.data_start, this.data_end], {
         tool: this.toolName()
       }).then(response => {
@@ -2019,23 +2148,23 @@ var ProjectMixin = {
         // Note: There's no easy way to get the new project UID to tell the 
         // project update to choose the new project because the RPC cannot pass it back.
         this.updateProjectSummaries(null);
-        sciris.succeed(this, 'New project "' + this.proj_name + '" created');
+        this.$sciris.succeed(this, 'New project "' + this.proj_name + '" created');
       }).catch(error => {
-        sciris.fail(this, 'Could not add new project:' + error.message);
+        this.$sciris.fail(this, 'Could not add new project:' + error.message);
       });
     },
 
     uploadProjectFromFile() {
       console.log('uploadProjectFromFile() called');
-      sciris.upload('upload_project', [this.userName], {}, '.prj') // Have the server upload the project.
+      this.$sciris.upload('upload_project', [this.userName], {}, '.prj') // Have the server upload the project.
       .then(response => {
         // This line needs to be here to avoid the spinner being up during the user modal.
-        sciris.start(this); // Update the project summaries so the new project shows up on the list.
+        this.$sciris.start(this); // Update the project summaries so the new project shows up on the list.
 
         this.updateProjectSummaries(response.data.projectID);
-        sciris.succeed(this, 'New project uploaded');
+        this.$sciris.succeed(this, 'New project uploaded');
       }).catch(error => {
-        sciris.fail(this, 'Could not upload file', error);
+        this.$sciris.fail(this, 'Could not upload file', error);
       });
     },
 
@@ -2088,22 +2217,22 @@ var ProjectMixin = {
       console.log('openProject() called for ' + matchProject.project.name);
       this.$store.commit('newActiveProject', matchProject); // Set the active project to the matched project.
 
-      sciris.succeed(this, 'Project "' + matchProject.project.name + '" loaded'); // Success popup.
+      this.$sciris.succeed(this, 'Project "' + matchProject.project.name + '" loaded'); // Success popup.
     },
 
     copyProject(uid) {
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid); // Find the project that matches the UID passed in.
 
       console.log('copyProject() called for ' + matchProject.project.name);
-      sciris.start(this);
-      sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
+      this.$sciris.start(this);
+      this.$sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
       .then(response => {
         // Update the project summaries so the copied program shows up on the list.
         this.updateProjectSummaries(response.data.projectID); // Indicate success.
 
-        sciris.succeed(this, 'Project "' + matchProject.project.name + '" copied');
+        this.$sciris.succeed(this, 'Project "' + matchProject.project.name + '" copied');
       }).catch(error => {
-        sciris.fail(this, 'Could not copy project', error);
+        this.$sciris.fail(this, 'Could not copy project', error);
       });
     },
 
@@ -2139,16 +2268,16 @@ var ProjectMixin = {
 
 
         newProjectSummary.project.name = projectSummary.renaming;
-        sciris.start(this); // Have the server change the name of the project by passing in the new copy of the summary.
+        this.$sciris.start(this); // Have the server change the name of the project by passing in the new copy of the summary.
 
-        sciris.rpc('rename_project', [newProjectSummary]).then(response => {
+        this.$sciris.rpc('rename_project', [newProjectSummary]).then(response => {
           // Update the project summaries so the rename shows up on the list.
           this.updateProjectSummaries(newProjectSummary.project.id); // Turn off the renaming mode.
 
           projectSummary.renaming = '';
-          sciris.succeed(this, '');
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not rename project', error);
+          this.$sciris.fail(this, 'Could not rename project', error);
         });
       } // This silly hack is done to make sure that the Vue component gets updated by this function call.
       // Something about resetting the project name informs the Vue component it needs to
@@ -2165,13 +2294,13 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
       console.log('downloadProjectFile() called for ' + matchProject.project.name);
-      sciris.start(this); // Make the server call to download the project to a .prj file.
+      this.$sciris.start(this); // Make the server call to download the project to a .prj file.
 
-      sciris.download('download_project', [uid]).then(response => {
+      this.$sciris.download('download_project', [uid]).then(response => {
         // Indicate success.
-        sciris.succeed(this, '');
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not download project', error);
+        this.$sciris.fail(this, 'Could not download project', error);
       });
     },
 
@@ -2179,21 +2308,21 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
       console.log('downloadFramework() called for ' + matchProject.project.name);
-      sciris.start(this, 'Downloading framework...');
-      sciris.download('download_framework_from_project', [uid]).then(response => {
-        sciris.succeed(this, '');
+      this.$sciris.start(this, 'Downloading framework...');
+      this.$sciris.download('download_framework_from_project', [uid]).then(response => {
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not download framework', error);
+        this.$sciris.fail(this, 'Could not download framework', error);
       });
     },
 
     downloadDatabook(uid) {
       console.log('downloadDatabook() called');
-      sciris.start(this, 'Downloading data book...');
-      sciris.download('download_databook', [uid]).then(response => {
-        sciris.succeed(this, '');
+      this.$sciris.start(this, 'Downloading data book...');
+      this.$sciris.download('download_databook', [uid]).then(response => {
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not download databook', error);
+        this.$sciris.fail(this, 'Could not download databook', error);
       });
     },
 
@@ -2201,11 +2330,11 @@ var ProjectMixin = {
       // Find the project that matches the UID passed in.
       let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
       console.log('downloadProgbook() called for ' + matchProject.project.name);
-      sciris.start(this, 'Downloading program book...');
-      sciris.download('download_progbook', [uid]).then(response => {
-        sciris.succeed(this, '');
+      this.$sciris.start(this, 'Downloading program book...');
+      this.$sciris.download('download_progbook', [uid]).then(response => {
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not download program book', error);
+        this.$sciris.fail(this, 'Could not download program book', error);
       });
     },
 
@@ -2214,11 +2343,11 @@ var ProjectMixin = {
       let uid = this.activeuid;
       console.log('createProgbook() called');
       this.$modal.hide('create-progbook');
-      sciris.start(this, 'Creating program book...');
-      sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear]).then(response => {
-        sciris.succeed(this, '');
+      this.$sciris.start(this, 'Creating program book...');
+      this.$sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear]).then(response => {
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not create program book', error);
+        this.$sciris.fail(this, 'Could not create program book', error);
       });
     },
 
@@ -2227,37 +2356,37 @@ var ProjectMixin = {
       let uid = this.activeuid;
       console.log('createDefaultProgbook() called');
       this.$modal.hide('create-progbook');
-      sciris.start(this, 'Creating default program book...');
-      sciris.download('create_default_progbook', [uid, this.progStartYear, this.progEndYear, this.defaultPrograms]) // TODO: set years
+      this.$sciris.start(this, 'Creating default program book...');
+      this.$sciris.download('create_default_progbook', [uid, this.progStartYear, this.progEndYear, this.defaultPrograms]) // TODO: set years
       .then(response => {
-        sciris.succeed(this, '');
+        this.$sciris.succeed(this, '');
       }).catch(error => {
-        sciris.fail(this, 'Could not create program book', error);
+        this.$sciris.fail(this, 'Could not create program book', error);
       });
     },
 
     uploadDatabook(uid) {
       console.log('uploadDatabook() called');
-      sciris.upload('upload_databook', [uid], {}, '.xlsx').then(response => {
-        sciris.start(this, 'Uploading databook...'); // Update the project summaries so the copied program shows up on the list.
+      this.$sciris.upload('upload_databook', [uid], {}, '.xlsx').then(response => {
+        this.$sciris.start(this, 'Uploading databook...'); // Update the project summaries so the copied program shows up on the list.
 
         this.updateProjectSummaries(uid);
-        sciris.succeed(this, 'Data uploaded');
+        this.$sciris.succeed(this, 'Data uploaded');
       }).catch(error => {
-        sciris.fail(this, 'Could not upload databook', error);
+        this.$sciris.fail(this, 'Could not upload databook', error);
       });
     },
 
     uploadProgbook(uid) {
       // Find the project that matches the UID passed in.
       console.log('uploadProgbook() called');
-      sciris.upload('upload_progbook', [uid], {}, '.xlsx').then(response => {
-        sciris.start(this); // Update the project summaries so the copied program shows up on the list.
+      this.$sciris.upload('upload_progbook', [uid], {}, '.xlsx').then(response => {
+        this.$sciris.start(this); // Update the project summaries so the copied program shows up on the list.
 
         this.updateProjectSummaries(uid);
-        sciris.succeed(this, 'Programs uploaded'); // Indicate success.
+        this.$sciris.succeed(this, 'Programs uploaded'); // Indicate success.
       }).catch(error => {
-        sciris.fail(this, 'Could not upload program book', error);
+        this.$sciris.fail(this, 'Could not upload program book', error);
       });
     },
 
@@ -2286,8 +2415,8 @@ var ProjectMixin = {
       console.log('deleteSelectedProjects() called for ', selectProjectsUIDs); // Have the server delete the selected projects.
 
       if (selectProjectsUIDs.length > 0) {
-        sciris.start(this);
-        sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName]).then(response => {
+        this.$sciris.start(this);
+        this.$sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName]).then(response => {
           // Get the active project ID.
           let activeProjectId = this.$store.state.activeProject.project.id;
 
@@ -2306,9 +2435,9 @@ var ProjectMixin = {
 
 
           this.updateProjectSummaries(activeProjectId);
-          sciris.succeed(this, '');
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not delete project/s', error);
+          this.$sciris.fail(this, 'Could not delete project/s', error);
         });
       }
     },
@@ -2319,11 +2448,11 @@ var ProjectMixin = {
       console.log('downloadSelectedProjects() called for ', selectProjectsUIDs); // Have the server download the selected projects.
 
       if (selectProjectsUIDs.length > 0) {
-        sciris.start(this);
-        sciris.download('download_projects', [selectProjectsUIDs, this.userName]).then(response => {
-          sciris.succeed(this, '');
+        this.$sciris.start(this);
+        this.$sciris.download('download_projects', [selectProjectsUIDs, this.userName]).then(response => {
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not download project/s', error);
+          this.$sciris.fail(this, 'Could not download project/s', error);
         });
       }
     }
@@ -2375,42 +2504,42 @@ var OptimizationMixin = {
 
   computed: {
     projectID() {
-      return sciris.projectID(this);
+      return this.$sciris.projectID(this);
     },
 
     hasData() {
-      return sciris.hasData(this);
+      return this.$sciris.hasData(this);
     },
 
     hasPrograms() {
-      return sciris.hasPrograms(this);
+      return this.$sciris.hasPrograms(this);
     },
 
     simStart() {
-      return sciris.simStart(this);
+      return this.$sciris.simStart(this);
     },
 
     simEnd() {
-      return sciris.simEnd(this);
+      return this.$sciris.simEnd(this);
     },
 
     projectionYears() {
-      return sciris.projectionYears(this);
+      return this.$sciris.projectionYears(this);
     },
 
     activePops() {
-      return sciris.activePops(this);
+      return this.$sciris.activePops(this);
     },
 
     placeholders() {
-      return sciris.placeholders(this, 1);
+      return this.$sciris.placeholders(this, 1);
     }
 
   },
 
   created() {
-    sciris.addListener(this);
-    sciris.createDialogs(this);
+    this.$sciris.addListener(this);
+    this.$sciris.createDialogs(this);
 
     if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
       console.log('created() called');
@@ -2427,52 +2556,52 @@ var OptimizationMixin = {
 
   methods: {
     validateYears() {
-      return sciris.validateYears(this);
+      return this.$sciris.validateYears(this);
     },
 
     updateSets() {
-      return sciris.updateSets(this);
+      return this.$sciris.updateSets(this);
     },
 
     exportGraphs() {
-      return sciris.exportGraphs(this);
+      return this.$sciris.exportGraphs(this);
     },
 
     exportResults(datastoreID) {
-      return sciris.exportResults(this, datastoreID);
+      return this.$sciris.exportResults(this, datastoreID);
     },
 
     scaleFigs(frac) {
-      return sciris.scaleFigs(this, frac);
+      return this.$sciris.scaleFigs(this, frac);
     },
 
     clearGraphs() {
-      return sciris.clearGraphs(this);
+      return this.$sciris.clearGraphs(this);
     },
 
     togglePlotControls() {
-      return sciris.togglePlotControls(this);
+      return this.$sciris.togglePlotControls(this);
     },
 
     getPlotOptions(project_id) {
-      return sciris.getPlotOptions(this, project_id);
+      return this.$sciris.getPlotOptions(this, project_id);
     },
 
     makeGraphs(graphdata) {
-      return sciris.makeGraphs(this, graphdata, '/optimizations');
+      return this.$sciris.makeGraphs(this, graphdata, '/optimizations');
     },
 
     reloadGraphs(cache_id, showErr) {
-      return sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true);
+      return this.$sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true);
     },
 
     // Set to calibration=false, plotbudget=True
     maximize(legend_id) {
-      return sciris.maximize(this, legend_id);
+      return this.$sciris.maximize(this, legend_id);
     },
 
     minimize(legend_id) {
-      return sciris.minimize(this, legend_id);
+      return this.$sciris.minimize(this, legend_id);
     },
 
     statusFormatStr(optimSummary) {
@@ -2539,7 +2668,7 @@ var OptimizationMixin = {
       return new Promise((resolve, reject) => {
         console.log('getOptimTaskState() called for with: ' + optimSummary.status);
         let statusStr = '';
-        sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
+        this.$sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
         .then(result => {
           statusStr = result.data.task.status;
           optimSummary.status = statusStr;
@@ -2634,7 +2763,7 @@ var OptimizationMixin = {
         if (this.needToPoll()) {
           // Sleep waitingtime seconds.
           let waitingtime = 1;
-          sciris.sleep(waitingtime * 1000).then(response => {
+          this.$sciris.sleep(waitingtime * 1000).then(response => {
             this.doTaskPolling(false); // Call the next polling, in a way that doesn't check_task() for _every_ task.
           });
         } // Otherwise, flag that we're no longer polling.
@@ -2649,9 +2778,9 @@ var OptimizationMixin = {
         let datastoreId = optimSummary.serverDatastoreId; // hack because this gets overwritten soon by caller
 
         console.log('clearTask() called for ' + this.currentOptim);
-        sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
+        this.$sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
         .then(response => {
-          sciris.rpc('delete_task', [datastoreId]).then(response => {
+          this.$sciris.rpc('delete_task', [datastoreId]).then(response => {
             this.getOptimTaskState(optimSummary); // Get the task state for the optimization.
 
             if (!this.pollingTasks) {
@@ -2670,8 +2799,8 @@ var OptimizationMixin = {
 
     getOptimSummaries() {
       console.log('getOptimSummaries() called');
-      sciris.start(this);
-      sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
+      this.$sciris.start(this);
+      this.$sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
       .then(response => {
         this.optimSummaries = response.data; // Set the optimizations to what we received.
 
@@ -2687,26 +2816,26 @@ var OptimizationMixin = {
         this.doTaskPolling(true); // start task polling, kicking off with running check_task() for all optimizations
 
         this.optimsLoaded = true;
-        sciris.succeed(this, 'Optimizations loaded');
+        this.$sciris.succeed(this, 'Optimizations loaded');
       }).catch(error => {
-        sciris.fail(this, 'Could not load optimizations', error);
+        this.$sciris.fail(this, 'Could not load optimizations', error);
       });
     },
 
     setOptimSummaries() {
       console.log('setOptimSummaries() called');
-      sciris.start(this);
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-        sciris.succeed(this, 'Optimizations saved');
+      this.$sciris.start(this);
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Optimizations saved');
       }).catch(error => {
-        sciris.fail(this, 'Could not save optimizations', error);
+        this.$sciris.fail(this, 'Could not save optimizations', error);
       });
     },
 
     addOptimModal(optim_type) {
       // Open a model dialog for creating a new project
       console.log('addOptimModal() called for ' + optim_type);
-      sciris.rpc('get_default_optim', [this.projectID, this.toolName(), optim_type]).then(response => {
+      this.$sciris.rpc('get_default_optim', [this.projectID, this.toolName(), optim_type]).then(response => {
         this.defaultOptim = response.data; // Set the optimization to what we received.
 
         this.resetModal(response.data);
@@ -2720,7 +2849,7 @@ var OptimizationMixin = {
     saveOptim() {
       console.log('saveOptim() called');
       this.$modal.hide('add-optim');
-      sciris.start(this);
+      this.$sciris.start(this);
       this.endYear = this.modalOptim.end_year;
 
       let newOptim = _.cloneDeep(this.modalOptim); // Get the new optimization summary from the modal.
@@ -2758,11 +2887,11 @@ var OptimizationMixin = {
           newOptim.pendingTime = '--';
           newOptim.executionTime = '--';
         } else {
-          sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit');
+          this.$sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit');
         }
       } else {
         // Else (we are adding a new optimization)...
-        newOptim.name = sciris.getUniqueName(newOptim.name, optimNames);
+        newOptim.name = this.$sciris.getUniqueName(newOptim.name, optimNames);
         newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
         this.optimSummaries.push(newOptim);
         this.getOptimTaskState(newOptim).then(result => {
@@ -2772,11 +2901,11 @@ var OptimizationMixin = {
         });
       }
 
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-        sciris.succeed(this, 'Optimization added');
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Optimization added');
         this.resetModal(this.defaultOptim);
       }).catch(error => {
-        sciris.fail(this, 'Could not add optimization', error);
+        this.$sciris.fail(this, 'Could not add optimization', error);
       });
     },
 
@@ -2803,7 +2932,7 @@ var OptimizationMixin = {
 
     copyOptim(optimSummary) {
       console.log('copyOptim() called');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       var newOptim = _.cloneDeep(optimSummary);
 
@@ -2811,20 +2940,20 @@ var OptimizationMixin = {
       this.optimSummaries.forEach(optimSum => {
         otherNames.push(optimSum.name);
       });
-      newOptim.name = sciris.getUniqueName(newOptim.name, otherNames);
+      newOptim.name = this.$sciris.getUniqueName(newOptim.name, otherNames);
       newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
       this.optimSummaries.push(newOptim);
       this.getOptimTaskState(newOptim);
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-        sciris.succeed(this, 'Optimization copied');
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Optimization copied');
       }).catch(error => {
-        sciris.fail(this, 'Could not copy optimization', error);
+        this.$sciris.fail(this, 'Could not copy optimization', error);
       });
     },
 
     deleteOptim(optimSummary) {
       console.log('deleteOptim() called');
-      sciris.start(this);
+      this.$sciris.start(this);
 
       if (optimSummary.status !== 'not started') {
         this.clearTask(optimSummary); // Clear the task from the server.
@@ -2836,10 +2965,10 @@ var OptimizationMixin = {
         }
       }
 
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-        sciris.succeed(this, 'Optimization deleted');
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+        this.$sciris.succeed(this, 'Optimization deleted');
       }).catch(error => {
-        sciris.fail(this, 'Could not delete optimization', error);
+        this.$sciris.fail(this, 'Could not delete optimization', error);
       });
     },
 
@@ -2847,11 +2976,11 @@ var OptimizationMixin = {
       console.log('runOptim() called for ' + this.currentOptim + ' for time: ' + maxtime);
       this.validateYears(); // Make sure the end year is sensibly set.
 
-      sciris.start(this);
+      this.$sciris.start(this);
       var RPCname = this.getOptimizationRPCName();
-      sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
+      this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
       .then(response => {
-        sciris.rpc('launch_task', [optimSummary.serverDatastoreId, RPCname, [this.projectID, optimSummary.serverDatastoreId, optimSummary.name], {
+        this.$sciris.rpc('launch_task', [optimSummary.serverDatastoreId, RPCname, [this.projectID, optimSummary.serverDatastoreId, optimSummary.name], {
           'plot_options': this.plotOptions,
           'maxtime': maxtime,
           'tool': this.toolName(),
@@ -2866,12 +2995,12 @@ var OptimizationMixin = {
             this.doTaskPolling(true);
           }
 
-          sciris.succeed(this, 'Started optimization');
+          this.$sciris.succeed(this, 'Started optimization');
         }).catch(error => {
-          sciris.fail(this, 'Could not start optimization', error);
+          this.$sciris.fail(this, 'Could not start optimization', error);
         });
       }).catch(error => {
-        sciris.fail(this, 'Could not save optimizations', error);
+        this.$sciris.fail(this, 'Could not save optimizations', error);
       });
     },
 
@@ -2899,6 +3028,9 @@ require("bootstrap");
 function install(Vue$$1, options = {}) {
   Object.defineProperty(Vue$$1.prototype, '$_', {
     value: _$1
+  });
+  Object.defineProperty(Vue$$1.prototype, '$sciris', {
+    value: options.sciris
   });
   Vue$$1.use(Simplert);
 
@@ -2951,4 +3083,4 @@ const views = {
 };
 
 export default index$1;
-export { ScirisRoutes, EventBus, events, views, index as mixins };
+export { ScirisRoutes, EventBus, sciris, events, views, index as mixins };

@@ -1,5 +1,3 @@
-import sciris from 'sciris-js';
-
 var HelpMixin = {
 
   data () {
@@ -25,7 +23,7 @@ var HelpMixin = {
 
   computed: {
     getVersionInfo() {
-      sciris.rpc('get_version_info')
+      this.$sciris.rpc('get_version_info')
         .then(response => {
           this.username  = this.$store.state.currentUser.username
           this.useragent = window.navigator.userAgent
@@ -69,14 +67,14 @@ var HelpMixin = {
 
     adv_submit() {
       console.log('adv_submit() called')
-      sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
+      this.$sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
         .then(response => {
           console.log(response.data)
           this.adv_response = response.data.replace(/\n/g,'<br>')
-          sciris.succeed(this, 'Query run')    // Indicate success.
+          this.$sciris.succeed(this, 'Query run')    // Indicate success.
         })
         .catch(error => {
-          sciris.fail(this, 'Could not run query', error)
+          this.$sciris.fail(this, 'Could not run query', error)
         })
     },
 

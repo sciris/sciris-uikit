@@ -61,7 +61,6 @@ Last update: 2018-08-18
 </template>
 
 <script>
-import sciris from 'sciris-js';
 import EventBus from '../eventbus.js'; 
 import { events } from '../eventbus.js'; 
 
@@ -80,15 +79,15 @@ export default {
 
   methods: {
     tryChangeInfo () {
-      sciris.changeUserInfo(
+      this.$sciris.changeUserInfo(
         this.changeUserName, 
         this.changePassword,
         this.changeDisplayName, 
         this.changeEmail
       ).then(response => {
           if (response.data === 'success') {
-            sciris.succeed(this, 'User info updated') // Set a success result to show.
-            sciris.getCurrentUserInfo() // Read in the full current user information.
+            this.$sciris.succeed(this, 'User info updated') // Set a success result to show.
+            this.$sciris.getCurrentUserInfo() // Read in the full current user information.
               .then(response2 => {
                 let user = response2.data.user;
                 this.$store.commit('newUser', user) // Set the username to what the server indicates.
@@ -105,7 +104,7 @@ export default {
           }
         })
         .catch(error => {
-          sciris.fail(this, 'Failed to update user info, please check password and try again', error)
+          this.$sciris.fail(this, 'Failed to update user info, please check password and try again', error)
           EventBus.$emit(EVENT_INFO_CHANGE_FAIL, error);
         })
     }

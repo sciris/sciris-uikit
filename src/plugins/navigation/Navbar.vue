@@ -53,7 +53,6 @@ Last update: 2018sep23
 </template>
 
 <script>
-  import sciris from 'sciris-js';
   import EventBus from '../../eventbus.js'; 
   import { events } from '../../eventbus.js'; 
 
@@ -130,7 +129,7 @@ Last update: 2018sep23
 
     // Health prior function
     created() {
-      sciris.getUserInfo(this.$store)
+      this.$sciris.getUserInfo(this.$store)
     },
 
     // Theme function
@@ -142,18 +141,18 @@ Last update: 2018sep23
     methods: {
       // Health prior functions
       checkLoggedIn() {
-        sciris.checkLoggedIn
+        this.$sciris.checkLoggedIn
       },
 
       checkAdminLoggedIn() {
-        sciris.checkAdminLoggedIn
+        this.$sciris.checkAdminLoggedIn
       },
 
       logOut() {
-        sciris.logoutCall()
+        this.$sciris.logoutCall()
         .then(response => {
           // Update the user info.
-          sciris.getUserInfo(this.$store)
+          this.$sciris.getUserInfo(this.$store)
 
           // Clear out the active project.
           this.$store.commit('newActiveProject', {})

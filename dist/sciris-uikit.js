@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.1.1
+ * sciris-uikit v0.2.1
  * (c) 2019-present Sciris <info@sciris.org>
  */
 (function (global, factory) {
@@ -9,8 +9,8 @@
 }(this, (function (exports) { 'use strict';
 
   /*!
-   * Vue.js v2.5.21
-   * (c) 2014-2018 Evan You
+   * Vue.js v2.5.22
+   * (c) 2014-2019 Evan You
    * Released under the MIT License.
    */
   /*  */
@@ -628,7 +628,7 @@
         ? vm.options
         : vm._isVue
           ? vm.$options || vm.constructor.options
-          : vm || {};
+          : vm;
       var name = options.name || options._componentTag;
       var file = options.__file;
       if (!name && file) {
@@ -723,9 +723,9 @@
     }
   };
 
-  // the current target watcher being evaluated.
-  // this is globally unique because there could be only one
-  // watcher being evaluated at any time.
+  // The current target watcher being evaluated.
+  // This is globally unique because only one watcher
+  // can be evaluated at a time.
   Dep.target = null;
   var targetStack = [];
 
@@ -1251,13 +1251,26 @@
     parentVal,
     childVal
   ) {
-    return childVal
+    var res = childVal
       ? parentVal
         ? parentVal.concat(childVal)
         : Array.isArray(childVal)
           ? childVal
           : [childVal]
-      : parentVal
+      : parentVal;
+    return res
+      ? dedupeHooks(res)
+      : res
+  }
+
+  function dedupeHooks (hooks) {
+    var res = [];
+    for (var i = 0; i < hooks.length; i++) {
+      if (res.indexOf(hooks[i]) === -1) {
+        res.push(hooks[i]);
+      }
+    }
+    return res
   }
 
   LIFECYCLE_HOOKS.forEach(function (hook) {
@@ -1493,7 +1506,7 @@
     normalizeProps(child, vm);
     normalizeInject(child, vm);
     normalizeDirectives(child);
-    
+
     // Apply extends and mixins on the child options,
     // but only if it is a raw options object that isn't
     // the result of another mergeOptions call.
@@ -2424,6 +2437,8 @@
         // (async resolves are shimmed as synchronous during SSR)
         if (!sync) {
           forceRender(true);
+        } else {
+          contexts.length = 0;
         }
       });
 
@@ -2589,8 +2604,8 @@
       }
       // array of events
       if (Array.isArray(event)) {
-        for (var i = 0, l = event.length; i < l; i++) {
-          vm.$off(event[i], fn);
+        for (var i$1 = 0, l = event.length; i$1 < l; i$1++) {
+          vm.$off(event[i$1], fn);
         }
         return vm
       }
@@ -2603,16 +2618,14 @@
         vm._events[event] = null;
         return vm
       }
-      if (fn) {
-        // specific handler
-        var cb;
-        var i$1 = cbs.length;
-        while (i$1--) {
-          cb = cbs[i$1];
-          if (cb === fn || cb.fn === fn) {
-            cbs.splice(i$1, 1);
-            break
-          }
+      // specific handler
+      var cb;
+      var i = cbs.length;
+      while (i--) {
+        cb = cbs[i];
+        if (cb === fn || cb.fn === fn) {
+          cbs.splice(i, 1);
+          break
         }
       }
       return vm
@@ -4769,34 +4782,14 @@
   function resolveModifiedOptions (Ctor) {
     var modified;
     var latest = Ctor.options;
-    var extended = Ctor.extendOptions;
     var sealed = Ctor.sealedOptions;
     for (var key in latest) {
       if (latest[key] !== sealed[key]) {
         if (!modified) { modified = {}; }
-        modified[key] = dedupe(latest[key], extended[key], sealed[key]);
+        modified[key] = latest[key];
       }
     }
     return modified
-  }
-
-  function dedupe (latest, extended, sealed) {
-    // compare latest and sealed to ensure lifecycle hooks won't be duplicated
-    // between merges
-    if (Array.isArray(latest)) {
-      var res = [];
-      sealed = Array.isArray(sealed) ? sealed : [sealed];
-      extended = Array.isArray(extended) ? extended : [extended];
-      for (var i = 0; i < latest.length; i++) {
-        // push original options and not sealed options to exclude duplicated options
-        if (extended.indexOf(latest[i]) >= 0 || sealed.indexOf(latest[i]) < 0) {
-          res.push(latest[i]);
-        }
-      }
-      return res
-    } else {
-      return latest
-    }
   }
 
   function Vue (options) {
@@ -5166,7 +5159,7 @@
     value: FunctionalRenderContext
   });
 
-  Vue.version = '2.5.21';
+  Vue.version = '2.5.22';
 
   /*  */
 
@@ -8090,2463 +8083,104 @@
     }, 0);
   }
 
-  var bind$1 = function bind(fn, thisArg) {
-    return function wrap() {
-      var args = new Array(arguments.length);
-      for (var i = 0; i < args.length; i++) {
-        args[i] = arguments[i];
-      }
-      return fn.apply(thisArg, args);
-    };
+  const EVENT_LOGIN_SUCCESS = 'sciris:login:success';
+  const EVENT_LOGIN_FAIL = 'sciris:login:fail';
+  const EVENT_PASSWORD_CHANGE_SUCCESS = 'sciris:passwordchange:success';
+  const EVENT_PASSWORD_CHANGE_FAIL = 'sciris:passwordchange:fail';
+  const EVENT_REGISTER_SUCCESS = 'sciris:register:success';
+  const EVENT_REGISTER_FAIL = 'sciris:register:fail';
+  const EVENT_INFO_CHANGE_SUCCESS$1 = 'sciris:infochange:success';
+  const EVENT_INFO_CHANGE_FAIL$1 = 'sciris:infochange:fail';
+  const EVENT_LOGOUT_SUCCESS = 'sciris:logout:success';
+  const events$1 = {
+    EVENT_LOGIN_FAIL,
+    EVENT_LOGIN_SUCCESS,
+    EVENT_REGISTER_SUCCESS,
+    EVENT_REGISTER_FAIL,
+    EVENT_PASSWORD_CHANGE_SUCCESS,
+    EVENT_PASSWORD_CHANGE_FAIL,
+    EVENT_INFO_CHANGE_SUCCESS: EVENT_INFO_CHANGE_SUCCESS$1,
+    EVENT_INFO_CHANGE_FAIL: EVENT_INFO_CHANGE_FAIL$1,
+    EVENT_LOGOUT_SUCCESS
   };
-
-  /*!
-   * Determine if an object is a Buffer
-   *
-   * @author   Feross Aboukhadijeh <https://feross.org>
-   * @license  MIT
-   */
-
-  // The _isBuffer check is for Safari 5-7 support, because it's missing
-  // Object.prototype.constructor. Remove this eventually
-  var isBuffer_1 = function (obj) {
-    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-  };
-
-  function isBuffer (obj) {
-    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-  }
-
-  // For Node v0.10 support. Remove this eventually.
-  function isSlowBuffer (obj) {
-    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-  }
-
-  /*global toString:true*/
-
-  // utils is a library of generic helper functions non-specific to axios
-
-  var toString$1 = Object.prototype.toString;
-
-  /**
-   * Determine if a value is an Array
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is an Array, otherwise false
-   */
-  function isArray(val) {
-    return toString$1.call(val) === '[object Array]';
-  }
-
-  /**
-   * Determine if a value is an ArrayBuffer
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is an ArrayBuffer, otherwise false
-   */
-  function isArrayBuffer(val) {
-    return toString$1.call(val) === '[object ArrayBuffer]';
-  }
-
-  /**
-   * Determine if a value is a FormData
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is an FormData, otherwise false
-   */
-  function isFormData(val) {
-    return (typeof FormData !== 'undefined') && (val instanceof FormData);
-  }
-
-  /**
-   * Determine if a value is a view on an ArrayBuffer
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
-   */
-  function isArrayBufferView(val) {
-    var result;
-    if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-      result = ArrayBuffer.isView(val);
-    } else {
-      result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
-    }
-    return result;
-  }
-
-  /**
-   * Determine if a value is a String
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a String, otherwise false
-   */
-  function isString(val) {
-    return typeof val === 'string';
-  }
-
-  /**
-   * Determine if a value is a Number
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a Number, otherwise false
-   */
-  function isNumber(val) {
-    return typeof val === 'number';
-  }
-
-  /**
-   * Determine if a value is undefined
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if the value is undefined, otherwise false
-   */
-  function isUndefined(val) {
-    return typeof val === 'undefined';
-  }
-
-  /**
-   * Determine if a value is an Object
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is an Object, otherwise false
-   */
-  function isObject$1(val) {
-    return val !== null && typeof val === 'object';
-  }
-
-  /**
-   * Determine if a value is a Date
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a Date, otherwise false
-   */
-  function isDate(val) {
-    return toString$1.call(val) === '[object Date]';
-  }
-
-  /**
-   * Determine if a value is a File
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a File, otherwise false
-   */
-  function isFile(val) {
-    return toString$1.call(val) === '[object File]';
-  }
-
-  /**
-   * Determine if a value is a Blob
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a Blob, otherwise false
-   */
-  function isBlob(val) {
-    return toString$1.call(val) === '[object Blob]';
-  }
-
-  /**
-   * Determine if a value is a Function
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a Function, otherwise false
-   */
-  function isFunction(val) {
-    return toString$1.call(val) === '[object Function]';
-  }
-
-  /**
-   * Determine if a value is a Stream
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a Stream, otherwise false
-   */
-  function isStream(val) {
-    return isObject$1(val) && isFunction(val.pipe);
-  }
-
-  /**
-   * Determine if a value is a URLSearchParams object
-   *
-   * @param {Object} val The value to test
-   * @returns {boolean} True if value is a URLSearchParams object, otherwise false
-   */
-  function isURLSearchParams(val) {
-    return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
-  }
-
-  /**
-   * Trim excess whitespace off the beginning and end of a string
-   *
-   * @param {String} str The String to trim
-   * @returns {String} The String freed of excess whitespace
-   */
-  function trim(str) {
-    return str.replace(/^\s*/, '').replace(/\s*$/, '');
-  }
-
-  /**
-   * Determine if we're running in a standard browser environment
-   *
-   * This allows axios to run in a web worker, and react-native.
-   * Both environments support XMLHttpRequest, but not fully standard globals.
-   *
-   * web workers:
-   *  typeof window -> undefined
-   *  typeof document -> undefined
-   *
-   * react-native:
-   *  navigator.product -> 'ReactNative'
-   */
-  function isStandardBrowserEnv() {
-    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return false;
-    }
-    return (
-      typeof window !== 'undefined' &&
-      typeof document !== 'undefined'
-    );
-  }
-
-  /**
-   * Iterate over an Array or an Object invoking a function for each item.
-   *
-   * If `obj` is an Array callback will be called passing
-   * the value, index, and complete array for each item.
-   *
-   * If 'obj' is an Object callback will be called passing
-   * the value, key, and complete object for each property.
-   *
-   * @param {Object|Array} obj The object to iterate
-   * @param {Function} fn The callback to invoke for each item
-   */
-  function forEach(obj, fn) {
-    // Don't bother if no value provided
-    if (obj === null || typeof obj === 'undefined') {
-      return;
-    }
-
-    // Force an array if not already something iterable
-    if (typeof obj !== 'object') {
-      /*eslint no-param-reassign:0*/
-      obj = [obj];
-    }
-
-    if (isArray(obj)) {
-      // Iterate over array values
-      for (var i = 0, l = obj.length; i < l; i++) {
-        fn.call(null, obj[i], i, obj);
-      }
-    } else {
-      // Iterate over object keys
-      for (var key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          fn.call(null, obj[key], key, obj);
-        }
-      }
-    }
-  }
-
-  /**
-   * Accepts varargs expecting each argument to be an object, then
-   * immutably merges the properties of each object and returns result.
-   *
-   * When multiple objects contain the same key the later object in
-   * the arguments list will take precedence.
-   *
-   * Example:
-   *
-   * ```js
-   * var result = merge({foo: 123}, {foo: 456});
-   * console.log(result.foo); // outputs 456
-   * ```
-   *
-   * @param {Object} obj1 Object to merge
-   * @returns {Object} Result of all merge properties
-   */
-  function merge(/* obj1, obj2, obj3, ... */) {
-    var result = {};
-    function assignValue(val, key) {
-      if (typeof result[key] === 'object' && typeof val === 'object') {
-        result[key] = merge(result[key], val);
-      } else {
-        result[key] = val;
-      }
-    }
-
-    for (var i = 0, l = arguments.length; i < l; i++) {
-      forEach(arguments[i], assignValue);
-    }
-    return result;
-  }
-
-  /**
-   * Extends object a by mutably adding to it the properties of object b.
-   *
-   * @param {Object} a The object to be extended
-   * @param {Object} b The object to copy properties from
-   * @param {Object} thisArg The object to bind function to
-   * @return {Object} The resulting value of object a
-   */
-  function extend$1(a, b, thisArg) {
-    forEach(b, function assignValue(val, key) {
-      if (thisArg && typeof val === 'function') {
-        a[key] = bind$1(val, thisArg);
-      } else {
-        a[key] = val;
-      }
-    });
-    return a;
-  }
-
-  var utils = {
-    isArray: isArray,
-    isArrayBuffer: isArrayBuffer,
-    isBuffer: isBuffer_1,
-    isFormData: isFormData,
-    isArrayBufferView: isArrayBufferView,
-    isString: isString,
-    isNumber: isNumber,
-    isObject: isObject$1,
-    isUndefined: isUndefined,
-    isDate: isDate,
-    isFile: isFile,
-    isBlob: isBlob,
-    isFunction: isFunction,
-    isStream: isStream,
-    isURLSearchParams: isURLSearchParams,
-    isStandardBrowserEnv: isStandardBrowserEnv,
-    forEach: forEach,
-    merge: merge,
-    extend: extend$1,
-    trim: trim
-  };
-
-  var normalizeHeaderName = function normalizeHeaderName(headers, normalizedName) {
-    utils.forEach(headers, function processHeader(value, name) {
-      if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
-        headers[normalizedName] = value;
-        delete headers[name];
-      }
-    });
-  };
-
-  /**
-   * Update an Error with the specified config, error code, and response.
-   *
-   * @param {Error} error The error to update.
-   * @param {Object} config The config.
-   * @param {string} [code] The error code (for example, 'ECONNABORTED').
-   * @param {Object} [request] The request.
-   * @param {Object} [response] The response.
-   * @returns {Error} The error.
-   */
-  var enhanceError = function enhanceError(error, config, code, request, response) {
-    error.config = config;
-    if (code) {
-      error.code = code;
-    }
-    error.request = request;
-    error.response = response;
-    return error;
-  };
-
-  /**
-   * Create an Error with the specified message, config, error code, request and response.
-   *
-   * @param {string} message The error message.
-   * @param {Object} config The config.
-   * @param {string} [code] The error code (for example, 'ECONNABORTED').
-   * @param {Object} [request] The request.
-   * @param {Object} [response] The response.
-   * @returns {Error} The created error.
-   */
-  var createError = function createError(message, config, code, request, response) {
-    var error = new Error(message);
-    return enhanceError(error, config, code, request, response);
-  };
-
-  /**
-   * Resolve or reject a Promise based on response status.
-   *
-   * @param {Function} resolve A function that resolves the promise.
-   * @param {Function} reject A function that rejects the promise.
-   * @param {object} response The response.
-   */
-  var settle = function settle(resolve, reject, response) {
-    var validateStatus = response.config.validateStatus;
-    // Note: status is not exposed by XDomainRequest
-    if (!response.status || !validateStatus || validateStatus(response.status)) {
-      resolve(response);
-    } else {
-      reject(createError(
-        'Request failed with status code ' + response.status,
-        response.config,
-        null,
-        response.request,
-        response
-      ));
-    }
-  };
-
-  function encode(val) {
-    return encodeURIComponent(val).
-      replace(/%40/gi, '@').
-      replace(/%3A/gi, ':').
-      replace(/%24/g, '$').
-      replace(/%2C/gi, ',').
-      replace(/%20/g, '+').
-      replace(/%5B/gi, '[').
-      replace(/%5D/gi, ']');
-  }
-
-  /**
-   * Build a URL by appending params to the end
-   *
-   * @param {string} url The base of the url (e.g., http://www.google.com)
-   * @param {object} [params] The params to be appended
-   * @returns {string} The formatted url
-   */
-  var buildURL = function buildURL(url, params, paramsSerializer) {
-    /*eslint no-param-reassign:0*/
-    if (!params) {
-      return url;
-    }
-
-    var serializedParams;
-    if (paramsSerializer) {
-      serializedParams = paramsSerializer(params);
-    } else if (utils.isURLSearchParams(params)) {
-      serializedParams = params.toString();
-    } else {
-      var parts = [];
-
-      utils.forEach(params, function serialize(val, key) {
-        if (val === null || typeof val === 'undefined') {
-          return;
-        }
-
-        if (utils.isArray(val)) {
-          key = key + '[]';
-        } else {
-          val = [val];
-        }
-
-        utils.forEach(val, function parseValue(v) {
-          if (utils.isDate(v)) {
-            v = v.toISOString();
-          } else if (utils.isObject(v)) {
-            v = JSON.stringify(v);
-          }
-          parts.push(encode(key) + '=' + encode(v));
-        });
-      });
-
-      serializedParams = parts.join('&');
-    }
-
-    if (serializedParams) {
-      url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
-    }
-
-    return url;
-  };
-
-  // Headers whose duplicates are ignored by node
-  // c.f. https://nodejs.org/api/http.html#http_message_headers
-  var ignoreDuplicateOf = [
-    'age', 'authorization', 'content-length', 'content-type', 'etag',
-    'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-    'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-    'referer', 'retry-after', 'user-agent'
-  ];
-
-  /**
-   * Parse headers into an object
-   *
-   * ```
-   * Date: Wed, 27 Aug 2014 08:58:49 GMT
-   * Content-Type: application/json
-   * Connection: keep-alive
-   * Transfer-Encoding: chunked
-   * ```
-   *
-   * @param {String} headers Headers needing to be parsed
-   * @returns {Object} Headers parsed into an object
-   */
-  var parseHeaders = function parseHeaders(headers) {
-    var parsed = {};
-    var key;
-    var val;
-    var i;
-
-    if (!headers) { return parsed; }
-
-    utils.forEach(headers.split('\n'), function parser(line) {
-      i = line.indexOf(':');
-      key = utils.trim(line.substr(0, i)).toLowerCase();
-      val = utils.trim(line.substr(i + 1));
-
-      if (key) {
-        if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-          return;
-        }
-        if (key === 'set-cookie') {
-          parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-        } else {
-          parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-        }
-      }
-    });
-
-    return parsed;
-  };
-
-  var isURLSameOrigin = (
-    utils.isStandardBrowserEnv() ?
-
-    // Standard browser envs have full support of the APIs needed to test
-    // whether the request URL is of the same origin as current location.
-    (function standardBrowserEnv() {
-      var msie = /(msie|trident)/i.test(navigator.userAgent);
-      var urlParsingNode = document.createElement('a');
-      var originURL;
-
-      /**
-      * Parse a URL to discover it's components
-      *
-      * @param {String} url The URL to be parsed
-      * @returns {Object}
-      */
-      function resolveURL(url) {
-        var href = url;
-
-        if (msie) {
-          // IE needs attribute set twice to normalize properties
-          urlParsingNode.setAttribute('href', href);
-          href = urlParsingNode.href;
-        }
-
-        urlParsingNode.setAttribute('href', href);
-
-        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-        return {
-          href: urlParsingNode.href,
-          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-          host: urlParsingNode.host,
-          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-          hostname: urlParsingNode.hostname,
-          port: urlParsingNode.port,
-          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-                    urlParsingNode.pathname :
-                    '/' + urlParsingNode.pathname
-        };
-      }
-
-      originURL = resolveURL(window.location.href);
-
-      /**
-      * Determine if a URL shares the same origin as the current location
-      *
-      * @param {String} requestURL The URL to test
-      * @returns {boolean} True if URL shares the same origin, otherwise false
-      */
-      return function isURLSameOrigin(requestURL) {
-        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-        return (parsed.protocol === originURL.protocol &&
-              parsed.host === originURL.host);
-      };
-    })() :
-
-    // Non standard browser envs (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return function isURLSameOrigin() {
-        return true;
-      };
-    })()
-  );
-
-  // btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
-
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-  function E() {
-    this.message = 'String contains an invalid character';
-  }
-  E.prototype = new Error;
-  E.prototype.code = 5;
-  E.prototype.name = 'InvalidCharacterError';
-
-  function btoa$1(input) {
-    var str = String(input);
-    var output = '';
-    for (
-      // initialize result and counter
-      var block, charCode, idx = 0, map = chars;
-      // if the next str index does not exist:
-      //   change the mapping table to "="
-      //   check if d has no fractional digits
-      str.charAt(idx | 0) || (map = '=', idx % 1);
-      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-      charCode = str.charCodeAt(idx += 3 / 4);
-      if (charCode > 0xFF) {
-        throw new E();
-      }
-      block = block << 8 | charCode;
-    }
-    return output;
-  }
-
-  var btoa_1 = btoa$1;
-
-  var cookies = (
-    utils.isStandardBrowserEnv() ?
-
-    // Standard browser envs support document.cookie
-    (function standardBrowserEnv() {
-      return {
-        write: function write(name, value, expires, path, domain, secure) {
-          var cookie = [];
-          cookie.push(name + '=' + encodeURIComponent(value));
-
-          if (utils.isNumber(expires)) {
-            cookie.push('expires=' + new Date(expires).toGMTString());
-          }
-
-          if (utils.isString(path)) {
-            cookie.push('path=' + path);
-          }
-
-          if (utils.isString(domain)) {
-            cookie.push('domain=' + domain);
-          }
-
-          if (secure === true) {
-            cookie.push('secure');
-          }
-
-          document.cookie = cookie.join('; ');
-        },
-
-        read: function read(name) {
-          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-          return (match ? decodeURIComponent(match[3]) : null);
-        },
-
-        remove: function remove(name) {
-          this.write(name, '', Date.now() - 86400000);
-        }
-      };
-    })() :
-
-    // Non standard browser env (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return {
-        write: function write() {},
-        read: function read() { return null; },
-        remove: function remove() {}
-      };
-    })()
-  );
-
-  var btoa$2 = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || btoa_1;
-
-  var xhr = function xhrAdapter(config) {
-    return new Promise(function dispatchXhrRequest(resolve, reject) {
-      var requestData = config.data;
-      var requestHeaders = config.headers;
-
-      if (utils.isFormData(requestData)) {
-        delete requestHeaders['Content-Type']; // Let the browser set it
-      }
-
-      var request = new XMLHttpRequest();
-      var loadEvent = 'onreadystatechange';
-      var xDomain = false;
-
-      // For IE 8/9 CORS support
-      // Only supports POST and GET calls and doesn't returns the response headers.
-      // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-      if (typeof window !== 'undefined' &&
-          window.XDomainRequest && !('withCredentials' in request) &&
-          !isURLSameOrigin(config.url)) {
-        request = new window.XDomainRequest();
-        loadEvent = 'onload';
-        xDomain = true;
-        request.onprogress = function handleProgress() {};
-        request.ontimeout = function handleTimeout() {};
-      }
-
-      // HTTP basic authentication
-      if (config.auth) {
-        var username = config.auth.username || '';
-        var password = config.auth.password || '';
-        requestHeaders.Authorization = 'Basic ' + btoa$2(username + ':' + password);
-      }
-
-      request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-      // Set the request timeout in MS
-      request.timeout = config.timeout;
-
-      // Listen for ready state
-      request[loadEvent] = function handleLoad() {
-        if (!request || (request.readyState !== 4 && !xDomain)) {
-          return;
-        }
-
-        // The request errored out and we didn't get a response, this will be
-        // handled by onerror instead
-        // With one exception: request that using file: protocol, most browsers
-        // will return status as 0 even though it's a successful request
-        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-          return;
-        }
-
-        // Prepare the response
-        var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-        var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-        var response = {
-          data: responseData,
-          // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-          status: request.status === 1223 ? 204 : request.status,
-          statusText: request.status === 1223 ? 'No Content' : request.statusText,
-          headers: responseHeaders,
-          config: config,
-          request: request
-        };
-
-        settle(resolve, reject, response);
-
-        // Clean up request
-        request = null;
-      };
-
-      // Handle low level network errors
-      request.onerror = function handleError() {
-        // Real errors are hidden from us by the browser
-        // onerror should only fire if it's a network error
-        reject(createError('Network Error', config, null, request));
-
-        // Clean up request
-        request = null;
-      };
-
-      // Handle timeout
-      request.ontimeout = function handleTimeout() {
-        reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-          request));
-
-        // Clean up request
-        request = null;
-      };
-
-      // Add xsrf header
-      // This is only done if running in a standard browser environment.
-      // Specifically not if we're in a web worker, or react-native.
-      if (utils.isStandardBrowserEnv()) {
-        var cookies$$1 = cookies;
-
-        // Add xsrf header
-        var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-            cookies$$1.read(config.xsrfCookieName) :
-            undefined;
-
-        if (xsrfValue) {
-          requestHeaders[config.xsrfHeaderName] = xsrfValue;
-        }
-      }
-
-      // Add headers to the request
-      if ('setRequestHeader' in request) {
-        utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-          if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-            // Remove Content-Type if data is undefined
-            delete requestHeaders[key];
-          } else {
-            // Otherwise add header to the request
-            request.setRequestHeader(key, val);
-          }
-        });
-      }
-
-      // Add withCredentials to request if needed
-      if (config.withCredentials) {
-        request.withCredentials = true;
-      }
-
-      // Add responseType to request if needed
-      if (config.responseType) {
-        try {
-          request.responseType = config.responseType;
-        } catch (e) {
-          // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-          // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-          if (config.responseType !== 'json') {
-            throw e;
-          }
-        }
-      }
-
-      // Handle progress if needed
-      if (typeof config.onDownloadProgress === 'function') {
-        request.addEventListener('progress', config.onDownloadProgress);
-      }
-
-      // Not all browsers support upload events
-      if (typeof config.onUploadProgress === 'function' && request.upload) {
-        request.upload.addEventListener('progress', config.onUploadProgress);
-      }
-
-      if (config.cancelToken) {
-        // Handle cancellation
-        config.cancelToken.promise.then(function onCanceled(cancel) {
-          if (!request) {
-            return;
-          }
-
-          request.abort();
-          reject(cancel);
-          // Clean up request
-          request = null;
-        });
-      }
-
-      if (requestData === undefined) {
-        requestData = null;
-      }
-
-      // Send the request
-      request.send(requestData);
-    });
-  };
-
-  var DEFAULT_CONTENT_TYPE = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  };
-
-  function setContentTypeIfUnset(headers, value) {
-    if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-      headers['Content-Type'] = value;
-    }
-  }
-
-  function getDefaultAdapter() {
-    var adapter;
-    if (typeof XMLHttpRequest !== 'undefined') {
-      // For browsers use XHR adapter
-      adapter = xhr;
-    } else if (typeof process !== 'undefined') {
-      // For node use HTTP adapter
-      adapter = xhr;
-    }
-    return adapter;
-  }
-
-  var defaults = {
-    adapter: getDefaultAdapter(),
-
-    transformRequest: [function transformRequest(data, headers) {
-      normalizeHeaderName(headers, 'Content-Type');
-      if (utils.isFormData(data) ||
-        utils.isArrayBuffer(data) ||
-        utils.isBuffer(data) ||
-        utils.isStream(data) ||
-        utils.isFile(data) ||
-        utils.isBlob(data)
-      ) {
-        return data;
-      }
-      if (utils.isArrayBufferView(data)) {
-        return data.buffer;
-      }
-      if (utils.isURLSearchParams(data)) {
-        setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-        return data.toString();
-      }
-      if (utils.isObject(data)) {
-        setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
-        return JSON.stringify(data);
-      }
-      return data;
-    }],
-
-    transformResponse: [function transformResponse(data) {
-      /*eslint no-param-reassign:0*/
-      if (typeof data === 'string') {
-        try {
-          data = JSON.parse(data);
-        } catch (e) { /* Ignore */ }
-      }
-      return data;
-    }],
-
-    /**
-     * A timeout in milliseconds to abort a request. If set to 0 (default) a
-     * timeout is not created.
-     */
-    timeout: 0,
-
-    xsrfCookieName: 'XSRF-TOKEN',
-    xsrfHeaderName: 'X-XSRF-TOKEN',
-
-    maxContentLength: -1,
-
-    validateStatus: function validateStatus(status) {
-      return status >= 200 && status < 300;
-    }
-  };
-
-  defaults.headers = {
-    common: {
-      'Accept': 'application/json, text/plain, */*'
-    }
-  };
-
-  utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-    defaults.headers[method] = {};
-  });
-
-  utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-    defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-  });
-
-  var defaults_1 = defaults;
-
-  function InterceptorManager() {
-    this.handlers = [];
-  }
-
-  /**
-   * Add a new interceptor to the stack
-   *
-   * @param {Function} fulfilled The function to handle `then` for a `Promise`
-   * @param {Function} rejected The function to handle `reject` for a `Promise`
-   *
-   * @return {Number} An ID used to remove interceptor later
-   */
-  InterceptorManager.prototype.use = function use(fulfilled, rejected) {
-    this.handlers.push({
-      fulfilled: fulfilled,
-      rejected: rejected
-    });
-    return this.handlers.length - 1;
-  };
-
-  /**
-   * Remove an interceptor from the stack
-   *
-   * @param {Number} id The ID that was returned by `use`
-   */
-  InterceptorManager.prototype.eject = function eject(id) {
-    if (this.handlers[id]) {
-      this.handlers[id] = null;
-    }
-  };
-
-  /**
-   * Iterate over all the registered interceptors
-   *
-   * This method is particularly useful for skipping over any
-   * interceptors that may have become `null` calling `eject`.
-   *
-   * @param {Function} fn The function to call for each interceptor
-   */
-  InterceptorManager.prototype.forEach = function forEach(fn) {
-    utils.forEach(this.handlers, function forEachHandler(h) {
-      if (h !== null) {
-        fn(h);
-      }
-    });
-  };
-
-  var InterceptorManager_1 = InterceptorManager;
-
-  /**
-   * Transform the data for a request or a response
-   *
-   * @param {Object|String} data The data to be transformed
-   * @param {Array} headers The headers for the request or response
-   * @param {Array|Function} fns A single function or Array of functions
-   * @returns {*} The resulting transformed data
-   */
-  var transformData = function transformData(data, headers, fns) {
-    /*eslint no-param-reassign:0*/
-    utils.forEach(fns, function transform(fn) {
-      data = fn(data, headers);
-    });
-
-    return data;
-  };
-
-  var isCancel = function isCancel(value) {
-    return !!(value && value.__CANCEL__);
-  };
-
-  /**
-   * Determines whether the specified URL is absolute
-   *
-   * @param {string} url The URL to test
-   * @returns {boolean} True if the specified URL is absolute, otherwise false
-   */
-  var isAbsoluteURL = function isAbsoluteURL(url) {
-    // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-    // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-    // by any combination of letters, digits, plus, period, or hyphen.
-    return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
-  };
-
-  /**
-   * Creates a new URL by combining the specified URLs
-   *
-   * @param {string} baseURL The base URL
-   * @param {string} relativeURL The relative URL
-   * @returns {string} The combined URL
-   */
-  var combineURLs = function combineURLs(baseURL, relativeURL) {
-    return relativeURL
-      ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
-      : baseURL;
-  };
-
-  /**
-   * Throws a `Cancel` if cancellation has been requested.
-   */
-  function throwIfCancellationRequested(config) {
-    if (config.cancelToken) {
-      config.cancelToken.throwIfRequested();
-    }
-  }
-
-  /**
-   * Dispatch a request to the server using the configured adapter.
-   *
-   * @param {object} config The config that is to be used for the request
-   * @returns {Promise} The Promise to be fulfilled
-   */
-  var dispatchRequest = function dispatchRequest(config) {
-    throwIfCancellationRequested(config);
-
-    // Support baseURL config
-    if (config.baseURL && !isAbsoluteURL(config.url)) {
-      config.url = combineURLs(config.baseURL, config.url);
-    }
-
-    // Ensure headers exist
-    config.headers = config.headers || {};
-
-    // Transform request data
-    config.data = transformData(
-      config.data,
-      config.headers,
-      config.transformRequest
-    );
-
-    // Flatten headers
-    config.headers = utils.merge(
-      config.headers.common || {},
-      config.headers[config.method] || {},
-      config.headers || {}
-    );
-
-    utils.forEach(
-      ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-      function cleanHeaderConfig(method) {
-        delete config.headers[method];
-      }
-    );
-
-    var adapter = config.adapter || defaults_1.adapter;
-
-    return adapter(config).then(function onAdapterResolution(response) {
-      throwIfCancellationRequested(config);
-
-      // Transform response data
-      response.data = transformData(
-        response.data,
-        response.headers,
-        config.transformResponse
-      );
-
-      return response;
-    }, function onAdapterRejection(reason) {
-      if (!isCancel(reason)) {
-        throwIfCancellationRequested(config);
-
-        // Transform response data
-        if (reason && reason.response) {
-          reason.response.data = transformData(
-            reason.response.data,
-            reason.response.headers,
-            config.transformResponse
-          );
-        }
-      }
-
-      return Promise.reject(reason);
-    });
-  };
-
-  /**
-   * Create a new instance of Axios
-   *
-   * @param {Object} instanceConfig The default config for the instance
-   */
-  function Axios(instanceConfig) {
-    this.defaults = instanceConfig;
-    this.interceptors = {
-      request: new InterceptorManager_1(),
-      response: new InterceptorManager_1()
-    };
-  }
-
-  /**
-   * Dispatch a request
-   *
-   * @param {Object} config The config specific for this request (merged with this.defaults)
-   */
-  Axios.prototype.request = function request(config) {
-    /*eslint no-param-reassign:0*/
-    // Allow for axios('example/url'[, config]) a la fetch API
-    if (typeof config === 'string') {
-      config = utils.merge({
-        url: arguments[0]
-      }, arguments[1]);
-    }
-
-    config = utils.merge(defaults_1, {method: 'get'}, this.defaults, config);
-    config.method = config.method.toLowerCase();
-
-    // Hook up interceptors middleware
-    var chain = [dispatchRequest, undefined];
-    var promise = Promise.resolve(config);
-
-    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-      chain.unshift(interceptor.fulfilled, interceptor.rejected);
-    });
-
-    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-      chain.push(interceptor.fulfilled, interceptor.rejected);
-    });
-
-    while (chain.length) {
-      promise = promise.then(chain.shift(), chain.shift());
-    }
-
-    return promise;
-  };
-
-  // Provide aliases for supported request methods
-  utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
-    /*eslint func-names:0*/
-    Axios.prototype[method] = function(url, config) {
-      return this.request(utils.merge(config || {}, {
-        method: method,
-        url: url
-      }));
-    };
-  });
-
-  utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-    /*eslint func-names:0*/
-    Axios.prototype[method] = function(url, data, config) {
-      return this.request(utils.merge(config || {}, {
-        method: method,
-        url: url,
-        data: data
-      }));
-    };
-  });
-
-  var Axios_1 = Axios;
-
-  /**
-   * A `Cancel` is an object that is thrown when an operation is canceled.
-   *
-   * @class
-   * @param {string=} message The message.
-   */
-  function Cancel(message) {
-    this.message = message;
-  }
-
-  Cancel.prototype.toString = function toString() {
-    return 'Cancel' + (this.message ? ': ' + this.message : '');
-  };
-
-  Cancel.prototype.__CANCEL__ = true;
-
-  var Cancel_1 = Cancel;
-
-  /**
-   * A `CancelToken` is an object that can be used to request cancellation of an operation.
-   *
-   * @class
-   * @param {Function} executor The executor function.
-   */
-  function CancelToken(executor) {
-    if (typeof executor !== 'function') {
-      throw new TypeError('executor must be a function.');
-    }
-
-    var resolvePromise;
-    this.promise = new Promise(function promiseExecutor(resolve) {
-      resolvePromise = resolve;
-    });
-
-    var token = this;
-    executor(function cancel(message) {
-      if (token.reason) {
-        // Cancellation has already been requested
-        return;
-      }
-
-      token.reason = new Cancel_1(message);
-      resolvePromise(token.reason);
-    });
-  }
-
-  /**
-   * Throws a `Cancel` if cancellation has been requested.
-   */
-  CancelToken.prototype.throwIfRequested = function throwIfRequested() {
-    if (this.reason) {
-      throw this.reason;
-    }
-  };
-
-  /**
-   * Returns an object that contains a new `CancelToken` and a function that, when called,
-   * cancels the `CancelToken`.
-   */
-  CancelToken.source = function source() {
-    var cancel;
-    var token = new CancelToken(function executor(c) {
-      cancel = c;
-    });
-    return {
-      token: token,
-      cancel: cancel
-    };
-  };
-
-  var CancelToken_1 = CancelToken;
-
-  /**
-   * Syntactic sugar for invoking a function and expanding an array for arguments.
-   *
-   * Common use case would be to use `Function.prototype.apply`.
-   *
-   *  ```js
-   *  function f(x, y, z) {}
-   *  var args = [1, 2, 3];
-   *  f.apply(null, args);
-   *  ```
-   *
-   * With `spread` this example can be re-written.
-   *
-   *  ```js
-   *  spread(function(x, y, z) {})([1, 2, 3]);
-   *  ```
-   *
-   * @param {Function} callback
-   * @returns {Function}
-   */
-  var spread = function spread(callback) {
-    return function wrap(arr) {
-      return callback.apply(null, arr);
-    };
-  };
-
-  /**
-   * Create an instance of Axios
-   *
-   * @param {Object} defaultConfig The default config for the instance
-   * @return {Axios} A new instance of Axios
-   */
-  function createInstance(defaultConfig) {
-    var context = new Axios_1(defaultConfig);
-    var instance = bind$1(Axios_1.prototype.request, context);
-
-    // Copy axios.prototype to instance
-    utils.extend(instance, Axios_1.prototype, context);
-
-    // Copy context to instance
-    utils.extend(instance, context);
-
-    return instance;
-  }
-
-  // Create the default instance to be exported
-  var axios = createInstance(defaults_1);
-
-  // Expose Axios class to allow class inheritance
-  axios.Axios = Axios_1;
-
-  // Factory for creating new instances
-  axios.create = function create(instanceConfig) {
-    return createInstance(utils.merge(defaults_1, instanceConfig));
-  };
-
-  // Expose Cancel & CancelToken
-  axios.Cancel = Cancel_1;
-  axios.CancelToken = CancelToken_1;
-  axios.isCancel = isCancel;
-
-  // Expose all/spread
-  axios.all = function all(promises) {
-    return Promise.all(promises);
-  };
-  axios.spread = spread;
-
-  var axios_1 = axios;
-
-  // Allow use of default import syntax in TypeScript
-  var default_1 = axios;
-  axios_1.default = default_1;
-
-  var axios$1 = axios_1;
-
-  var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function unwrapExports (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
-  }
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var FileSaver_min = createCommonjsModule(function (module, exports) {
-  (function(a,b){b();})(commonjsGlobal,function(){function b(a,b){return "undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Depricated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(b,c,d){var e=new XMLHttpRequest;e.open("GET",b),e.responseType="blob",e.onload=function(){a(e.response,c,d);},e.onerror=function(){console.error("could not download file");},e.send();}function d(a){var b=new XMLHttpRequest;return b.open("HEAD",a,!1),b.send(),200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"));}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b);}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof commonjsGlobal&&commonjsGlobal.global===commonjsGlobal?commonjsGlobal:void 0,a=f.saveAs||"object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href);},4E4),setTimeout(function(){e(j);},0));}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i);});}}:function(a,b,d,e){if(e=e||open("","_blank"),e&&(e.document.title=e.document.body.innerText="downloading..."),"string"==typeof a)return c(a,b,d);var g="application/octet-stream"===a.type,h=/constructor/i.test(f.HTMLElement)||f.safari,i=/CriOS\/[\d]+/.test(navigator.userAgent);if((i||g&&h)&&"object"==typeof FileReader){var j=new FileReader;j.onloadend=function(){var a=j.result;a=i?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),e?e.location.href=a:location=a,e=null;},j.readAsDataURL(a);}else{var k=f.URL||f.webkitURL,l=k.createObjectURL(a);e?e.location=l:location.href=l,e=null,setTimeout(function(){k.revokeObjectURL(l);},4E4);}};f.saveAs=a.saveAs=a,module.exports=a;});
-
-
-  });
-
-  var core = createCommonjsModule(function (module, exports) {
-  (function (root, factory) {
-  	{
-  		// CommonJS
-  		module.exports = exports = factory();
-  	}
-  }(commonjsGlobal, function () {
-
-  	/**
-  	 * CryptoJS core components.
-  	 */
-  	var CryptoJS = CryptoJS || (function (Math, undefined) {
-  	    /*
-  	     * Local polyfil of Object.create
-  	     */
-  	    var create = Object.create || (function () {
-  	        function F() {}
-  	        return function (obj) {
-  	            var subtype;
-
-  	            F.prototype = obj;
-
-  	            subtype = new F();
-
-  	            F.prototype = null;
-
-  	            return subtype;
-  	        };
-  	    }());
-
-  	    /**
-  	     * CryptoJS namespace.
-  	     */
-  	    var C = {};
-
-  	    /**
-  	     * Library namespace.
-  	     */
-  	    var C_lib = C.lib = {};
-
-  	    /**
-  	     * Base object for prototypal inheritance.
-  	     */
-  	    var Base = C_lib.Base = (function () {
-
-
-  	        return {
-  	            /**
-  	             * Creates a new object that inherits from this object.
-  	             *
-  	             * @param {Object} overrides Properties to copy into the new object.
-  	             *
-  	             * @return {Object} The new object.
-  	             *
-  	             * @static
-  	             *
-  	             * @example
-  	             *
-  	             *     var MyType = CryptoJS.lib.Base.extend({
-  	             *         field: 'value',
-  	             *
-  	             *         method: function () {
-  	             *         }
-  	             *     });
-  	             */
-  	            extend: function (overrides) {
-  	                // Spawn
-  	                var subtype = create(this);
-
-  	                // Augment
-  	                if (overrides) {
-  	                    subtype.mixIn(overrides);
-  	                }
-
-  	                // Create default initializer
-  	                if (!subtype.hasOwnProperty('init') || this.init === subtype.init) {
-  	                    subtype.init = function () {
-  	                        subtype.$super.init.apply(this, arguments);
-  	                    };
-  	                }
-
-  	                // Initializer's prototype is the subtype object
-  	                subtype.init.prototype = subtype;
-
-  	                // Reference supertype
-  	                subtype.$super = this;
-
-  	                return subtype;
-  	            },
-
-  	            /**
-  	             * Extends this object and runs the init method.
-  	             * Arguments to create() will be passed to init().
-  	             *
-  	             * @return {Object} The new object.
-  	             *
-  	             * @static
-  	             *
-  	             * @example
-  	             *
-  	             *     var instance = MyType.create();
-  	             */
-  	            create: function () {
-  	                var instance = this.extend();
-  	                instance.init.apply(instance, arguments);
-
-  	                return instance;
-  	            },
-
-  	            /**
-  	             * Initializes a newly created object.
-  	             * Override this method to add some logic when your objects are created.
-  	             *
-  	             * @example
-  	             *
-  	             *     var MyType = CryptoJS.lib.Base.extend({
-  	             *         init: function () {
-  	             *             // ...
-  	             *         }
-  	             *     });
-  	             */
-  	            init: function () {
-  	            },
-
-  	            /**
-  	             * Copies properties into this object.
-  	             *
-  	             * @param {Object} properties The properties to mix in.
-  	             *
-  	             * @example
-  	             *
-  	             *     MyType.mixIn({
-  	             *         field: 'value'
-  	             *     });
-  	             */
-  	            mixIn: function (properties) {
-  	                for (var propertyName in properties) {
-  	                    if (properties.hasOwnProperty(propertyName)) {
-  	                        this[propertyName] = properties[propertyName];
-  	                    }
-  	                }
-
-  	                // IE won't copy toString using the loop above
-  	                if (properties.hasOwnProperty('toString')) {
-  	                    this.toString = properties.toString;
-  	                }
-  	            },
-
-  	            /**
-  	             * Creates a copy of this object.
-  	             *
-  	             * @return {Object} The clone.
-  	             *
-  	             * @example
-  	             *
-  	             *     var clone = instance.clone();
-  	             */
-  	            clone: function () {
-  	                return this.init.prototype.extend(this);
-  	            }
-  	        };
-  	    }());
-
-  	    /**
-  	     * An array of 32-bit words.
-  	     *
-  	     * @property {Array} words The array of 32-bit words.
-  	     * @property {number} sigBytes The number of significant bytes in this word array.
-  	     */
-  	    var WordArray = C_lib.WordArray = Base.extend({
-  	        /**
-  	         * Initializes a newly created word array.
-  	         *
-  	         * @param {Array} words (Optional) An array of 32-bit words.
-  	         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
-  	         *
-  	         * @example
-  	         *
-  	         *     var wordArray = CryptoJS.lib.WordArray.create();
-  	         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
-  	         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
-  	         */
-  	        init: function (words, sigBytes) {
-  	            words = this.words = words || [];
-
-  	            if (sigBytes != undefined) {
-  	                this.sigBytes = sigBytes;
-  	            } else {
-  	                this.sigBytes = words.length * 4;
-  	            }
-  	        },
-
-  	        /**
-  	         * Converts this word array to a string.
-  	         *
-  	         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
-  	         *
-  	         * @return {string} The stringified word array.
-  	         *
-  	         * @example
-  	         *
-  	         *     var string = wordArray + '';
-  	         *     var string = wordArray.toString();
-  	         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
-  	         */
-  	        toString: function (encoder) {
-  	            return (encoder || Hex).stringify(this);
-  	        },
-
-  	        /**
-  	         * Concatenates a word array to this word array.
-  	         *
-  	         * @param {WordArray} wordArray The word array to append.
-  	         *
-  	         * @return {WordArray} This word array.
-  	         *
-  	         * @example
-  	         *
-  	         *     wordArray1.concat(wordArray2);
-  	         */
-  	        concat: function (wordArray) {
-  	            // Shortcuts
-  	            var thisWords = this.words;
-  	            var thatWords = wordArray.words;
-  	            var thisSigBytes = this.sigBytes;
-  	            var thatSigBytes = wordArray.sigBytes;
-
-  	            // Clamp excess bits
-  	            this.clamp();
-
-  	            // Concat
-  	            if (thisSigBytes % 4) {
-  	                // Copy one byte at a time
-  	                for (var i = 0; i < thatSigBytes; i++) {
-  	                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-  	                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
-  	                }
-  	            } else {
-  	                // Copy one word at a time
-  	                for (var i = 0; i < thatSigBytes; i += 4) {
-  	                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
-  	                }
-  	            }
-  	            this.sigBytes += thatSigBytes;
-
-  	            // Chainable
-  	            return this;
-  	        },
-
-  	        /**
-  	         * Removes insignificant bits.
-  	         *
-  	         * @example
-  	         *
-  	         *     wordArray.clamp();
-  	         */
-  	        clamp: function () {
-  	            // Shortcuts
-  	            var words = this.words;
-  	            var sigBytes = this.sigBytes;
-
-  	            // Clamp
-  	            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
-  	            words.length = Math.ceil(sigBytes / 4);
-  	        },
-
-  	        /**
-  	         * Creates a copy of this word array.
-  	         *
-  	         * @return {WordArray} The clone.
-  	         *
-  	         * @example
-  	         *
-  	         *     var clone = wordArray.clone();
-  	         */
-  	        clone: function () {
-  	            var clone = Base.clone.call(this);
-  	            clone.words = this.words.slice(0);
-
-  	            return clone;
-  	        },
-
-  	        /**
-  	         * Creates a word array filled with random bytes.
-  	         *
-  	         * @param {number} nBytes The number of random bytes to generate.
-  	         *
-  	         * @return {WordArray} The random word array.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var wordArray = CryptoJS.lib.WordArray.random(16);
-  	         */
-  	        random: function (nBytes) {
-  	            var words = [];
-
-  	            var r = (function (m_w) {
-  	                var m_w = m_w;
-  	                var m_z = 0x3ade68b1;
-  	                var mask = 0xffffffff;
-
-  	                return function () {
-  	                    m_z = (0x9069 * (m_z & 0xFFFF) + (m_z >> 0x10)) & mask;
-  	                    m_w = (0x4650 * (m_w & 0xFFFF) + (m_w >> 0x10)) & mask;
-  	                    var result = ((m_z << 0x10) + m_w) & mask;
-  	                    result /= 0x100000000;
-  	                    result += 0.5;
-  	                    return result * (Math.random() > .5 ? 1 : -1);
-  	                }
-  	            });
-
-  	            for (var i = 0, rcache; i < nBytes; i += 4) {
-  	                var _r = r((rcache || Math.random()) * 0x100000000);
-
-  	                rcache = _r() * 0x3ade67b7;
-  	                words.push((_r() * 0x100000000) | 0);
-  	            }
-
-  	            return new WordArray.init(words, nBytes);
-  	        }
-  	    });
-
-  	    /**
-  	     * Encoder namespace.
-  	     */
-  	    var C_enc = C.enc = {};
-
-  	    /**
-  	     * Hex encoding strategy.
-  	     */
-  	    var Hex = C_enc.Hex = {
-  	        /**
-  	         * Converts a word array to a hex string.
-  	         *
-  	         * @param {WordArray} wordArray The word array.
-  	         *
-  	         * @return {string} The hex string.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
-  	         */
-  	        stringify: function (wordArray) {
-  	            // Shortcuts
-  	            var words = wordArray.words;
-  	            var sigBytes = wordArray.sigBytes;
-
-  	            // Convert
-  	            var hexChars = [];
-  	            for (var i = 0; i < sigBytes; i++) {
-  	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-  	                hexChars.push((bite >>> 4).toString(16));
-  	                hexChars.push((bite & 0x0f).toString(16));
-  	            }
-
-  	            return hexChars.join('');
-  	        },
-
-  	        /**
-  	         * Converts a hex string to a word array.
-  	         *
-  	         * @param {string} hexStr The hex string.
-  	         *
-  	         * @return {WordArray} The word array.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
-  	         */
-  	        parse: function (hexStr) {
-  	            // Shortcut
-  	            var hexStrLength = hexStr.length;
-
-  	            // Convert
-  	            var words = [];
-  	            for (var i = 0; i < hexStrLength; i += 2) {
-  	                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
-  	            }
-
-  	            return new WordArray.init(words, hexStrLength / 2);
-  	        }
-  	    };
-
-  	    /**
-  	     * Latin1 encoding strategy.
-  	     */
-  	    var Latin1 = C_enc.Latin1 = {
-  	        /**
-  	         * Converts a word array to a Latin1 string.
-  	         *
-  	         * @param {WordArray} wordArray The word array.
-  	         *
-  	         * @return {string} The Latin1 string.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
-  	         */
-  	        stringify: function (wordArray) {
-  	            // Shortcuts
-  	            var words = wordArray.words;
-  	            var sigBytes = wordArray.sigBytes;
-
-  	            // Convert
-  	            var latin1Chars = [];
-  	            for (var i = 0; i < sigBytes; i++) {
-  	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-  	                latin1Chars.push(String.fromCharCode(bite));
-  	            }
-
-  	            return latin1Chars.join('');
-  	        },
-
-  	        /**
-  	         * Converts a Latin1 string to a word array.
-  	         *
-  	         * @param {string} latin1Str The Latin1 string.
-  	         *
-  	         * @return {WordArray} The word array.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
-  	         */
-  	        parse: function (latin1Str) {
-  	            // Shortcut
-  	            var latin1StrLength = latin1Str.length;
-
-  	            // Convert
-  	            var words = [];
-  	            for (var i = 0; i < latin1StrLength; i++) {
-  	                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
-  	            }
-
-  	            return new WordArray.init(words, latin1StrLength);
-  	        }
-  	    };
-
-  	    /**
-  	     * UTF-8 encoding strategy.
-  	     */
-  	    var Utf8 = C_enc.Utf8 = {
-  	        /**
-  	         * Converts a word array to a UTF-8 string.
-  	         *
-  	         * @param {WordArray} wordArray The word array.
-  	         *
-  	         * @return {string} The UTF-8 string.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
-  	         */
-  	        stringify: function (wordArray) {
-  	            try {
-  	                return decodeURIComponent(escape(Latin1.stringify(wordArray)));
-  	            } catch (e) {
-  	                throw new Error('Malformed UTF-8 data');
-  	            }
-  	        },
-
-  	        /**
-  	         * Converts a UTF-8 string to a word array.
-  	         *
-  	         * @param {string} utf8Str The UTF-8 string.
-  	         *
-  	         * @return {WordArray} The word array.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
-  	         */
-  	        parse: function (utf8Str) {
-  	            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
-  	        }
-  	    };
-
-  	    /**
-  	     * Abstract buffered block algorithm template.
-  	     *
-  	     * The property blockSize must be implemented in a concrete subtype.
-  	     *
-  	     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
-  	     */
-  	    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
-  	        /**
-  	         * Resets this block algorithm's data buffer to its initial state.
-  	         *
-  	         * @example
-  	         *
-  	         *     bufferedBlockAlgorithm.reset();
-  	         */
-  	        reset: function () {
-  	            // Initial values
-  	            this._data = new WordArray.init();
-  	            this._nDataBytes = 0;
-  	        },
-
-  	        /**
-  	         * Adds new data to this block algorithm's buffer.
-  	         *
-  	         * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
-  	         *
-  	         * @example
-  	         *
-  	         *     bufferedBlockAlgorithm._append('data');
-  	         *     bufferedBlockAlgorithm._append(wordArray);
-  	         */
-  	        _append: function (data) {
-  	            // Convert string to WordArray, else assume WordArray already
-  	            if (typeof data == 'string') {
-  	                data = Utf8.parse(data);
-  	            }
-
-  	            // Append
-  	            this._data.concat(data);
-  	            this._nDataBytes += data.sigBytes;
-  	        },
-
-  	        /**
-  	         * Processes available data blocks.
-  	         *
-  	         * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
-  	         *
-  	         * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
-  	         *
-  	         * @return {WordArray} The processed data.
-  	         *
-  	         * @example
-  	         *
-  	         *     var processedData = bufferedBlockAlgorithm._process();
-  	         *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
-  	         */
-  	        _process: function (doFlush) {
-  	            // Shortcuts
-  	            var data = this._data;
-  	            var dataWords = data.words;
-  	            var dataSigBytes = data.sigBytes;
-  	            var blockSize = this.blockSize;
-  	            var blockSizeBytes = blockSize * 4;
-
-  	            // Count blocks ready
-  	            var nBlocksReady = dataSigBytes / blockSizeBytes;
-  	            if (doFlush) {
-  	                // Round up to include partial blocks
-  	                nBlocksReady = Math.ceil(nBlocksReady);
-  	            } else {
-  	                // Round down to include only full blocks,
-  	                // less the number of blocks that must remain in the buffer
-  	                nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
-  	            }
-
-  	            // Count words ready
-  	            var nWordsReady = nBlocksReady * blockSize;
-
-  	            // Count bytes ready
-  	            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
-
-  	            // Process blocks
-  	            if (nWordsReady) {
-  	                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
-  	                    // Perform concrete-algorithm logic
-  	                    this._doProcessBlock(dataWords, offset);
-  	                }
-
-  	                // Remove processed words
-  	                var processedWords = dataWords.splice(0, nWordsReady);
-  	                data.sigBytes -= nBytesReady;
-  	            }
-
-  	            // Return processed words
-  	            return new WordArray.init(processedWords, nBytesReady);
-  	        },
-
-  	        /**
-  	         * Creates a copy of this object.
-  	         *
-  	         * @return {Object} The clone.
-  	         *
-  	         * @example
-  	         *
-  	         *     var clone = bufferedBlockAlgorithm.clone();
-  	         */
-  	        clone: function () {
-  	            var clone = Base.clone.call(this);
-  	            clone._data = this._data.clone();
-
-  	            return clone;
-  	        },
-
-  	        _minBufferSize: 0
-  	    });
-
-  	    /**
-  	     * Abstract hasher template.
-  	     *
-  	     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
-  	     */
-  	    var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
-  	        /**
-  	         * Configuration options.
-  	         */
-  	        cfg: Base.extend(),
-
-  	        /**
-  	         * Initializes a newly created hasher.
-  	         *
-  	         * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
-  	         *
-  	         * @example
-  	         *
-  	         *     var hasher = CryptoJS.algo.SHA256.create();
-  	         */
-  	        init: function (cfg) {
-  	            // Apply config defaults
-  	            this.cfg = this.cfg.extend(cfg);
-
-  	            // Set initial values
-  	            this.reset();
-  	        },
-
-  	        /**
-  	         * Resets this hasher to its initial state.
-  	         *
-  	         * @example
-  	         *
-  	         *     hasher.reset();
-  	         */
-  	        reset: function () {
-  	            // Reset data buffer
-  	            BufferedBlockAlgorithm.reset.call(this);
-
-  	            // Perform concrete-hasher logic
-  	            this._doReset();
-  	        },
-
-  	        /**
-  	         * Updates this hasher with a message.
-  	         *
-  	         * @param {WordArray|string} messageUpdate The message to append.
-  	         *
-  	         * @return {Hasher} This hasher.
-  	         *
-  	         * @example
-  	         *
-  	         *     hasher.update('message');
-  	         *     hasher.update(wordArray);
-  	         */
-  	        update: function (messageUpdate) {
-  	            // Append
-  	            this._append(messageUpdate);
-
-  	            // Update the hash
-  	            this._process();
-
-  	            // Chainable
-  	            return this;
-  	        },
-
-  	        /**
-  	         * Finalizes the hash computation.
-  	         * Note that the finalize operation is effectively a destructive, read-once operation.
-  	         *
-  	         * @param {WordArray|string} messageUpdate (Optional) A final message update.
-  	         *
-  	         * @return {WordArray} The hash.
-  	         *
-  	         * @example
-  	         *
-  	         *     var hash = hasher.finalize();
-  	         *     var hash = hasher.finalize('message');
-  	         *     var hash = hasher.finalize(wordArray);
-  	         */
-  	        finalize: function (messageUpdate) {
-  	            // Final message update
-  	            if (messageUpdate) {
-  	                this._append(messageUpdate);
-  	            }
-
-  	            // Perform concrete-hasher logic
-  	            var hash = this._doFinalize();
-
-  	            return hash;
-  	        },
-
-  	        blockSize: 512/32,
-
-  	        /**
-  	         * Creates a shortcut function to a hasher's object interface.
-  	         *
-  	         * @param {Hasher} hasher The hasher to create a helper for.
-  	         *
-  	         * @return {Function} The shortcut function.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
-  	         */
-  	        _createHelper: function (hasher) {
-  	            return function (message, cfg) {
-  	                return new hasher.init(cfg).finalize(message);
-  	            };
-  	        },
-
-  	        /**
-  	         * Creates a shortcut function to the HMAC's object interface.
-  	         *
-  	         * @param {Hasher} hasher The hasher to use in this HMAC helper.
-  	         *
-  	         * @return {Function} The shortcut function.
-  	         *
-  	         * @static
-  	         *
-  	         * @example
-  	         *
-  	         *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
-  	         */
-  	        _createHmacHelper: function (hasher) {
-  	            return function (message, key) {
-  	                return new C_algo.HMAC.init(hasher, key).finalize(message);
-  	            };
-  	        }
-  	    });
-
-  	    /**
-  	     * Algorithm namespace.
-  	     */
-  	    var C_algo = C.algo = {};
-
-  	    return C;
-  	}(Math));
-
-
-  	return CryptoJS;
-
-  }));
-  });
-
-  var sha256 = createCommonjsModule(function (module, exports) {
-  (function (root, factory) {
-  	{
-  		// CommonJS
-  		module.exports = exports = factory(core);
-  	}
-  }(commonjsGlobal, function (CryptoJS) {
-
-  	(function (Math) {
-  	    // Shortcuts
-  	    var C = CryptoJS;
-  	    var C_lib = C.lib;
-  	    var WordArray = C_lib.WordArray;
-  	    var Hasher = C_lib.Hasher;
-  	    var C_algo = C.algo;
-
-  	    // Initialization and round constants tables
-  	    var H = [];
-  	    var K = [];
-
-  	    // Compute constants
-  	    (function () {
-  	        function isPrime(n) {
-  	            var sqrtN = Math.sqrt(n);
-  	            for (var factor = 2; factor <= sqrtN; factor++) {
-  	                if (!(n % factor)) {
-  	                    return false;
-  	                }
-  	            }
-
-  	            return true;
-  	        }
-
-  	        function getFractionalBits(n) {
-  	            return ((n - (n | 0)) * 0x100000000) | 0;
-  	        }
-
-  	        var n = 2;
-  	        var nPrime = 0;
-  	        while (nPrime < 64) {
-  	            if (isPrime(n)) {
-  	                if (nPrime < 8) {
-  	                    H[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
-  	                }
-  	                K[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
-
-  	                nPrime++;
-  	            }
-
-  	            n++;
-  	        }
-  	    }());
-
-  	    // Reusable object
-  	    var W = [];
-
-  	    /**
-  	     * SHA-256 hash algorithm.
-  	     */
-  	    var SHA256 = C_algo.SHA256 = Hasher.extend({
-  	        _doReset: function () {
-  	            this._hash = new WordArray.init(H.slice(0));
-  	        },
-
-  	        _doProcessBlock: function (M, offset) {
-  	            // Shortcut
-  	            var H = this._hash.words;
-
-  	            // Working variables
-  	            var a = H[0];
-  	            var b = H[1];
-  	            var c = H[2];
-  	            var d = H[3];
-  	            var e = H[4];
-  	            var f = H[5];
-  	            var g = H[6];
-  	            var h = H[7];
-
-  	            // Computation
-  	            for (var i = 0; i < 64; i++) {
-  	                if (i < 16) {
-  	                    W[i] = M[offset + i] | 0;
-  	                } else {
-  	                    var gamma0x = W[i - 15];
-  	                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
-  	                                  ((gamma0x << 14) | (gamma0x >>> 18)) ^
-  	                                   (gamma0x >>> 3);
-
-  	                    var gamma1x = W[i - 2];
-  	                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
-  	                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
-  	                                   (gamma1x >>> 10);
-
-  	                    W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
-  	                }
-
-  	                var ch  = (e & f) ^ (~e & g);
-  	                var maj = (a & b) ^ (a & c) ^ (b & c);
-
-  	                var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
-  	                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
-
-  	                var t1 = h + sigma1 + ch + K[i] + W[i];
-  	                var t2 = sigma0 + maj;
-
-  	                h = g;
-  	                g = f;
-  	                f = e;
-  	                e = (d + t1) | 0;
-  	                d = c;
-  	                c = b;
-  	                b = a;
-  	                a = (t1 + t2) | 0;
-  	            }
-
-  	            // Intermediate hash value
-  	            H[0] = (H[0] + a) | 0;
-  	            H[1] = (H[1] + b) | 0;
-  	            H[2] = (H[2] + c) | 0;
-  	            H[3] = (H[3] + d) | 0;
-  	            H[4] = (H[4] + e) | 0;
-  	            H[5] = (H[5] + f) | 0;
-  	            H[6] = (H[6] + g) | 0;
-  	            H[7] = (H[7] + h) | 0;
-  	        },
-
-  	        _doFinalize: function () {
-  	            // Shortcuts
-  	            var data = this._data;
-  	            var dataWords = data.words;
-
-  	            var nBitsTotal = this._nDataBytes * 8;
-  	            var nBitsLeft = data.sigBytes * 8;
-
-  	            // Add padding
-  	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-  	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
-  	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-  	            data.sigBytes = dataWords.length * 4;
-
-  	            // Hash final blocks
-  	            this._process();
-
-  	            // Return final computed hash
-  	            return this._hash;
-  	        },
-
-  	        clone: function () {
-  	            var clone = Hasher.clone.call(this);
-  	            clone._hash = this._hash.clone();
-
-  	            return clone;
-  	        }
-  	    });
-
-  	    /**
-  	     * Shortcut function to the hasher's object interface.
-  	     *
-  	     * @param {WordArray|string} message The message to hash.
-  	     *
-  	     * @return {WordArray} The hash.
-  	     *
-  	     * @static
-  	     *
-  	     * @example
-  	     *
-  	     *     var hash = CryptoJS.SHA256('message');
-  	     *     var hash = CryptoJS.SHA256(wordArray);
-  	     */
-  	    C.SHA256 = Hasher._createHelper(SHA256);
-
-  	    /**
-  	     * Shortcut function to the HMAC's object interface.
-  	     *
-  	     * @param {WordArray|string} message The message to hash.
-  	     * @param {WordArray|string} key The secret key.
-  	     *
-  	     * @return {WordArray} The HMAC.
-  	     *
-  	     * @static
-  	     *
-  	     * @example
-  	     *
-  	     *     var hmac = CryptoJS.HmacSHA256(message, key);
-  	     */
-  	    C.HmacSHA256 = Hasher._createHmacHelper(SHA256);
-  	}(Math));
-
-
-  	return CryptoJS.SHA256;
-
-  }));
-  });
-
-  var sha224 = createCommonjsModule(function (module, exports) {
-  (function (root, factory, undef) {
-  	{
-  		// CommonJS
-  		module.exports = exports = factory(core, sha256);
-  	}
-  }(commonjsGlobal, function (CryptoJS) {
-
-  	(function () {
-  	    // Shortcuts
-  	    var C = CryptoJS;
-  	    var C_lib = C.lib;
-  	    var WordArray = C_lib.WordArray;
-  	    var C_algo = C.algo;
-  	    var SHA256 = C_algo.SHA256;
-
-  	    /**
-  	     * SHA-224 hash algorithm.
-  	     */
-  	    var SHA224 = C_algo.SHA224 = SHA256.extend({
-  	        _doReset: function () {
-  	            this._hash = new WordArray.init([
-  	                0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
-  	                0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4
-  	            ]);
-  	        },
-
-  	        _doFinalize: function () {
-  	            var hash = SHA256._doFinalize.call(this);
-
-  	            hash.sigBytes -= 4;
-
-  	            return hash;
-  	        }
-  	    });
-
-  	    /**
-  	     * Shortcut function to the hasher's object interface.
-  	     *
-  	     * @param {WordArray|string} message The message to hash.
-  	     *
-  	     * @return {WordArray} The hash.
-  	     *
-  	     * @static
-  	     *
-  	     * @example
-  	     *
-  	     *     var hash = CryptoJS.SHA224('message');
-  	     *     var hash = CryptoJS.SHA224(wordArray);
-  	     */
-  	    C.SHA224 = SHA256._createHelper(SHA224);
-
-  	    /**
-  	     * Shortcut function to the HMAC's object interface.
-  	     *
-  	     * @param {WordArray|string} message The message to hash.
-  	     * @param {WordArray|string} key The secret key.
-  	     *
-  	     * @return {WordArray} The HMAC.
-  	     *
-  	     * @static
-  	     *
-  	     * @example
-  	     *
-  	     *     var hmac = CryptoJS.HmacSHA224(message, key);
-  	     */
-  	    C.HmacSHA224 = SHA256._createHmacHelper(SHA224);
-  	}());
-
-
-  	return CryptoJS.SHA224;
-
-  }));
-  });
+  const EventBus = new Vue();
 
   //
-  //
-  //
-  //
-  //
-  //
-
   var script = {
-    name: 'HollowDotsSpinner',
-
+    name: 'LoginPage',
     props: {
-      animationDuration: {
-        type: Number,
-        default: 1000
-      },
-      dotSize: {
-        type: Number,
-        default: 15
-      },
-      dotsNum: {
-        type: Number,
-        default: 3
-      },
-      color: {
+      homepage: {
         type: String,
-        default: '#fff'
+        default: ""
+      },
+      logo: {
+        type: String,
+        default: ""
+      },
+      verboseToolName: {
+        type: String,
+        default: ""
+      },
+      authBackgroundColour: {
+        type: String,
+        default: "#0c2544"
+      },
+      favicon: {
+        type: String,
+        default: ""
       }
     },
 
+    data() {
+      return {
+        loginUserName: '',
+        loginPassword: '',
+        loginResult: '',
+        version: '',
+        date: ''
+      };
+    },
+
     computed: {
-      horizontalMargin () {
-        return this.dotSize / 2
-      },
-
-      spinnerStyle () {
-        return {
-          height: `${this.dotSize}px`,
-          width: `${(this.dotSize + this.horizontalMargin * 2) * this.dotsNum}px`
-        }
-      },
-
-      dotStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`,
-          width: `${this.dotSize}px`,
-          height: `${this.dotSize}px`,
-          margin: `0 ${this.horizontalMargin}px`,
-          borderWidth: `${this.dotSize / 5}px`,
-          borderColor: this.color
-        }
-      },
-
-      dotsStyles () {
-        const dotsStyles = [];
-        const delayModifier = 0.3;
-        const basicDelay = 1000;
-
-        for (let i = 1; i <= this.dotsNum; i++) {
-          const style = Object.assign({
-            animationDelay: `${basicDelay * i * delayModifier}ms`
-          }, this.dotStyle);
-
-          dotsStyles.push(style);
-        }
-
-        return dotsStyles
+      getVersionInfo() {
+        this.$sciris.rpc('get_version_info').then(response => {
+          this.version = response.data['version'];
+          this.date = response.data['date'];
+        });
       }
+
+    },
+    methods: {
+      tryLogin() {
+        this.$sciris.loginCall(this.loginUserName, this.loginPassword).then(response => {
+          if (response.data === 'success') {
+            // Set a success result to show.
+            this.loginResult = 'Logging in...'; // Read in the full current user information.
+
+            this.$sciris.getCurrentUserInfo().then(response2 => {
+              // Set the username to what the server indicates.
+              let user = response2.data.user;
+              this.$store.commit('newUser', user); // Navigate automatically to the home page.
+
+              EventBus.$emit(events$1.EVENT_LOGIN_SUCCESS, user);
+            }).catch(error => {
+              // Set the username to {}.  An error probably means the
+              // user is not logged in.
+              this.$store.commit('newUser', {});
+            });
+          } else {
+            // Set a failure result to show.
+            this.loginResult = response.data;
+          }
+        }).catch(error => {
+          EventBus.$emit(events$1.EVENT_LOGIN_FAIL, error);
+          console.log('Login failed', error);
+          this.loginResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
+        });
+      }
+
     }
   };
-
-  function styleInject(css, ref) {
-    if ( ref === void 0 ) ref = {};
-    var insertAt = ref.insertAt;
-
-    if (!css || typeof document === 'undefined') { return; }
-
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var style = document.createElement('style');
-    style.type = 'text/css';
-
-    if (insertAt === 'top') {
-      if (head.firstChild) {
-        head.insertBefore(style, head.firstChild);
-      } else {
-        head.appendChild(style);
-      }
-    } else {
-      head.appendChild(style);
-    }
-
-    if (style.styleSheet) {
-      style.styleSheet.cssText = css;
-    } else {
-      style.appendChild(document.createTextNode(css));
-    }
-  }
-
-  var css = ".hollow-dots-spinner[data-v-5d688a10],.hollow-dots-spinner *[data-v-5d688a10]{box-sizing:border-box}.hollow-dots-spinner[data-v-5d688a10]{height:15px;width:calc(30px * 3)}.hollow-dots-spinner .dot[data-v-5d688a10]{width:15px;height:15px;margin:0 calc(15px / 2);border:calc(15px / 5) solid #ff1d5e;border-radius:50%;float:left;transform:scale(0);animation:hollow-dots-spinner-animation-data-v-5d688a10 1s ease infinite 0s}.hollow-dots-spinner .dot[data-v-5d688a10]:nth-child(1){animation-delay:calc(300ms * 1)}.hollow-dots-spinner .dot[data-v-5d688a10]:nth-child(2){animation-delay:calc(300ms * 2)}.hollow-dots-spinner .dot[data-v-5d688a10]:nth-child(3){animation-delay:calc(300ms * 3)}@keyframes hollow-dots-spinner-animation-data-v-5d688a10{50%{transform:scale(1);opacity:1}100%{opacity:0}}";
-  styleInject(css);
 
   function normalizeComponent(compiledTemplate, injectStyle, defaultExport, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, isShadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
       if (typeof isShadowMode === 'function') {
@@ -10624,15 +8258,18 @@
   }
 
   /* script */
-              const __vue_script__ = script;
+  const __vue_script__ = script;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script.__file = "LoginPage.vue";
+
   /* template */
-  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"hollow-dots-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.dotsStyles),function(ds,index){return _c('div',{key:index,staticClass:"dot",style:(ds)})}),0)};
+  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v("\n            "+_vm._s(_vm.verboseToolName)+" \n          ")]):_vm._e(),_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          New user?\n          "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v("\n            Register here\n          ")])],1)])])])])};
   var __vue_staticRenderFns__ = [];
 
     /* style */
     const __vue_inject_styles__ = undefined;
     /* scoped */
-    const __vue_scope_id__ = "data-v-5d688a10";
+    const __vue_scope_id__ = undefined;
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -10643,7 +8280,7 @@
     
 
     
-    normalizeComponent(
+    var LoginPage = normalizeComponent(
       { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
       __vue_inject_styles__,
       __vue_script__,
@@ -10654,7298 +8291,8 @@
       undefined
     );
 
-  var utils$1 = {
-    appendKeyframes: function (name, frames) {
-      var idx = document.styleSheets[0].cssRules.length;
-      document.styleSheets[0].insertRule('@keyframes ' + name + ' { ' + frames + ' }', idx);
-    }
-  };
-
   //
-
   var script$1 = {
-    name: 'PixelSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1500
-      },
-      size: {
-        type: Number,
-        default: 70
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        animationBaseName: 'pixel-spinner-animation',
-        currentAnimationName: ''
-      }
-    },
-
-    computed: {
-      pixelSize () {
-        return this.size / 7
-      },
-
-      spinnerStyle () {
-        return {
-          width: `${this.size}px`,
-          height: `${this.size}px`
-        }
-      },
-
-      spinnerInnerStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`,
-          animationName: this.currentAnimationName,
-          width: `${this.pixelSize}px`,
-          height: `${this.pixelSize}px`,
-          backgroundColor: this.color,
-          color: this.color,
-          boxShadow: `
-                      ${this.pixelSize * 1.5}px ${this.pixelSize * 1.5}px 0 0,
-                      ${this.pixelSize * -1.5}px ${this.pixelSize * -1.5}px 0 0,
-                      ${this.pixelSize * 1.5}px ${this.pixelSize * -1.5}px 0 0,
-                      ${this.pixelSize * -1.5}px ${this.pixelSize * 1.5}px 0 0,
-                      0 ${this.pixelSize * 1.5}px 0 0,
-                      ${this.pixelSize * 1.5}px 0 0 0,
-                      ${this.pixelSize * -1.5}px 0 0 0,
-                      0 ${this.pixelSize * -1.5}px 0 0
-                    `
-        }
-      }
-    },
-
-    watch: {
-      '$props': {
-        handler () {
-          this.updateAnimation();
-        },
-        deep: true
-      }
-    },
-
-    mounted () {
-      this.updateAnimation();
-    },
-
-    methods: {
-      updateAnimation () {
-        this.updateAnimationName();
-        utils$1.appendKeyframes(this.currentAnimationName, this.generateKeyframes());
-      },
-
-      updateAnimationName () {
-        this.currentAnimationName = `${this.animationBaseName}-${Date.now()}`;
-      },
-
-      generateKeyframes () {
-        return `
-      50% {
-        box-shadow:  ${this.pixelSize * 2}px ${this.pixelSize * 2}px 0 0,
-                     ${this.pixelSize * -2}px ${this.pixelSize * -2}px 0 0,
-                     ${this.pixelSize * 2}px ${this.pixelSize * -2}px 0 0,
-                     ${this.pixelSize * -2}px ${this.pixelSize * 2}px 0 0,
-                     0 ${this.pixelSize}px 0 0,
-                     ${this.pixelSize}px 0 0 0,
-                     ${this.pixelSize * -1}px 0 0 0,
-                     0 ${this.pixelSize * -1}px 0 0;
-      }
-
-
-      75% {
-        box-shadow:  ${this.pixelSize * 2}px ${this.pixelSize * 2}px 0 0,
-                     ${this.pixelSize * -2}px ${this.pixelSize * -2}px 0 0,
-                     ${this.pixelSize * 2}px ${this.pixelSize * -2}px 0 0,
-                     ${this.pixelSize * -2}px ${this.pixelSize * 2}px 0 0,
-                     0 ${this.pixelSize}px 0 0,
-                     ${this.pixelSize}px 0 0 0,
-                     ${this.pixelSize * -1}px 0 0 0,
-                     0 ${this.pixelSize * -1}px 0 0;
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }`
-      }
-    }
-  };
-
-  var css$1 = ".pixel-spinner[data-v-889735bc],.pixel-spinner *[data-v-889735bc]{box-sizing:border-box}.pixel-spinner[data-v-889735bc]{height:70px;width:70px;display:flex;flex-direction:row;justify-content:center;align-items:center}.pixel-spinner .pixel-spinner-inner[data-v-889735bc]{width:calc(70px / 7);height:calc(70px / 7);background-color:#ff1d5e;color:#ff1d5e;box-shadow:15px 15px 0 0,-15px -15px 0 0,15px -15px 0 0,-15px 15px 0 0,0 15px 0 0,15px 0 0 0,-15px 0 0 0,0 -15px 0 0;animation:pixel-spinner-animation-data-v-889735bc 2s linear infinite}@keyframes pixel-spinner-animation-data-v-889735bc{50%{box-shadow:20px 20px 0 0,-20px -20px 0 0,20px -20px 0 0,-20px 20px 0 0,0 10px 0 0,10px 0 0 0,-10px 0 0 0,0 -10px 0 0}75%{box-shadow:20px 20px 0 0,-20px -20px 0 0,20px -20px 0 0,-20px 20px 0 0,0 10px 0 0,10px 0 0 0,-10px 0 0 0,0 -10px 0 0}100%{transform:rotate(360deg)}}";
-  styleInject(css$1);
-
-  /* script */
-              const __vue_script__$1 = script$1;
-  /* template */
-  var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"pixel-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"pixel-spinner-inner",style:(_vm.spinnerInnerStyle)})])};
-  var __vue_staticRenderFns__$1 = [];
-
-    /* style */
-    const __vue_inject_styles__$1 = undefined;
-    /* scoped */
-    const __vue_scope_id__$1 = "data-v-889735bc";
-    /* module identifier */
-    const __vue_module_identifier__$1 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$1 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-      __vue_inject_styles__$1,
-      __vue_script__$1,
-      __vue_scope_id__$1,
-      __vue_is_functional_template__$1,
-      __vue_module_identifier__$1,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$2 = {
-    name: 'FlowerSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 2500
-      },
-      size: {
-        type: Number,
-        default: 70
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        smallerDotAnimationBaseName: 'flower-spinner-smaller-dot-animation',
-        biggerDotAnimationBaseName: 'flower-spinner-bigger-dot-animation',
-        currentSmallerDotAnimationBaseName: '',
-        currentBiggerDotAnimationBaseName: ''
-      }
-    },
-
-    computed: {
-      dotSize () {
-        return this.size / 7
-      },
-
-      spinnerStyle () {
-        return {
-          width: `${this.size}px`,
-          height: `${this.size}px`
-        }
-      },
-
-      dotsContainerStyle () {
-        return {
-          width: `${this.dotSize}px`,
-          height: `${this.dotSize}px`
-        }
-      },
-
-      smallerDotStyle () {
-        return {
-          background: this.color,
-          animationDuration: `${this.animationDuration}ms`,
-          animationName: this.currentSmallerDotAnimationBaseName
-        }
-      },
-
-      biggerDotStyle () {
-        return {
-          background: this.color,
-          animationDuration: `${this.animationDuration}ms`,
-          animationName: this.currentBiggerDotAnimationBaseName
-        }
-      }
-    },
-
-    watch: {
-      '$props': {
-        handler () {
-          this.updateAnimation();
-        },
-        deep: true
-      }
-    },
-
-    mounted () {
-      this.updateAnimation();
-    },
-
-    methods: {
-      updateAnimation () {
-        this.updateAnimationName();
-        utils$1.appendKeyframes(this.currentSmallerDotAnimationBaseName, this.generateSmallerDotKeyframes());
-        utils$1.appendKeyframes(this.currentBiggerDotAnimationBaseName, this.generateBiggerDotKeyframes());
-      },
-
-      updateAnimationName () {
-        this.currentSmallerDotAnimationBaseName = `${this.smallerDotAnimationBaseName}-${Date.now()}`;
-        this.currentBiggerDotAnimationBaseName = `${this.biggerDotAnimationBaseName}-${Date.now()}`;
-      },
-
-      generateSmallerDotKeyframes () {
-        return `0%, 100% {
-                  box-shadow: 0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color};
-                }
-                25%, 75% {
-                  box-shadow: ${this.dotSize * 1.4}px 0 0 ${this.color},
-                              -${this.dotSize * 1.4}px 0 0 ${this.color},
-                              0 ${this.dotSize * 1.4}px 0 ${this.color},
-                              0 -${this.dotSize * 1.4}px 0 ${this.color},
-                              ${this.dotSize}px -${this.dotSize}px 0 ${this.color},
-                              ${this.dotSize}px ${this.dotSize}px 0 ${this.color},
-                              -${this.dotSize}px -${this.dotSize}px 0 ${this.color},
-                              -${this.dotSize}px ${this.dotSize}px 0 ${this.color};
-
-                }
-                100% {
-                  box-shadow: 0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color};
-                }`
-      },
-
-      generateBiggerDotKeyframes () {
-        return `0%, 100% {
-                  box-shadow: 0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color};
-                }
-                50% {
-                  transform: rotate(180deg);
-                }
-                25%, 75% {
-                  box-shadow: ${this.dotSize * 2.6}px 0 0 ${this.color},
-                              -${this.dotSize * 2.6}px 0 0 ${this.color},
-                              0 ${this.dotSize * 2.6}px 0 ${this.color},
-                              0 -${this.dotSize * 2.6}px 0 ${this.color},
-                              ${this.dotSize * 1.9}px -${this.dotSize * 1.9}px 0 ${this.color},
-                              ${this.dotSize * 1.9}px ${this.dotSize * 1.9}px 0 ${this.color},
-                              -${this.dotSize * 1.9}px -${this.dotSize * 1.9}px 0 ${this.color},
-                              -${this.dotSize * 1.9}px ${this.dotSize * 1.9}px 0 ${this.color};
-
-                }
-                100% {
-                  transform: rotate(360deg);
-                  box-shadow: 0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color},
-                              0 0 0 ${this.color};
-                }`
-      }
-    }
-  };
-
-  var css$2 = ".flower-spinner[data-v-6f659c65],.flower-spinner *[data-v-6f659c65]{box-sizing:border-box}.flower-spinner[data-v-6f659c65]{height:70px;width:70px;display:flex;flex-direction:row;align-items:center;justify-content:center}.flower-spinner .dots-container[data-v-6f659c65]{height:calc(70px / 7);width:calc(70px / 7)}.flower-spinner .smaller-dot[data-v-6f659c65]{background:#ff1d5e;height:100%;width:100%;border-radius:50%;animation:flower-spinner-smaller-dot-animation-data-v-6f659c65 2.5s 0s infinite both}.flower-spinner .bigger-dot[data-v-6f659c65]{background:#ff1d5e;height:100%;width:100%;padding:10%;border-radius:50%;animation:flower-spinner-bigger-dot-animation-data-v-6f659c65 2.5s 0s infinite both}@keyframes flower-spinner-bigger-dot-animation-data-v-6f659c65{0%,100%{box-shadow:#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0}50%{transform:rotate(180deg)}25%,75%{box-shadow:#ff1d5e 26px 0 0,#ff1d5e -26px 0 0,#ff1d5e 0 26px 0,#ff1d5e 0 -26px 0,#ff1d5e 19px -19px 0,#ff1d5e 19px 19px 0,#ff1d5e -19px -19px 0,#ff1d5e -19px 19px 0}100%{transform:rotate(360deg);box-shadow:#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0}}@keyframes flower-spinner-smaller-dot-animation-data-v-6f659c65{0%,100%{box-shadow:#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0}25%,75%{box-shadow:#ff1d5e 14px 0 0,#ff1d5e -14px 0 0,#ff1d5e 0 14px 0,#ff1d5e 0 -14px 0,#ff1d5e 10px -10px 0,#ff1d5e 10px 10px 0,#ff1d5e -10px -10px 0,#ff1d5e -10px 10px 0}100%{box-shadow:#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0,#ff1d5e 0 0 0}}";
-  styleInject(css$2);
-
-  /* script */
-              const __vue_script__$2 = script$2;
-  /* template */
-  var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"flower-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"dots-container",style:(_vm.dotsContainerStyle)},[_c('div',{staticClass:"bigger-dot",style:(_vm.biggerDotStyle)},[_c('div',{staticClass:"smaller-dot",style:(_vm.smallerDotStyle)})])])])};
-  var __vue_staticRenderFns__$2 = [];
-
-    /* style */
-    const __vue_inject_styles__$2 = undefined;
-    /* scoped */
-    const __vue_scope_id__$2 = "data-v-6f659c65";
-    /* module identifier */
-    const __vue_module_identifier__$2 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$2 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$3 = {
-    name: 'IntersectingCirclesSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1200
-      },
-      size: {
-        type: Number,
-        default: 70
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    computed: {
-      circleSize () {
-        return this.size / 2
-      },
-
-      spinnerStyle () {
-        return {
-          width: `${this.size}px`,
-          height: `${this.size}px`
-        }
-      },
-
-      spinnerBlockStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`,
-          width: `${this.circleSize}px`,
-          height: `${this.circleSize}px`
-        }
-      },
-
-      circleStyle () {
-        return {
-          borderColor: this.color
-        }
-      },
-
-      circleStyles () {
-        const circlesPositions = [
-          {top: 0, left: 0},
-          {left: `${this.circleSize * -0.36}px`, top: `${this.circleSize * 0.2}px`},
-          {left: `${this.circleSize * -0.36}px`, top: `${this.circleSize * -0.2}px`},
-          {left: 0, top: `${this.circleSize * -0.36}px`},
-          {left: `${this.circleSize * 0.36}px`, top: `${this.circleSize * -0.2}px`},
-          {left: `${this.circleSize * 0.36}px`, top: `${this.circleSize * 0.2}px`},
-          {left: 0, top: `${this.circleSize * 0.36}px`}
-        ];
-
-        return circlesPositions.map((cp) => Object.assign(cp, this.circleStyle))
-      }
-    }
-  };
-
-  var css$3 = ".intersecting-circles-spinner[data-v-3d83b073],.intersecting-circles-spinner *[data-v-3d83b073]{box-sizing:border-box}.intersecting-circles-spinner[data-v-3d83b073]{height:70px;width:70px;position:relative;display:flex;flex-direction:row;justify-content:center;align-items:center}.intersecting-circles-spinner .spinnerBlock[data-v-3d83b073]{animation:intersecting-circles-spinners-animation-data-v-3d83b073 1.2s linear infinite;transform-origin:center;display:block;height:35px;width:35px}.intersecting-circles-spinner .circle[data-v-3d83b073]{display:block;border:2px solid #ff1d5e;border-radius:50%;height:100%;width:100%;position:absolute;left:0;top:0}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(1){left:0;top:0}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(2){left:calc(35px * -.36);top:calc(35px * .2)}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(3){left:calc(35px * -.36);top:calc(35px * -.2)}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(4){left:0;top:calc(35px * -.36)}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(5){left:calc(35px * .36);top:calc(35px * -.2)}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(6){left:calc(35px * .36);top:calc(35px * .2)}.intersecting-circles-spinner .circle[data-v-3d83b073]:nth-child(7){left:0;top:calc(35px * .36)}@keyframes intersecting-circles-spinners-animation-data-v-3d83b073{from{transform:rotate(0)}to{transform:rotate(360deg)}}";
-  styleInject(css$3);
-
-  /* script */
-              const __vue_script__$3 = script$3;
-  /* template */
-  var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"intersecting-circles-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"spinnerBlock",style:(_vm.spinnerBlockStyle)},_vm._l((_vm.circleStyles),function(cs,index){return _c('span',{key:index,staticClass:"circle",style:(cs)})}),0)])};
-  var __vue_staticRenderFns__$3 = [];
-
-    /* style */
-    const __vue_inject_styles__$3 = undefined;
-    /* scoped */
-    const __vue_scope_id__$3 = "data-v-3d83b073";
-    /* module identifier */
-    const __vue_module_identifier__$3 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$3 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-      __vue_inject_styles__$3,
-      __vue_script__$3,
-      __vue_scope_id__$3,
-      __vue_is_functional_template__$3,
-      __vue_module_identifier__$3,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$4 = {
-    name: 'OrbitSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1000
-      },
-      size: {
-        type: Number,
-        default: 50
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      orbitStyle () {
-        return {
-          borderColor: this.color,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      }
-    }
-  };
-
-  var css$4 = ".orbit-spinner[data-v-1de7f5c8],.orbit-spinner *[data-v-1de7f5c8]{box-sizing:border-box}.orbit-spinner[data-v-1de7f5c8]{height:55px;width:55px;border-radius:50%;perspective:800px}.orbit-spinner .orbit[data-v-1de7f5c8]{position:absolute;box-sizing:border-box;width:100%;height:100%;border-radius:50%}.orbit-spinner .orbit[data-v-1de7f5c8]:nth-child(1){left:0;top:0;animation:orbit-spinner-orbit-one-animation-data-v-1de7f5c8 1.2s linear infinite;border-bottom:3px solid #ff1d5e}.orbit-spinner .orbit[data-v-1de7f5c8]:nth-child(2){right:0;top:0;animation:orbit-spinner-orbit-two-animation-data-v-1de7f5c8 1.2s linear infinite;border-right:3px solid #ff1d5e}.orbit-spinner .orbit[data-v-1de7f5c8]:nth-child(3){right:0;bottom:0;animation:orbit-spinner-orbit-three-animation-data-v-1de7f5c8 1.2s linear infinite;border-top:3px solid #ff1d5e}@keyframes orbit-spinner-orbit-one-animation-data-v-1de7f5c8{0%{transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@keyframes orbit-spinner-orbit-two-animation-data-v-1de7f5c8{0%{transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@keyframes orbit-spinner-orbit-three-animation-data-v-1de7f5c8{0%{transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}";
-  styleInject(css$4);
-
-  /* script */
-              const __vue_script__$4 = script$4;
-  /* template */
-  var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"orbit-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"orbit one",style:(_vm.orbitStyle)}),_vm._v(" "),_c('div',{staticClass:"orbit two",style:(_vm.orbitStyle)}),_vm._v(" "),_c('div',{staticClass:"orbit three",style:(_vm.orbitStyle)})])};
-  var __vue_staticRenderFns__$4 = [];
-
-    /* style */
-    const __vue_inject_styles__$4 = undefined;
-    /* scoped */
-    const __vue_scope_id__$4 = "data-v-1de7f5c8";
-    /* module identifier */
-    const __vue_module_identifier__$4 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$4 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-      __vue_inject_styles__$4,
-      __vue_script__$4,
-      __vue_scope_id__$4,
-      __vue_is_functional_template__$4,
-      __vue_module_identifier__$4,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$5 = {
-    name: 'FingerprintSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1500
-      },
-      size: {
-        type: Number,
-        default: 60
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        ringsNum: 9,
-        containerPadding: 2
-      }
-    },
-
-    computed: {
-      outerRingSize () {
-        return this.size - this.containerPadding * 2
-      },
-
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          padding: `${this.containerPadding}px`
-        }
-      },
-
-      ringStyle () {
-        return {
-          borderTopColor: this.color,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      ringsStyles () {
-        const ringsStyles = [];
-        const ringBase = this.outerRingSize / (this.ringsNum);
-        const ringInc = ringBase;
-
-        for (let i = 1; i <= this.ringsNum; i++) {
-          let style = Object.assign({
-            animationDelay: `${i * 50}ms`,
-            height: `${ringBase + (i - 1) * ringInc}px`,
-            width: `${ringBase + (i - 1) * ringInc}px`
-          }, this.ringStyle);
-          ringsStyles.push(style);
-        }
-
-        return ringsStyles
-      }
-    }
-  };
-
-  var css$5 = ".fingerprint-spinner[data-v-4ac2dd21],.fingerprint-spinner *[data-v-4ac2dd21]{box-sizing:border-box}.fingerprint-spinner[data-v-4ac2dd21]{height:64px;width:64px;padding:2px;overflow:hidden;position:relative}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]{position:absolute;border-radius:50%;border:2px solid transparent;border-top-color:#ff1d5e;animation:fingerprint-spinner-animation-data-v-4ac2dd21 1.5s cubic-bezier(.68,-.75,.265,1.75) infinite forwards;margin:auto;bottom:0;left:0;right:0;top:0}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(1){height:calc(60px / 9 + 0 * 60px / 9);width:calc(60px / 9 + 0 * 60px / 9);animation-delay:calc(50ms * 1)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(2){height:calc(60px / 9 + 1 * 60px / 9);width:calc(60px / 9 + 1 * 60px / 9);animation-delay:calc(50ms * 2)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(3){height:calc(60px / 9 + 2 * 60px / 9);width:calc(60px / 9 + 2 * 60px / 9);animation-delay:calc(50ms * 3)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(4){height:calc(60px / 9 + 3 * 60px / 9);width:calc(60px / 9 + 3 * 60px / 9);animation-delay:calc(50ms * 4)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(5){height:calc(60px / 9 + 4 * 60px / 9);width:calc(60px / 9 + 4 * 60px / 9);animation-delay:calc(50ms * 5)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(6){height:calc(60px / 9 + 5 * 60px / 9);width:calc(60px / 9 + 5 * 60px / 9);animation-delay:calc(50ms * 6)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(7){height:calc(60px / 9 + 6 * 60px / 9);width:calc(60px / 9 + 6 * 60px / 9);animation-delay:calc(50ms * 7)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(8){height:calc(60px / 9 + 7 * 60px / 9);width:calc(60px / 9 + 7 * 60px / 9);animation-delay:calc(50ms * 8)}.fingerprint-spinner .spinner-ring[data-v-4ac2dd21]:nth-child(9){height:calc(60px / 9 + 8 * 60px / 9);width:calc(60px / 9 + 8 * 60px / 9);animation-delay:calc(50ms * 9)}@keyframes fingerprint-spinner-animation-data-v-4ac2dd21{100%{transform:rotate(360deg)}}";
-  styleInject(css$5);
-
-  /* script */
-              const __vue_script__$5 = script$5;
-  /* template */
-  var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fingerprint-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.ringsStyles),function(rs,index){return _c('div',{key:index,staticClass:"spinner-ring",style:(rs)})}),0)};
-  var __vue_staticRenderFns__$5 = [];
-
-    /* style */
-    const __vue_inject_styles__$5 = undefined;
-    /* scoped */
-    const __vue_scope_id__$5 = "data-v-4ac2dd21";
-    /* module identifier */
-    const __vue_module_identifier__$5 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$5 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-      __vue_inject_styles__$5,
-      __vue_script__$5,
-      __vue_scope_id__$5,
-      __vue_is_functional_template__$5,
-      __vue_module_identifier__$5,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$6 = {
-    name: 'TrinityRingsSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1500
-      },
-      size: {
-        type: Number,
-        default: 60
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        containerPadding: 3
-      }
-    },
-
-    computed: {
-      outerRingSize () {
-        return this.size - this.containerPadding * 2
-      },
-
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          padding: `${this.containerPadding}px`
-        }
-      },
-
-      ring1Style () {
-        return {
-          height: `${this.outerRingSize}px`,
-          width: `${this.outerRingSize}px`,
-          borderColor: this.color,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      ring2Style () {
-        return {
-          height: `${this.outerRingSize * 0.65}px`,
-          width: `${this.outerRingSize * 0.65}px`,
-          borderColor: this.color,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      ring3Style () {
-        return {
-          height: `${this.outerRingSize * 0.1}px`,
-          width: `${this.outerRingSize * 0.1}px`,
-          borderColor: this.color,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      }
-    }
-  };
-
-  var css$6 = ".trinity-rings-spinner[data-v-e01b9432],.trinity-rings-spinner *[data-v-e01b9432]{box-sizing:border-box}.trinity-rings-spinner[data-v-e01b9432]{height:66px;width:66px;padding:3px;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:row;overflow:hidden;box-sizing:border-box}.trinity-rings-spinner .circle[data-v-e01b9432]{position:absolute;display:block;border-radius:50%;border:3px solid #ff1d5e;opacity:1}.trinity-rings-spinner .circle[data-v-e01b9432]:nth-child(1){height:60px;width:60px;animation:trinity-rings-spinner-circle1-animation-data-v-e01b9432 1.5s infinite linear;border-width:3px}.trinity-rings-spinner .circle[data-v-e01b9432]:nth-child(2){height:calc(60px * .65);width:calc(60px * .65);animation:trinity-rings-spinner-circle2-animation-data-v-e01b9432 1.5s infinite linear;border-width:2px}.trinity-rings-spinner .circle[data-v-e01b9432]:nth-child(3){height:calc(60px * .1);width:calc(60px * .1);animation:trinity-rings-spinner-circle3-animation-data-v-e01b9432 1.5s infinite linear;border-width:1px}@keyframes trinity-rings-spinner-circle1-animation-data-v-e01b9432{0%{transform:rotateZ(20deg) rotateY(0)}100%{transform:rotateZ(100deg) rotateY(360deg)}}@keyframes trinity-rings-spinner-circle2-animation-data-v-e01b9432{0%{transform:rotateZ(100deg) rotateX(0)}100%{transform:rotateZ(0) rotateX(360deg)}}@keyframes trinity-rings-spinner-circle3-animation-data-v-e01b9432{0%{transform:rotateZ(100deg) rotateX(-360deg)}100%{transform:rotateZ(-360deg) rotateX(360deg)}}";
-  styleInject(css$6);
-
-  /* script */
-              const __vue_script__$6 = script$6;
-  /* template */
-  var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"trinity-rings-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"circle circle1",style:(_vm.ring1Style)}),_vm._v(" "),_c('div',{staticClass:"circle circle2",style:(_vm.ring2Style)}),_vm._v(" "),_c('div',{staticClass:"circle circle3",style:(_vm.ring3Style)})])};
-  var __vue_staticRenderFns__$6 = [];
-
-    /* style */
-    const __vue_inject_styles__$6 = undefined;
-    /* scoped */
-    const __vue_scope_id__$6 = "data-v-e01b9432";
-    /* module identifier */
-    const __vue_module_identifier__$6 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$6 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
-      __vue_inject_styles__$6,
-      __vue_script__$6,
-      __vue_scope_id__$6,
-      __vue_is_functional_template__$6,
-      __vue_module_identifier__$6,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$7 = {
-    name: 'FulfillingSquareSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 4000
-      },
-      size: {
-        type: Number,
-        default: 50
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          borderColor: this.color
-        }
-      },
-
-      spinnerInnerStyle () {
-        return {
-          backgroundColor: this.color
-        }
-      }
-    }
-  };
-
-  var css$7 = ".fulfilling-square-spinner[data-v-73dd20a2],.fulfilling-square-spinner *[data-v-73dd20a2]{box-sizing:border-box}.fulfilling-square-spinner[data-v-73dd20a2]{height:50px;width:50px;position:relative;border:4px solid #ff1d5e;animation:fulfilling-square-spinner-animation-data-v-73dd20a2 4s infinite ease}.fulfilling-square-spinner .spinner-inner[data-v-73dd20a2]{vertical-align:top;display:inline-block;background-color:#ff1d5e;width:100%;opacity:1;animation:fulfilling-square-spinner-inner-animation-data-v-73dd20a2 4s infinite ease-in}@keyframes fulfilling-square-spinner-animation-data-v-73dd20a2{0%{transform:rotate(0)}25%{transform:rotate(180deg)}50%{transform:rotate(180deg)}75%{transform:rotate(360deg)}100%{transform:rotate(360deg)}}@keyframes fulfilling-square-spinner-inner-animation-data-v-73dd20a2{0%{height:0%}25%{height:0%}50%{height:100%}75%{height:100%}100%{height:0%}}";
-  styleInject(css$7);
-
-  /* script */
-              const __vue_script__$7 = script$7;
-  /* template */
-  var __vue_render__$7 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fulfilling-square-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"spinner-inner",style:(_vm.spinnerInnerStyle)})])};
-  var __vue_staticRenderFns__$7 = [];
-
-    /* style */
-    const __vue_inject_styles__$7 = undefined;
-    /* scoped */
-    const __vue_scope_id__$7 = "data-v-73dd20a2";
-    /* module identifier */
-    const __vue_module_identifier__$7 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$7 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
-      __vue_inject_styles__$7,
-      __vue_script__$7,
-      __vue_scope_id__$7,
-      __vue_is_functional_template__$7,
-      __vue_module_identifier__$7,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$8 = {
-    name: 'CirclesToRhombusesSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1200
-      },
-      circleSize: {
-        type: Number,
-        default: 15
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      },
-      circlesNum: {
-        type: Number,
-        default: 3
-      }
-    },
-
-    computed: {
-      circleMarginLeft () {
-        return this.circleSize * 1.125
-      },
-
-      spinnertStyle () {
-        return {
-          height: `${this.circleSize}px`,
-          width: `${(this.circleSize + this.circleMarginLeft) * this.circlesNum}px`
-        }
-      },
-
-      circleStyle () {
-        return {
-          borderColor: this.color,
-          animationDuration: `${this.animationDuration}ms`,
-          height: `${this.circleSize}px`,
-          width: `${this.circleSize}px`,
-          marginLeft: `${this.circleMarginLeft}px`
-        }
-      },
-
-      circlesStyles () {
-        const circlesStyles = [];
-        const delay = 150;
-
-        for (let i = 1; i <= this.circlesNum; i++) {
-          const style = Object.assign({
-            animationDelay: `${i * delay}ms`
-          }, this.circleStyle);
-
-          if (i === 1) {
-            style.marginLeft = 0;
-          }
-
-          circlesStyles.push(style);
-        }
-
-        return circlesStyles
-      }
-    }
-  };
-
-  var css$8 = ".circles-to-rhombuses-spinner[data-v-14dd89cf],.circles-to-rhombuses-spinner *[data-v-14dd89cf]{box-sizing:border-box}.circles-to-rhombuses-spinner[data-v-14dd89cf]{height:15px;width:calc((15px + 15px * 1.125) * 3);display:flex;align-items:center;justify-content:center}.circles-to-rhombuses-spinner .circle[data-v-14dd89cf]{height:15px;width:15px;margin-left:calc(15px * 1.125);transform:rotate(45deg);border-radius:10%;border:3px solid #ff1d5e;overflow:hidden;background:0 0;animation:circles-to-rhombuses-animation-data-v-14dd89cf 1.2s linear infinite}.circles-to-rhombuses-spinner .circle[data-v-14dd89cf]:nth-child(1){animation-delay:calc(150ms * 1);margin-left:0}.circles-to-rhombuses-spinner .circle[data-v-14dd89cf]:nth-child(2){animation-delay:calc(150ms * 2)}.circles-to-rhombuses-spinner .circle[data-v-14dd89cf]:nth-child(3){animation-delay:calc(150ms * 3)}@keyframes circles-to-rhombuses-animation-data-v-14dd89cf{0%{border-radius:10%}17.5%{border-radius:10%}50%{border-radius:100%}93.5%{border-radius:10%}100%{border-radius:10%}}@keyframes circles-to-rhombuses-background-animation-data-v-14dd89cf{50%{opacity:.4}}";
-  styleInject(css$8);
-
-  /* script */
-              const __vue_script__$8 = script$8;
-  /* template */
-  var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"circles-to-rhombuses-spinner",style:(_vm.spinnertStyle)},_vm._l((_vm.circlesStyles),function(cs,index){return _c('div',{key:index,staticClass:"circle",style:(cs)})}),0)};
-  var __vue_staticRenderFns__$8 = [];
-
-    /* style */
-    const __vue_inject_styles__$8 = undefined;
-    /* scoped */
-    const __vue_scope_id__$8 = "data-v-14dd89cf";
-    /* module identifier */
-    const __vue_module_identifier__$8 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$8 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
-      __vue_inject_styles__$8,
-      __vue_script__$8,
-      __vue_scope_id__$8,
-      __vue_is_functional_template__$8,
-      __vue_module_identifier__$8,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$9 = {
-    name: 'SemipolarSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 2000
-      },
-      size: {
-        type: Number,
-        default: 65
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        ringsNum: 5
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-      ringStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`,
-          borderTopColor: this.color,
-          borderLeftColor: this.color
-        }
-      },
-      ringsStyles () {
-        const ringsStyles = [];
-        const delayModifier = 0.1;
-        const ringWidth = this.size * 0.05;
-        const positionIncrement = ringWidth * 2;
-        const sizeDecrement = this.size * 0.2;
-
-        for (let i = 0; i < this.ringsNum; i++) {
-          const computedSize = `${this.size - sizeDecrement * i}px`;
-          const computedPosition = `${positionIncrement * i}px`;
-          const style = Object.assign({
-            animationDelay: `${this.animationDuration * delayModifier * (this.ringsNum - i - 1)}ms`,
-            height: computedSize,
-            width: computedSize,
-            left: computedPosition,
-            top: computedPosition,
-            borderWidth: `${ringWidth}px`
-          }, this.ringStyle);
-          ringsStyles.push(style);
-        }
-
-        return ringsStyles
-      }
-    }
-  };
-
-  var css$9 = ".semipolar-spinner[data-v-dd4d2450],.semipolar-spinner *[data-v-dd4d2450]{box-sizing:border-box}.semipolar-spinner[data-v-dd4d2450]{height:65px;width:65px;position:relative}.semipolar-spinner .ring[data-v-dd4d2450]{border-radius:50%;position:absolute;border:calc(65px * .05) solid transparent;border-top-color:#ff1d5e;border-left-color:#ff1d5e;animation:semipolar-spinner-animation-data-v-dd4d2450 2s infinite}.semipolar-spinner .ring[data-v-dd4d2450]:nth-child(1){height:calc(65px - 65px * .2 * 0);width:calc(65px - 65px * .2 * 0);top:calc(65px * .1 * 0);left:calc(65px * .1 * 0);animation-delay:calc(2000ms * .1 * 4);z-index:5}.semipolar-spinner .ring[data-v-dd4d2450]:nth-child(2){height:calc(65px - 65px * .2 * 1);width:calc(65px - 65px * .2 * 1);top:calc(65px * .1 * 1);left:calc(65px * .1 * 1);animation-delay:calc(2000ms * .1 * 3);z-index:4}.semipolar-spinner .ring[data-v-dd4d2450]:nth-child(3){height:calc(65px - 65px * .2 * 2);width:calc(65px - 65px * .2 * 2);top:calc(65px * .1 * 2);left:calc(65px * .1 * 2);animation-delay:calc(2000ms * .1 * 2);z-index:3}.semipolar-spinner .ring[data-v-dd4d2450]:nth-child(4){height:calc(65px - 65px * .2 * 3);width:calc(65px - 65px * .2 * 3);top:calc(65px * .1 * 3);left:calc(65px * .1 * 3);animation-delay:calc(2000ms * .1 * 1);z-index:2}.semipolar-spinner .ring[data-v-dd4d2450]:nth-child(5){height:calc(65px - 65px * .2 * 4);width:calc(65px - 65px * .2 * 4);top:calc(65px * .1 * 4);left:calc(65px * .1 * 4);animation-delay:calc(2000ms * .1 * 0);z-index:1}@keyframes semipolar-spinner-animation-data-v-dd4d2450{50%{transform:rotate(360deg) scale(.7)}}";
-  styleInject(css$9);
-
-  /* script */
-              const __vue_script__$9 = script$9;
-  /* template */
-  var __vue_render__$9 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"semipolar-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.ringsStyles),function(rs,index){return _c('div',{key:index,staticClass:"ring",style:(rs)})}),0)};
-  var __vue_staticRenderFns__$9 = [];
-
-    /* style */
-    const __vue_inject_styles__$9 = undefined;
-    /* scoped */
-    const __vue_scope_id__$9 = "data-v-dd4d2450";
-    /* module identifier */
-    const __vue_module_identifier__$9 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$9 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$9, staticRenderFns: __vue_staticRenderFns__$9 },
-      __vue_inject_styles__$9,
-      __vue_script__$9,
-      __vue_scope_id__$9,
-      __vue_is_functional_template__$9,
-      __vue_module_identifier__$9,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$a = {
-    name: 'BreedingRhombusSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 2000
-      },
-      size: {
-        type: Number,
-        default: 150
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        animationBaseName: 'breeding-rhombus-spinner-animation-child',
-        rhombusesNum: 8
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      rhombusStyle () {
-        return {
-          height: `${this.size / 7.5}px`,
-          width: `${this.size / 7.5}px`,
-          animationDuration: `${this.animationDuration}ms`,
-          top: `${this.size / 2.3077}px`,
-          left: `${this.size / 2.3077}px`,
-          backgroundColor: this.color
-        }
-      },
-
-      rhombusesStyles () {
-        const rhombusesStyles = [];
-        const delayModifier = this.animationDuration * 0.05;
-
-        for (let i = 1; i <= this.rhombusesNum; i++) {
-          rhombusesStyles.push(Object.assign({
-            animationDelay: `${delayModifier * (i + 1)}ms`
-          }, this.rhombusStyle));
-        }
-
-        return rhombusesStyles
-      },
-
-      bigRhombusStyle () {
-        return {
-          height: `${this.size / 3}px`,
-          width: `${this.size / 3}px`,
-          animationDuration: `${this.animationDuration}`,
-          top: `${this.size / 3}px`,
-          left: `${this.size / 3}px`,
-          backgroundColor: this.color
-        }
-      }
-    }
-
-  };
-
-  var css$a = ".breeding-rhombus-spinner[data-v-2e6fbfee]{height:65px;width:65px;position:relative;transform:rotate(45deg)}.breeding-rhombus-spinner[data-v-2e6fbfee],.breeding-rhombus-spinner *[data-v-2e6fbfee]{box-sizing:border-box}.breeding-rhombus-spinner .rhombus[data-v-2e6fbfee]{height:calc(65px / 7.5);width:calc(65px / 7.5);animation-duration:2s;top:calc(65px / 2.3077);left:calc(65px / 2.3077);background-color:#ff1d5e;position:absolute;animation-iteration-count:infinite}.breeding-rhombus-spinner .rhombus[data-v-2e6fbfee]:nth-child(2n+0){margin-right:0}.breeding-rhombus-spinner .rhombus.child-1[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-1-data-v-2e6fbfee;animation-delay:calc(100ms * 1)}.breeding-rhombus-spinner .rhombus.child-2[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-2-data-v-2e6fbfee;animation-delay:calc(100ms * 2)}.breeding-rhombus-spinner .rhombus.child-3[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-3-data-v-2e6fbfee;animation-delay:calc(100ms * 3)}.breeding-rhombus-spinner .rhombus.child-4[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-4-data-v-2e6fbfee;animation-delay:calc(100ms * 4)}.breeding-rhombus-spinner .rhombus.child-5[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-5-data-v-2e6fbfee;animation-delay:calc(100ms * 5)}.breeding-rhombus-spinner .rhombus.child-6[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-6-data-v-2e6fbfee;animation-delay:calc(100ms * 6)}.breeding-rhombus-spinner .rhombus.child-7[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-7-data-v-2e6fbfee;animation-delay:calc(100ms * 7)}.breeding-rhombus-spinner .rhombus.child-8[data-v-2e6fbfee]{animation-name:breeding-rhombus-spinner-animation-child-8-data-v-2e6fbfee;animation-delay:calc(100ms * 8)}.breeding-rhombus-spinner .rhombus.big[data-v-2e6fbfee]{height:calc(65px / 3);width:calc(65px / 3);animation-duration:2s;top:calc(65px / 3);left:calc(65px / 3);background-color:#ff1d5e;animation:breeding-rhombus-spinner-animation-child-big-data-v-2e6fbfee 2s infinite;animation-delay:.5s}@keyframes breeding-rhombus-spinner-animation-child-1-data-v-2e6fbfee{50%{transform:translate(-325%,-325%)}}@keyframes breeding-rhombus-spinner-animation-child-2-data-v-2e6fbfee{50%{transform:translate(0,-325%)}}@keyframes breeding-rhombus-spinner-animation-child-3-data-v-2e6fbfee{50%{transform:translate(325%,-325%)}}@keyframes breeding-rhombus-spinner-animation-child-4-data-v-2e6fbfee{50%{transform:translate(325%,0)}}@keyframes breeding-rhombus-spinner-animation-child-5-data-v-2e6fbfee{50%{transform:translate(325%,325%)}}@keyframes breeding-rhombus-spinner-animation-child-6-data-v-2e6fbfee{50%{transform:translate(0,325%)}}@keyframes breeding-rhombus-spinner-animation-child-7-data-v-2e6fbfee{50%{transform:translate(-325%,325%)}}@keyframes breeding-rhombus-spinner-animation-child-8-data-v-2e6fbfee{50%{transform:translate(-325%,0)}}@keyframes breeding-rhombus-spinner-animation-child-big-data-v-2e6fbfee{50%{transform:scale(.5)}}";
-  styleInject(css$a);
-
-  /* script */
-              const __vue_script__$a = script$a;
-  /* template */
-  var __vue_render__$a = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"breeding-rhombus-spinner",style:(_vm.spinnerStyle)},[_vm._l((_vm.rhombusesStyles),function(rs,index){return _c('div',{key:index,staticClass:"rhombus",class:("child-" + (index + 1)),style:(rs)})}),_vm._v(" "),_c('div',{staticClass:"rhombus big",style:(_vm.bigRhombusStyle)})],2)};
-  var __vue_staticRenderFns__$a = [];
-
-    /* style */
-    const __vue_inject_styles__$a = undefined;
-    /* scoped */
-    const __vue_scope_id__$a = "data-v-2e6fbfee";
-    /* module identifier */
-    const __vue_module_identifier__$a = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$a = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$a, staticRenderFns: __vue_staticRenderFns__$a },
-      __vue_inject_styles__$a,
-      __vue_script__$a,
-      __vue_scope_id__$a,
-      __vue_is_functional_template__$a,
-      __vue_module_identifier__$a,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$b = {
-    name: 'SwappingSquaresSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1000
-      },
-      size: {
-        type: Number,
-        default: 65
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        animationBaseName: 'swapping-squares-animation-child',
-        squaresNum: 4
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      squareStyle () {
-        return {
-          height: `${this.size * 0.25 / 1.3}px`,
-          width: `${this.size * 0.25 / 1.3}px`,
-          animationDuration: `${this.animationDuration}ms`,
-          borderWidth: `${this.size * 0.04 / 1.3}px`,
-          borderColor: this.color
-        }
-      },
-
-      squaresStyles () {
-        const squaresStyles = [];
-        const delay = this.animationDuration * 0.5;
-
-        for (let i = 1; i <= this.squaresNum; i++) {
-          squaresStyles.push(Object.assign({
-            animationDelay: `${i % 2 === 0 ? delay : 0}ms`
-          }, this.squareStyle));
-        }
-
-        return squaresStyles
-      }
-    }
-  };
-
-  var css$b = ".swapping-squares-spinner[data-v-e143de4e],.swapping-squares-spinner *[data-v-e143de4e]{box-sizing:border-box}.swapping-squares-spinner[data-v-e143de4e]{height:65px;width:65px;position:relative;display:flex;flex-direction:row;justify-content:center;align-items:center}.swapping-squares-spinner .square[data-v-e143de4e]{height:calc(65px * .25 / 1.3);width:calc(65px * .25 / 1.3);animation-duration:1s;border:calc(65px * .04 / 1.3) solid #ff1d5e;margin-right:auto;margin-left:auto;position:absolute;animation-iteration-count:infinite}.swapping-squares-spinner .square[data-v-e143de4e]:nth-child(1){animation-name:swapping-squares-animation-child-1-data-v-e143de4e;animation-delay:.5s}.swapping-squares-spinner .square[data-v-e143de4e]:nth-child(2){animation-name:swapping-squares-animation-child-2-data-v-e143de4e;animation-delay:0s}.swapping-squares-spinner .square[data-v-e143de4e]:nth-child(3){animation-name:swapping-squares-animation-child-3-data-v-e143de4e;animation-delay:.5s}.swapping-squares-spinner .square[data-v-e143de4e]:nth-child(4){animation-name:swapping-squares-animation-child-4-data-v-e143de4e;animation-delay:0s}@keyframes swapping-squares-animation-child-1-data-v-e143de4e{50%{transform:translate(150%,150%) scale(2,2)}}@keyframes swapping-squares-animation-child-2-data-v-e143de4e{50%{transform:translate(-150%,150%) scale(2,2)}}@keyframes swapping-squares-animation-child-3-data-v-e143de4e{50%{transform:translate(-150%,-150%) scale(2,2)}}@keyframes swapping-squares-animation-child-4-data-v-e143de4e{50%{transform:translate(150%,-150%) scale(2,2)}}";
-  styleInject(css$b);
-
-  /* script */
-              const __vue_script__$b = script$b;
-  /* template */
-  var __vue_render__$b = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"swapping-squares-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.squaresStyles),function(ss,index){return _c('div',{key:index,staticClass:"square",class:("square-" + (index + 1)),style:(ss)})}),0)};
-  var __vue_staticRenderFns__$b = [];
-
-    /* style */
-    const __vue_inject_styles__$b = undefined;
-    /* scoped */
-    const __vue_scope_id__$b = "data-v-e143de4e";
-    /* module identifier */
-    const __vue_module_identifier__$b = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$b = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$b, staticRenderFns: __vue_staticRenderFns__$b },
-      __vue_inject_styles__$b,
-      __vue_script__$b,
-      __vue_scope_id__$b,
-      __vue_is_functional_template__$b,
-      __vue_module_identifier__$b,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$c = {
-    name: 'ScalingSquaresSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1250
-      },
-      size: {
-        type: Number,
-        default: 65
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        squaresNum: 4
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      squareStyle () {
-        return {
-          height: `${this.size * 0.25 / 1.3}px`,
-          width: `${this.size * 0.25 / 1.3}px`,
-          animationDuration: `${this.animationDuration}ms`,
-          borderWidth: `${this.size * 0.04 / 1.3}px`,
-          borderColor: this.color
-        }
-      },
-
-      squaresStyles () {
-        const squaresStyles = [];
-
-        for (let i = 1; i <= this.squaresNum; i++) {
-          squaresStyles.push(Object.assign({
-          }, this.squareStyle));
-        }
-
-        return squaresStyles
-      }
-    }
-  };
-
-  var css$c = ".scaling-squares-spinner[data-v-62297917],.scaling-squares-spinner *[data-v-62297917]{box-sizing:border-box}.scaling-squares-spinner[data-v-62297917]{height:65px;width:65px;position:relative;display:flex;flex-direction:row;align-items:center;justify-content:center;animation:scaling-squares-animation-data-v-62297917 1.25s;animation-iteration-count:infinite;transform:rotate(0)}.scaling-squares-spinner .square[data-v-62297917]{height:calc(65px * .25 / 1.3);width:calc(65px * .25 / 1.3);margin-right:auto;margin-left:auto;border:calc(65px * .04 / 1.3) solid #ff1d5e;position:absolute;animation-duration:1.25s;animation-iteration-count:infinite}.scaling-squares-spinner .square[data-v-62297917]:nth-child(1){animation-name:scaling-squares-spinner-animation-child-1-data-v-62297917}.scaling-squares-spinner .square[data-v-62297917]:nth-child(2){animation-name:scaling-squares-spinner-animation-child-2-data-v-62297917}.scaling-squares-spinner .square[data-v-62297917]:nth-child(3){animation-name:scaling-squares-spinner-animation-child-3-data-v-62297917}.scaling-squares-spinner .square[data-v-62297917]:nth-child(4){animation-name:scaling-squares-spinner-animation-child-4-data-v-62297917}@keyframes scaling-squares-animation-data-v-62297917{50%{transform:rotate(90deg)}100%{transform:rotate(180deg)}}@keyframes scaling-squares-spinner-animation-child-1-data-v-62297917{50%{transform:translate(150%,150%) scale(2,2)}}@keyframes scaling-squares-spinner-animation-child-2-data-v-62297917{50%{transform:translate(-150%,150%) scale(2,2)}}@keyframes scaling-squares-spinner-animation-child-3-data-v-62297917{50%{transform:translate(-150%,-150%) scale(2,2)}}@keyframes scaling-squares-spinner-animation-child-4-data-v-62297917{50%{transform:translate(150%,-150%) scale(2,2)}}";
-  styleInject(css$c);
-
-  /* script */
-              const __vue_script__$c = script$c;
-  /* template */
-  var __vue_render__$c = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"scaling-squares-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.squaresStyles),function(ss,index){return _c('div',{key:index,staticClass:"square",class:("square-" + (index + 1)),style:(ss)})}),0)};
-  var __vue_staticRenderFns__$c = [];
-
-    /* style */
-    const __vue_inject_styles__$c = undefined;
-    /* scoped */
-    const __vue_scope_id__$c = "data-v-62297917";
-    /* module identifier */
-    const __vue_module_identifier__$c = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$c = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$c, staticRenderFns: __vue_staticRenderFns__$c },
-      __vue_inject_styles__$c,
-      __vue_script__$c,
-      __vue_scope_id__$c,
-      __vue_is_functional_template__$c,
-      __vue_module_identifier__$c,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$d = {
-    name: 'FulfillingBouncingCircleSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 4000
-      },
-      size: {
-        type: Number,
-        default: 60
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      orbitStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          borderColor: this.color,
-          borderWidth: `${this.size * 0.03}px`,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      circleStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          borderColor: this.color,
-          color: this.color,
-          borderWidth: `${this.size * 0.1}px`,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      }
-    }
-  };
-
-  var css$d = ".fulfilling-bouncing-circle-spinner[data-v-7697d6bc],.fulfilling-bouncing-circle-spinner *[data-v-7697d6bc]{box-sizing:border-box}.fulfilling-bouncing-circle-spinner[data-v-7697d6bc]{height:60px;width:60px;position:relative;animation:fulfilling-bouncing-circle-spinner-animation-data-v-7697d6bc infinite 4s ease}.fulfilling-bouncing-circle-spinner .orbit[data-v-7697d6bc]{height:60px;width:60px;position:absolute;top:0;left:0;border-radius:50%;border:calc(60px * .03) solid #ff1d5e;animation:fulfilling-bouncing-circle-spinner-orbit-animation-data-v-7697d6bc infinite 4s ease}.fulfilling-bouncing-circle-spinner .circle[data-v-7697d6bc]{height:60px;width:60px;color:#ff1d5e;display:block;border-radius:50%;position:relative;border:calc(60px * .1) solid #ff1d5e;animation:fulfilling-bouncing-circle-spinner-circle-animation-data-v-7697d6bc infinite 4s ease;transform:rotate(0) scale(1)}@keyframes fulfilling-bouncing-circle-spinner-animation-data-v-7697d6bc{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}@keyframes fulfilling-bouncing-circle-spinner-orbit-animation-data-v-7697d6bc{0%{transform:scale(1)}50%{transform:scale(1)}62.5%{transform:scale(.8)}75%{transform:scale(1)}87.5%{transform:scale(.8)}100%{transform:scale(1)}}@keyframes fulfilling-bouncing-circle-spinner-circle-animation-data-v-7697d6bc{0%{transform:scale(1);border-color:transparent;border-top-color:inherit}16.7%{border-color:transparent;border-top-color:initial;border-right-color:initial}33.4%{border-color:transparent;border-top-color:inherit;border-right-color:inherit;border-bottom-color:inherit}50%{border-color:inherit;transform:scale(1)}62.5%{border-color:inherit;transform:scale(1.4)}75%{border-color:inherit;transform:scale(1);opacity:1}87.5%{border-color:inherit;transform:scale(1.4)}100%{border-color:transparent;border-top-color:inherit;transform:scale(1)}}";
-  styleInject(css$d);
-
-  /* script */
-              const __vue_script__$d = script$d;
-  /* template */
-  var __vue_render__$d = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fulfilling-bouncing-circle-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"circle",style:(_vm.circleStyle)}),_vm._v(" "),_c('div',{staticClass:"orbit",style:(_vm.orbitStyle)})])};
-  var __vue_staticRenderFns__$d = [];
-
-    /* style */
-    const __vue_inject_styles__$d = undefined;
-    /* scoped */
-    const __vue_scope_id__$d = "data-v-7697d6bc";
-    /* module identifier */
-    const __vue_module_identifier__$d = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$d = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    var FulfillingBouncingCircleSpinner = normalizeComponent(
-      { render: __vue_render__$d, staticRenderFns: __vue_staticRenderFns__$d },
-      __vue_inject_styles__$d,
-      __vue_script__$d,
-      __vue_scope_id__$d,
-      __vue_is_functional_template__$d,
-      __vue_module_identifier__$d,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$e = {
-    name: 'RadarSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 2000
-      },
-      size: {
-        type: Number,
-        default: 110
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        circlesNum: 4
-      }
-    },
-
-    computed: {
-      borderWidth () {
-        return this.size * 5 / 110
-      },
-
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      circleStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      circleInnerContainerStyle () {
-        return {
-          borderWidth: `${this.borderWidth}px`
-        }
-      },
-
-      circleInnerStyle () {
-        return {
-          borderLeftColor: this.color,
-          borderRightColor: this.color,
-          borderWidth: `${this.borderWidth}px`
-        }
-      },
-
-      circlesStyles () {
-        const circlesStyles = [];
-        const delay = this.animationDuration * 0.15;
-
-        for (let i = 0; i < this.circlesNum; i++) {
-          circlesStyles.push(Object.assign({
-            padding: `${this.borderWidth * 2 * i}px`,
-            animationDelay: `${i === this.circlesNum - 1 ? 0 : delay}ms`
-          }, this.circleStyle));
-        }
-
-        return circlesStyles
-      }
-    }
-  };
-
-  var css$e = ".radar-spinner[data-v-bda51672],.radar-spinner *[data-v-bda51672]{box-sizing:border-box}.radar-spinner[data-v-bda51672]{height:60px;width:60px;position:relative}.radar-spinner .circle[data-v-bda51672]{position:absolute;height:100%;width:100%;top:0;left:0;animation:radar-spinner-animation-data-v-bda51672 2s infinite}.radar-spinner .circle[data-v-bda51672]:nth-child(1){padding:calc(60px * 5 * 2 * 0 / 110);animation-delay:.3s}.radar-spinner .circle[data-v-bda51672]:nth-child(2){padding:calc(60px * 5 * 2 * 1 / 110);animation-delay:.3s}.radar-spinner .circle[data-v-bda51672]:nth-child(3){padding:calc(60px * 5 * 2 * 2 / 110);animation-delay:.3s}.radar-spinner .circle[data-v-bda51672]:nth-child(4){padding:calc(60px * 5 * 2 * 3 / 110);animation-delay:0s}.radar-spinner .circle-inner[data-v-bda51672],.radar-spinner .circle-inner-container[data-v-bda51672]{height:100%;width:100%;border-radius:50%;border:calc(60px * 5 / 110) solid transparent}.radar-spinner .circle-inner[data-v-bda51672]{border-left-color:#ff1d5e;border-right-color:#ff1d5e}@keyframes radar-spinner-animation-data-v-bda51672{50%{transform:rotate(180deg)}100%{transform:rotate(0)}}";
-  styleInject(css$e);
-
-  /* script */
-              const __vue_script__$e = script$e;
-  /* template */
-  var __vue_render__$e = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"radar-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.circlesStyles),function(cs,index){return _c('div',{key:index,staticClass:"circle",style:(cs)},[_c('div',{staticClass:"circle-inner-container",style:(_vm.circleInnerContainerStyle)},[_c('div',{staticClass:"circle-inner",style:(_vm.circleInnerStyle)})])])}),0)};
-  var __vue_staticRenderFns__$e = [];
-
-    /* style */
-    const __vue_inject_styles__$e = undefined;
-    /* scoped */
-    const __vue_scope_id__$e = "data-v-bda51672";
-    /* module identifier */
-    const __vue_module_identifier__$e = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$e = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$e, staticRenderFns: __vue_staticRenderFns__$e },
-      __vue_inject_styles__$e,
-      __vue_script__$e,
-      __vue_scope_id__$e,
-      __vue_is_functional_template__$e,
-      __vue_module_identifier__$e,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$f = {
-    name: 'SelfBuildingSquareSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 6000
-      },
-      size: {
-        type: Number,
-        default: 40
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        squaresNum: 9
-      }
-    },
-
-    computed: {
-      squareSize () {
-        return this.size / 4
-      },
-
-      initialTopPosition () {
-        return -this.squareSize * 2 / 3
-      },
-
-      spinnerStyle () {
-        return {
-          top: `${-this.initialTopPosition}px`,
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      squareStyle () {
-        return {
-          height: `${this.squareSize}px`,
-          width: `${this.squareSize}px`,
-          top: `${this.initialTopPosition}px`,
-          marginRight: `${this.squareSize / 3}px`,
-          marginTop: `${this.squareSize / 3}px`,
-          animationDuration: `${this.animationDuration}ms`,
-          background: this.color
-        }
-      },
-
-      squaresStyles () {
-        const squaresStyles = [];
-        const delaysMultipliers = [6, 7, 8, 3, 4, 5, 0, 1, 2];
-        const delayModifier = this.animationDuration * 0.05;
-
-        for (let i = 0; i < this.squaresNum; i++) {
-          squaresStyles.push(Object.assign({
-            animationDelay: `${delayModifier * delaysMultipliers[i]}ms`
-          }, this.squareStyle));
-        }
-
-        return squaresStyles
-      }
-    }
-  };
-
-  var css$f = ".self-building-square-spinner[data-v-facc71ec],.self-building-square-spinner *[data-v-facc71ec]{box-sizing:border-box}.self-building-square-spinner[data-v-facc71ec]{height:40px;width:40px;top:calc(-10px * 2 / 3)}.self-building-square-spinner .square[data-v-facc71ec]{height:10px;width:10px;top:calc(-10px * 2 / 3);margin-right:calc(10px / 3);margin-top:calc(10px / 3);background:#ff1d5e;float:left;position:relative;opacity:0;animation:self-building-square-spinner-data-v-facc71ec 6s infinite}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(1){animation-delay:calc(300ms * 6)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(2){animation-delay:calc(300ms * 7)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(3){animation-delay:calc(300ms * 8)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(4){animation-delay:calc(300ms * 3)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(5){animation-delay:calc(300ms * 4)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(6){animation-delay:calc(300ms * 5)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(7){animation-delay:calc(300ms * 0)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(8){animation-delay:calc(300ms * 1)}.self-building-square-spinner .square[data-v-facc71ec]:nth-child(9){animation-delay:calc(300ms * 2)}.self-building-square-spinner .clear[data-v-facc71ec]{clear:both}@keyframes self-building-square-spinner-data-v-facc71ec{0%{opacity:0}5%{opacity:1;top:0}50.9%{opacity:1;top:0}55.9%{opacity:0;top:inherit}}";
-  styleInject(css$f);
-
-  /* script */
-              const __vue_script__$f = script$f;
-  /* template */
-  var __vue_render__$f = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"self-building-square-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.squaresStyles),function(ss,index){return _c('div',{key:index,staticClass:"square",class:{'clear': index && index % 3 === 0},style:(ss)})}),0)};
-  var __vue_staticRenderFns__$f = [];
-
-    /* style */
-    const __vue_inject_styles__$f = undefined;
-    /* scoped */
-    const __vue_scope_id__$f = "data-v-facc71ec";
-    /* module identifier */
-    const __vue_module_identifier__$f = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$f = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$f, staticRenderFns: __vue_staticRenderFns__$f },
-      __vue_inject_styles__$f,
-      __vue_script__$f,
-      __vue_scope_id__$f,
-      __vue_is_functional_template__$f,
-      __vue_module_identifier__$f,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$g = {
-    name: 'SpringSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 3000
-      },
-      size: {
-        type: Number,
-        default: 70
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        animationBaseName: 'spring-spinner-animation',
-        currentAnimationName: ''
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      spinnerPartStyle () {
-        return {
-          height: `${this.size / 2}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      rotatorStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`,
-          borderRightColor: this.color,
-          borderTopColor: this.color,
-          borderWidth: `${this.size / 7}px`,
-          animationDuration: `${this.animationDuration}ms`,
-          animationName: this.currentAnimationName
-        }
-      }
-    },
-
-    watch: {
-      '$props': {
-        handler () {
-          this.updateAnimation();
-        },
-        deep: true
-      }
-    },
-
-    mounted () {
-      this.updateAnimation();
-    },
-
-    methods: {
-      updateAnimation () {
-        this.updateAnimationName();
-        utils$1.appendKeyframes(this.currentAnimationName, this.generateKeyframes());
-      },
-
-      updateAnimationName () {
-        this.currentAnimationName = `${this.animationBaseName}-${Date.now()}`;
-      },
-
-      generateKeyframes () {
-        return `
-        0% {
-          border-width: ${this.size / 7}px;
-        }
-        25% {
-          border-width: ${this.size / 23.33}px;
-        }
-        50% {
-          transform: rotate(115deg);
-          border-width: ${this.size / 7}px;
-        }
-        75% {
-          border-width: ${this.size / 23.33}px;
-         }
-        100% {
-         border-width: ${this.size / 7}px;
-        }`
-      }
-    }
-  };
-
-  var css$g = ".spring-spinner[data-v-2005eb59],.spring-spinner *[data-v-2005eb59]{box-sizing:border-box}.spring-spinner[data-v-2005eb59]{height:60px;width:60px}.spring-spinner .spring-spinner-part[data-v-2005eb59]{overflow:hidden;height:calc(60px / 2);width:60px}.spring-spinner .spring-spinner-part.bottom[data-v-2005eb59]{transform:rotate(180deg) scale(-1,1)}.spring-spinner .spring-spinner-rotator[data-v-2005eb59]{width:60px;height:60px;border:calc(60px / 7) solid transparent;border-right-color:#ff1d5e;border-top-color:#ff1d5e;border-radius:50%;box-sizing:border-box;animation:spring-spinner-animation-data-v-2005eb59 3s ease-in-out infinite;transform:rotate(-200deg)}@keyframes spring-spinner-animation-data-v-2005eb59{0%{border-width:calc(60px / 7)}25%{border-width:calc(60px / 23.33)}50%{transform:rotate(115deg);border-width:calc(60px / 7)}75%{border-width:calc(60px / 23.33)}100%{border-width:calc(60px / 7)}}";
-  styleInject(css$g);
-
-  /* script */
-              const __vue_script__$g = script$g;
-  /* template */
-  var __vue_render__$g = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"spring-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"spring-spinner-part top",style:(_vm.spinnerPartStyle)},[_c('div',{staticClass:"spring-spinner-rotator",style:(_vm.rotatorStyle)})]),_vm._v(" "),_c('div',{staticClass:"spring-spinner-part bottom",style:(_vm.spinnerPartStyle)},[_c('div',{staticClass:"spring-spinner-rotator",style:(_vm.rotatorStyle)})])])};
-  var __vue_staticRenderFns__$g = [];
-
-    /* style */
-    const __vue_inject_styles__$g = undefined;
-    /* scoped */
-    const __vue_scope_id__$g = "data-v-2005eb59";
-    /* module identifier */
-    const __vue_module_identifier__$g = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$g = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$g, staticRenderFns: __vue_staticRenderFns__$g },
-      __vue_inject_styles__$g,
-      __vue_script__$g,
-      __vue_scope_id__$g,
-      __vue_is_functional_template__$g,
-      __vue_module_identifier__$g,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$h = {
-    name: 'LoopingRhombusesSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 2500
-      },
-      rhombusSize: {
-        type: Number,
-        default: 15
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    data () {
-      return {
-        rhombusesNum: 3
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.rhombusSize}px`,
-          width: `${this.rhombusSize * 4}px`
-        }
-      },
-
-      rhombusStyle () {
-        return {
-          height: `${this.rhombusSize}px`,
-          width: `${this.rhombusSize}px`,
-          backgroundColor: this.color,
-          animationDuration: `${this.animationDuration}ms`,
-          left: `${this.rhombusSize * 4}px`
-        }
-      },
-
-      rhombusesStyles () {
-        const rhombusesStyles = [];
-        const delay = -this.animationDuration / 1.5;
-
-        for (let i = 1; i <= this.rhombusesNum; i++) {
-          const style = Object.assign({
-            animationDelay: `${i * delay}ms`
-          }, this.rhombusStyle);
-
-          rhombusesStyles.push(style);
-        }
-
-        return rhombusesStyles
-      }
-    }
-  };
-
-  var css$h = ".looping-rhombuses-spinner[data-v-6868d2fc],.looping-rhombuses-spinner *[data-v-6868d2fc]{box-sizing:border-box}.looping-rhombuses-spinner[data-v-6868d2fc]{width:calc(15px * 4);height:15px;position:relative}.looping-rhombuses-spinner .rhombus[data-v-6868d2fc]{height:15px;width:15px;background-color:#ff1d5e;left:calc(15px * 4);position:absolute;margin:0 auto;border-radius:2px;transform:translateY(0) rotate(45deg) scale(0);animation:looping-rhombuses-spinner-animation-data-v-6868d2fc 2.5s linear infinite}.looping-rhombuses-spinner .rhombus[data-v-6868d2fc]:nth-child(1){animation-delay:calc(2500ms * 1 / -1.5)}.looping-rhombuses-spinner .rhombus[data-v-6868d2fc]:nth-child(2){animation-delay:calc(2500ms * 2 / -1.5)}.looping-rhombuses-spinner .rhombus[data-v-6868d2fc]:nth-child(3){animation-delay:calc(2500ms * 3 / -1.5)}@keyframes looping-rhombuses-spinner-animation-data-v-6868d2fc{0%{transform:translateX(0) rotate(45deg) scale(0)}50%{transform:translateX(-233%) rotate(45deg) scale(1)}100%{transform:translateX(-466%) rotate(45deg) scale(0)}}";
-  styleInject(css$h);
-
-  /* script */
-              const __vue_script__$h = script$h;
-  /* template */
-  var __vue_render__$h = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"looping-rhombuses-spinner",style:(_vm.spinnerStyle)},_vm._l((_vm.rhombusesStyles),function(rs,index){return _c('div',{staticClass:"rhombus",style:(rs),attrs:{"ikey":index}})}),0)};
-  var __vue_staticRenderFns__$h = [];
-
-    /* style */
-    const __vue_inject_styles__$h = undefined;
-    /* scoped */
-    const __vue_scope_id__$h = "data-v-6868d2fc";
-    /* module identifier */
-    const __vue_module_identifier__$h = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$h = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$h, staticRenderFns: __vue_staticRenderFns__$h },
-      __vue_inject_styles__$h,
-      __vue_script__$h,
-      __vue_scope_id__$h,
-      __vue_is_functional_template__$h,
-      __vue_module_identifier__$h,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$i = {
-    name: 'HalfCircleSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1000
-      },
-      size: {
-        type: Number,
-        default: 60
-      },
-      color: {
-        type: String,
-        default: '#fff'
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      circleStyle () {
-        return {
-          borderWidth: `${this.size / 10}px`,
-          animationDuration: `${this.animationDuration}ms`
-        }
-      },
-
-      circle1Style () {
-        return Object.assign({
-          borderTopColor: this.color
-        }, this.circleStyle)
-      },
-
-      circle2Style () {
-        return Object.assign({
-          borderBottomColor: this.color
-        }, this.circleStyle)
-      }
-    }
-  };
-
-  var css$i = ".half-circle-spinner[data-v-0c839feb],.half-circle-spinner *[data-v-0c839feb]{box-sizing:border-box}.half-circle-spinner[data-v-0c839feb]{width:60px;height:60px;border-radius:100%;position:relative}.half-circle-spinner .circle[data-v-0c839feb]{content:\"\";position:absolute;width:100%;height:100%;border-radius:100%;border:calc(60px / 10) solid transparent}.half-circle-spinner .circle.circle-1[data-v-0c839feb]{border-top-color:#ff1d5e;animation:half-circle-spinner-animation-data-v-0c839feb 1s infinite}.half-circle-spinner .circle.circle-2[data-v-0c839feb]{border-bottom-color:#ff1d5e;animation:half-circle-spinner-animation-data-v-0c839feb 1s infinite alternate}@keyframes half-circle-spinner-animation-data-v-0c839feb{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}";
-  styleInject(css$i);
-
-  /* script */
-              const __vue_script__$i = script$i;
-  /* template */
-  var __vue_render__$i = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"half-circle-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"circle circle-1",style:(_vm.circle1Style)}),_vm._v(" "),_c('div',{staticClass:"circle circle-2",style:(_vm.circle2Style)})])};
-  var __vue_staticRenderFns__$i = [];
-
-    /* style */
-    const __vue_inject_styles__$i = undefined;
-    /* scoped */
-    const __vue_scope_id__$i = "data-v-0c839feb";
-    /* module identifier */
-    const __vue_module_identifier__$i = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$i = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$i, staticRenderFns: __vue_staticRenderFns__$i },
-      __vue_inject_styles__$i,
-      __vue_script__$i,
-      __vue_scope_id__$i,
-      __vue_is_functional_template__$i,
-      __vue_module_identifier__$i,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$j = {
-    name: 'AtomSpinner',
-
-    props: {
-      animationDuration: {
-        type: Number,
-        default: 1000
-      },
-      size: {
-        type: Number,
-        default: 60
-      },
-      color: {
-        type: String,
-        default: 'red'
-      }
-    },
-
-    computed: {
-      spinnerStyle () {
-        return {
-          height: `${this.size}px`,
-          width: `${this.size}px`
-        }
-      },
-
-      circleStyle () {
-        return {
-          color: this.color,
-          fontSize: `${this.size * 0.24}px`
-        }
-      },
-
-      lineStyle () {
-        return {
-          animationDuration: `${this.animationDuration}ms`,
-          borderLeftWidth: `${this.size / 25}px`,
-          borderTopWidth: `${this.size / 25}px`,
-          borderLeftColor: this.color
-        }
-      }
-    }
-  };
-
-  var css$j = ".atom-spinner[data-v-bfc79e28],.atom-spinner *[data-v-bfc79e28]{box-sizing:border-box}.atom-spinner[data-v-bfc79e28]{height:60px;width:60px;overflow:hidden}.atom-spinner .spinner-inner[data-v-bfc79e28]{position:relative;display:block;height:100%;width:100%}.atom-spinner .spinner-circle[data-v-bfc79e28]{display:block;position:absolute;color:#ff1d5e;font-size:calc(60px * .24);top:50%;left:50%;transform:translate(-50%,-50%)}.atom-spinner .spinner-line[data-v-bfc79e28]{position:absolute;width:100%;height:100%;border-radius:50%;animation-duration:1s;border-left-width:calc(60px / 25);border-top-width:calc(60px / 25);border-left-color:#ff1d5e;border-left-style:solid;border-top-style:solid;border-top-color:transparent}.atom-spinner .spinner-line[data-v-bfc79e28]:nth-child(1){animation:atom-spinner-animation-1-data-v-bfc79e28 1s linear infinite;transform:rotateZ(120deg) rotateX(66deg) rotateZ(0)}.atom-spinner .spinner-line[data-v-bfc79e28]:nth-child(2){animation:atom-spinner-animation-2-data-v-bfc79e28 1s linear infinite;transform:rotateZ(240deg) rotateX(66deg) rotateZ(0)}.atom-spinner .spinner-line[data-v-bfc79e28]:nth-child(3){animation:atom-spinner-animation-3-data-v-bfc79e28 1s linear infinite;transform:rotateZ(360deg) rotateX(66deg) rotateZ(0)}@keyframes atom-spinner-animation-1-data-v-bfc79e28{100%{transform:rotateZ(120deg) rotateX(66deg) rotateZ(360deg)}}@keyframes atom-spinner-animation-2-data-v-bfc79e28{100%{transform:rotateZ(240deg) rotateX(66deg) rotateZ(360deg)}}@keyframes atom-spinner-animation-3-data-v-bfc79e28{100%{transform:rotateZ(360deg) rotateX(66deg) rotateZ(360deg)}}";
-  styleInject(css$j);
-
-  /* script */
-              const __vue_script__$j = script$j;
-  /* template */
-  var __vue_render__$j = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"atom-spinner",style:(_vm.spinnerStyle)},[_c('div',{staticClass:"spinner-inner"},[_c('div',{staticClass:"spinner-line",style:(_vm.lineStyle)}),_vm._v(" "),_c('div',{staticClass:"spinner-line",style:(_vm.lineStyle)}),_vm._v(" "),_c('div',{staticClass:"spinner-line",style:(_vm.lineStyle)}),_vm._v(" "),_c('div',{staticClass:"spinner-circle",style:(_vm.circleStyle)},[_vm._v("\n      ●\n    ")])])])};
-  var __vue_staticRenderFns__$j = [];
-
-    /* style */
-    const __vue_inject_styles__$j = undefined;
-    /* scoped */
-    const __vue_scope_id__$j = "data-v-bfc79e28";
-    /* module identifier */
-    const __vue_module_identifier__$j = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$j = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    normalizeComponent(
-      { render: __vue_render__$j, staticRenderFns: __vue_staticRenderFns__$j },
-      __vue_inject_styles__$j,
-      __vue_script__$j,
-      __vue_scope_id__$j,
-      __vue_is_functional_template__$j,
-      __vue_module_identifier__$j,
-      undefined,
-      undefined
-    );
-
-  const isOldIE = typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-  function createInjector(context) {
-      return (id, style) => addStyle(id, style);
-  }
-  const HEAD = document.head || document.getElementsByTagName('head')[0];
-  const styles = {};
-  function addStyle(id, css) {
-      const group = isOldIE ? css.media || 'default' : id;
-      const style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
-      if (!style.ids.has(id)) {
-          style.ids.add(id);
-          let code = css.source;
-          if (css.map) {
-              // https://developer.chrome.com/devtools/docs/javascript-debugging
-              // this makes source maps inside style tags work properly in Chrome
-              code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-              // http://stackoverflow.com/a/26603875
-              code +=
-                  '\n/*# sourceMappingURL=data:application/json;base64,' +
-                      btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-                      ' */';
-          }
-          if (!style.element) {
-              style.element = document.createElement('style');
-              style.element.type = 'text/css';
-              if (css.media)
-                  style.element.setAttribute('media', css.media);
-              HEAD.appendChild(style.element);
-          }
-          if ('styleSheet' in style.element) {
-              style.styles.push(code);
-              style.element.styleSheet.cssText = style.styles
-                  .filter(Boolean)
-                  .join('\n');
-          }
-          else {
-              const index = style.ids.size - 1;
-              const textNode = document.createTextNode(code);
-              const nodes = style.element.childNodes;
-              if (nodes[index])
-                  style.element.removeChild(nodes[index]);
-              if (nodes.length)
-                  style.element.insertBefore(textNode, nodes[index]);
-              else
-                  style.element.appendChild(textNode);
-          }
-      }
-  }
-
-  var vueProgressbar = createCommonjsModule(function (module, exports) {
-  !function(t,o){module.exports=o();}(commonjsGlobal,function(){!function(){if("undefined"!=typeof document){var t=document.head||document.getElementsByTagName("head")[0],o=document.createElement("style"),i=" .__cov-progress { opacity: 1; z-index: 999999; } ";o.type="text/css",o.styleSheet?o.styleSheet.cssText=i:o.appendChild(document.createTextNode(i)),t.appendChild(o);}}();var t="undefined"!=typeof window,r={render:function(){var t=this,o=t.$createElement;return (t._self._c||o)("div",{staticClass:"__cov-progress",style:t.style})},staticRenderFns:[],name:"VueProgress",serverCacheKey:function(){return "Progress"},computed:{style:function(){var t=this.progress,o=t.options,i=!!o.show,e=o.location,s={"background-color":o.canSuccess?o.color:o.failedColor,opacity:o.show?1:0,position:o.position};return "top"===e||"bottom"===e?("top"===e?s.top="0px":s.bottom="0px",o.inverse?s.right="0px":s.left="0px",s.width=t.percent+"%",s.height=o.thickness,s.transition=(i?"width "+o.transition.speed+", ":"")+"opacity "+o.transition.opacity):"left"!==e&&"right"!==e||("left"===e?s.left="0px":s.right="0px",o.inverse?s.top="0px":s.bottom="0px",s.height=t.percent+"%",s.width=o.thickness,s.transition=(i?"height "+o.transition.speed+", ":"")+"opacity "+o.transition.opacity),s},progress:function(){return t?window.VueProgressBarEventBus.RADON_LOADING_BAR:{percent:0,options:{canSuccess:!0,show:!1,color:"rgb(19, 91, 55)",failedColor:"red",thickness:"2px",transition:{speed:"0.2s",opacity:"0.6s",termination:300},location:"top",autoRevert:!0,inverse:!1}}}}};return {install:function(o){var t=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{},i=(o.version.split(".")[0],"undefined"!=typeof window),e={$vm:null,state:{tFailColor:"",tColor:"",timer:null,cut:0},init:function(t){this.$vm=t;},start:function(t){var o=this;this.$vm&&(t||(t=3e3),this.$vm.RADON_LOADING_BAR.percent=0,this.$vm.RADON_LOADING_BAR.options.show=!0,this.$vm.RADON_LOADING_BAR.options.canSuccess=!0,this.state.cut=1e4/Math.floor(t),clearInterval(this.state.timer),this.state.timer=setInterval(function(){o.increase(o.state.cut*Math.random()),95<o.$vm.RADON_LOADING_BAR.percent&&o.$vm.RADON_LOADING_BAR.options.autoFinish&&o.finish();},100));},set:function(t){this.$vm.RADON_LOADING_BAR.options.show=!0,this.$vm.RADON_LOADING_BAR.options.canSuccess=!0,this.$vm.RADON_LOADING_BAR.percent=Math.floor(t);},get:function(){return Math.floor(this.$vm.RADON_LOADING_BAR.percent)},increase:function(t){this.$vm.RADON_LOADING_BAR.percent=Math.min(99,this.$vm.RADON_LOADING_BAR.percent+Math.floor(t));},decrease:function(t){this.$vm.RADON_LOADING_BAR.percent=this.$vm.RADON_LOADING_BAR.percent-Math.floor(t);},hide:function(){var t=this;clearInterval(this.state.timer),this.state.timer=null,setTimeout(function(){t.$vm.RADON_LOADING_BAR.options.show=!1,o.nextTick(function(){setTimeout(function(){t.$vm.RADON_LOADING_BAR.percent=0;},100),t.$vm.RADON_LOADING_BAR.options.autoRevert&&setTimeout(function(){t.revert();},300);});},this.$vm.RADON_LOADING_BAR.options.transition.termination);},pause:function(){clearInterval(this.state.timer);},finish:function(){this.$vm&&(this.$vm.RADON_LOADING_BAR.percent=100,this.hide());},fail:function(){this.$vm.RADON_LOADING_BAR.options.canSuccess=!1,this.$vm.RADON_LOADING_BAR.percent=100,this.hide();},setFailColor:function(t){this.$vm.RADON_LOADING_BAR.options.failedColor=t;},setColor:function(t){this.$vm.RADON_LOADING_BAR.options.color=t;},setLocation:function(t){this.$vm.RADON_LOADING_BAR.options.location=t;},setTransition:function(t){this.$vm.RADON_LOADING_BAR.options.transition=t;},tempFailColor:function(t){this.state.tFailColor=this.$vm.RADON_LOADING_BAR.options.failedColor,this.$vm.RADON_LOADING_BAR.options.failedColor=t;},tempColor:function(t){this.state.tColor=this.$vm.RADON_LOADING_BAR.options.color,this.$vm.RADON_LOADING_BAR.options.color=t;},tempLocation:function(t){this.state.tLocation=this.$vm.RADON_LOADING_BAR.options.location,this.$vm.RADON_LOADING_BAR.options.location=t;},tempTransition:function(t){this.state.tTransition=this.$vm.RADON_LOADING_BAR.options.transition,this.$vm.RADON_LOADING_BAR.options.transition=t;},revertColor:function(){this.$vm.RADON_LOADING_BAR.options.color=this.state.tColor,this.state.tColor="";},revertFailColor:function(){this.$vm.RADON_LOADING_BAR.options.failedColor=this.state.tFailColor,this.state.tFailColor="";},revertLocation:function(){this.$vm.RADON_LOADING_BAR.options.location=this.state.tLocation,this.state.tLocation="";},revertTransition:function(){this.$vm.RADON_LOADING_BAR.options.transition=this.state.tTransition,this.state.tTransition={};},revert:function(){this.$vm.RADON_LOADING_BAR.options.autoRevert&&(this.state.tColor&&this.revertColor(),this.state.tFailColor&&this.revertFailColor(),this.state.tLocation&&this.revertLocation(),!this.state.tTransition||void 0===this.state.tTransition.speed&&void 0===this.state.tTransition.opacity||this.revertTransition());},parseMeta:function(t){for(var o in t.func){var i=t.func[o];switch(i.call){case"color":switch(i.modifier){case"set":this.setColor(i.argument);break;case"temp":this.tempColor(i.argument);}break;case"fail":switch(i.modifier){case"set":this.setFailColor(i.argument);break;case"temp":this.tempFailColor(i.argument);}break;case"location":switch(i.modifier){case"set":this.setLocation(i.argument);break;case"temp":this.tempLocation(i.argument);}break;case"transition":switch(i.modifier){case"set":this.setTransition(i.argument);break;case"temp":this.tempTransition(i.argument);}}}}},s=function(t,o){for(var i,e,s=1;s<arguments.length;++s)for(i in e=arguments[s])Object.prototype.hasOwnProperty.call(e,i)&&(t[i]=e[i]);return t}({canSuccess:!0,show:!1,color:"#73ccec",position:"fixed",failedColor:"red",thickness:"2px",transition:{speed:"0.2s",opacity:"0.6s",termination:300},autoRevert:!0,location:"top",inverse:!1,autoFinish:!0},t),n=new o({data:{RADON_LOADING_BAR:{percent:0,options:s}}});i&&(window.VueProgressBarEventBus=n,e.init(n)),o.component("vue-progress-bar",r),o.prototype.$Progress=e;}}});
-  });
-
-  var dist = createCommonjsModule(function (module, exports) {
-  !function(e,t){module.exports=t();}(window,function(){return function(n){var i={};function o(e){if(i[e])return i[e].exports;var t=i[e]={i:e,l:!1,exports:{}};return n[e].call(t.exports,t,t.exports,o),t.l=!0,t.exports}return o.m=n,o.c=i,o.d=function(e,t,n){o.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n});},o.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0});},o.t=function(t,e){if(1&e&&(t=o(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(o.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var i in t)o.d(n,i,function(e){return t[e]}.bind(null,i));return n},o.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return o.d(t,"a",t),t},o.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},o.p="/dist/",o(o.s=11)}([function(e,t,n){var i=n(6);"string"==typeof i&&(i=[[e.i,i,""]]),i.locals&&(e.exports=i.locals);(0, n(4).default)("27d83796",i,!1,{});},function(e,t,n){var i=n(8);"string"==typeof i&&(i=[[e.i,i,""]]),i.locals&&(e.exports=i.locals);(0, n(4).default)("0e783494",i,!1,{});},function(e,t,n){var i=n(10);"string"==typeof i&&(i=[[e.i,i,""]]),i.locals&&(e.exports=i.locals);(0, n(4).default)("17757f60",i,!1,{});},function(e,t){e.exports=function(n){var a=[];return a.toString=function(){return this.map(function(e){var t=function(e,t){var n=e[1]||"",i=e[3];if(!i)return n;if(t&&"function"==typeof btoa){var o=(a=i,"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(a))))+" */"),r=i.sources.map(function(e){return "/*# sourceURL="+i.sourceRoot+e+" */"});return [n].concat(r).concat([o]).join("\n")}var a;return [n].join("\n")}(e,n);return e[2]?"@media "+e[2]+"{"+t+"}":t}).join("")},a.i=function(e,t){"string"==typeof e&&(e=[[null,e,""]]);for(var n={},i=0;i<this.length;i++){var o=this[i][0];"number"==typeof o&&(n[o]=!0);}for(i=0;i<e.length;i++){var r=e[i];"number"==typeof r[0]&&n[r[0]]||(t&&!r[2]?r[2]=t:t&&(r[2]="("+r[2]+") and ("+t+")"),a.push(r));}},a};},function(e,t,n){function l(e,t){for(var n=[],i={},o=0;o<t.length;o++){var r=t[o],a=r[0],s={id:e+":"+o,css:r[1],media:r[2],sourceMap:r[3]};i[a]?i[a].parts.push(s):n.push(i[a]={id:a,parts:[s]});}return n}n.r(t),n.d(t,"default",function(){return p});var i="undefined"!=typeof document;if("undefined"!=typeof DEBUG&&DEBUG&&!i)throw new Error("vue-style-loader cannot be used in a non-browser environment. Use { target: 'node' } in your Webpack config to indicate a server-rendering environment.");var d={},o=i&&(document.head||document.getElementsByTagName("head")[0]),r=null,a=0,u=!1,s=function(){},c=null,h="data-vue-ssr-id",f="undefined"!=typeof navigator&&/msie [6-9]\b/.test(navigator.userAgent.toLowerCase());function p(a,e,t,n){u=t,c=n||{};var s=l(a,e);return v(s),function(e){for(var t=[],n=0;n<s.length;n++){var i=s[n];(o=d[i.id]).refs--,t.push(o);}e?v(s=l(a,e)):s=[];for(n=0;n<t.length;n++){var o;if(0===(o=t[n]).refs){for(var r=0;r<o.parts.length;r++)o.parts[r]();delete d[o.id];}}}}function v(e){for(var t=0;t<e.length;t++){var n=e[t],i=d[n.id];if(i){i.refs++;for(var o=0;o<i.parts.length;o++)i.parts[o](n.parts[o]);for(;o<n.parts.length;o++)i.parts.push(g(n.parts[o]));i.parts.length>n.parts.length&&(i.parts.length=n.parts.length);}else{var r=[];for(o=0;o<n.parts.length;o++)r.push(g(n.parts[o]));d[n.id]={id:n.id,refs:1,parts:r};}}}function m(){var e=document.createElement("style");return e.type="text/css",o.appendChild(e),e}function g(t){var n,i,e=document.querySelector("style["+h+'~="'+t.id+'"]');if(e){if(u)return s;e.parentNode.removeChild(e);}if(f){var o=a++;e=r||(r=m()),n=w.bind(null,e,o,!1),i=w.bind(null,e,o,!0);}else e=m(),n=function(e,t){var n=t.css,i=t.media,o=t.sourceMap;i&&e.setAttribute("media",i);c.ssrId&&e.setAttribute(h,t.id);o&&(n+="\n/*# sourceURL="+o.sources[0]+" */",n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");if(e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n));}}.bind(null,e),i=function(){e.parentNode.removeChild(e);};return n(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;n(t=e);}else i();}}var b,y=(b=[],function(e,t){return b[e]=t,b.filter(Boolean).join("\n")});function w(e,t,n,i){var o=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=y(t,o);else{var r=document.createTextNode(o),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(r,a[t]):e.appendChild(r);}}},function(e,t,n){var i=n(0);n.n(i).a;},function(e,t,n){(e.exports=n(3)(!1)).push([e.i,"\n.vue-modal-resizer {\n  display: block;\n  overflow: hidden;\n  position: absolute;\n  width: 12px;\n  height: 12px;\n  right: 0;\n  bottom: 0;\n  z-index: 9999999;\n  background: transparent;\n  cursor: se-resize;\n}\n.vue-modal-resizer::after {\n  display: block;\n  position: absolute;\n  content: '';\n  background: transparent;\n  left: 0;\n  top: 0;\n  width: 0;\n  height: 0;\n  border-bottom: 10px solid #ddd;\n  border-left: 10px solid transparent;\n}\n.vue-modal-resizer.clicked::after {\n  border-bottom: 10px solid #369be9;\n}\n",""]);},function(e,t,n){var i=n(1);n.n(i).a;},function(e,t,n){(e.exports=n(3)(!1)).push([e.i,"\n.v--modal-block-scroll {\n  overflow: hidden;\n  width: 100vw;\n}\n.v--modal-overlay {\n  position: fixed;\n  box-sizing: border-box;\n  left: 0;\n  top: 0;\n  width: 100%;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.2);\n  z-index: 999;\n  opacity: 1;\n}\n.v--modal-overlay.scrollable {\n  height: 100%;\n  min-height: 100vh;\n  overflow-y: auto;\n  -webkit-overflow-scrolling: touch;\n}\n.v--modal-overlay .v--modal-background-click {\n  width: 100%;\n  height: 100%;\n}\n.v--modal-overlay .v--modal-box {\n  position: relative;\n  overflow: hidden;\n  box-sizing: border-box;\n}\n.v--modal-overlay.scrollable .v--modal-box {\n  margin-bottom: 2px;\n}\n.v--modal {\n  background-color: white;\n  text-align: left;\n  border-radius: 3px;\n  box-shadow: 0 20px 60px -2px rgba(27, 33, 58, 0.4);\n  padding: 0;\n}\n.v--modal.v--modal-fullscreen {\n  width: 100vw;\n  height: 100vh;\n  margin: 0;\n  left: 0;\n  top: 0;\n}\n.v--modal-top-right {\n  display: block;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n.overlay-fade-enter-active,\n.overlay-fade-leave-active {\n  transition: all 0.2s;\n}\n.overlay-fade-enter,\n.overlay-fade-leave-active {\n  opacity: 0;\n}\n.nice-modal-fade-enter-active,\n.nice-modal-fade-leave-active {\n  transition: all 0.4s;\n}\n.nice-modal-fade-enter,\n.nice-modal-fade-leave-active {\n  opacity: 0;\n  transform: translateY(-20px);\n}\n",""]);},function(e,t,n){var i=n(2);n.n(i).a;},function(e,t,n){(e.exports=n(3)(!1)).push([e.i,"\n.vue-dialog div {\n  box-sizing: border-box;\n}\n.vue-dialog .dialog-flex {\n  width: 100%;\n  height: 100%;\n}\n.vue-dialog .dialog-content {\n  flex: 1 0 auto;\n  width: 100%;\n  padding: 15px;\n  font-size: 14px;\n}\n.vue-dialog .dialog-c-title {\n  font-weight: 600;\n  padding-bottom: 15px;\n}\n.vue-dialog .dialog-c-text {\n}\n.vue-dialog .vue-dialog-buttons {\n  display: flex;\n  flex: 0 1 auto;\n  width: 100%;\n  border-top: 1px solid #eee;\n}\n.vue-dialog .vue-dialog-buttons-none {\n  width: 100%;\n  padding-bottom: 15px;\n}\n.vue-dialog-button {\n  font-size: 12px !important;\n  background: transparent;\n  padding: 0;\n  margin: 0;\n  border: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n  line-height: 40px;\n  height: 40px;\n  color: inherit;\n  font: inherit;\n  outline: none;\n}\n.vue-dialog-button:hover {\n  background: rgba(0, 0, 0, 0.01);\n}\n.vue-dialog-button:active {\n  background: rgba(0, 0, 0, 0.025);\n}\n.vue-dialog-button:not(:first-of-type) {\n  border-left: 1px solid #eee;\n}\n",""]);},function(e,t,n){n.r(t);var i=function(){var t=this,e=t.$createElement,n=t._self._c||e;return n("transition",{attrs:{name:t.overlayTransition}},[t.visibility.overlay?n("div",{ref:"overlay",class:t.overlayClass,attrs:{"aria-expanded":t.visibility.overlay.toString(),"data-modal":t.name}},[n("div",{staticClass:"v--modal-background-click",on:{mousedown:function(e){return e.target!==e.currentTarget?null:t.handleBackgroundClick(e)},touchstart:function(e){return e.target!==e.currentTarget?null:t.handleBackgroundClick(e)}}},[n("div",{staticClass:"v--modal-top-right"},[t._t("top-right")],2),t._v(" "),n("transition",{attrs:{name:t.transition},on:{"before-enter":t.beforeTransitionEnter,"after-enter":t.afterTransitionEnter,"after-leave":t.afterTransitionLeave}},[t.visibility.modal?n("div",{ref:"modal",class:t.modalClass,style:t.modalStyle},[t._t("default"),t._v(" "),t.resizable&&!t.isAutoHeight?n("resizer",{attrs:{"min-width":t.minWidth,"min-height":t.minHeight},on:{resize:t.handleModalResize}}):t._e()],2):t._e()])],1)]):t._e()])},o=function(){var e=this.$createElement;return (this._self._c||e)("div",{class:this.className})};o._withStripped=i._withStripped=!0;var s=function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:0;return function(){return (e++).toString()}}(),u=function(e,t,n){return n<e?e:t<n?t:n},r=function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{};return function(o){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{},t=Object.keys(r);"function"==typeof Object.getOwnPropertySymbols&&(t=t.concat(Object.getOwnPropertySymbols(r).filter(function(e){return Object.getOwnPropertyDescriptor(r,e).enumerable}))),t.forEach(function(e){var t,n,i;t=o,i=r[n=e],n in t?Object.defineProperty(t,n,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[n]=i;});}return o}({id:s(),timestamp:Date.now(),canceled:!1},e)},a={name:"VueJsModalResizer",props:{minHeight:{type:Number,default:0},minWidth:{type:Number,default:0}},data:function(){return {clicked:!1,size:{}}},mounted:function(){this.$el.addEventListener("mousedown",this.start,!1);},computed:{className:function(){return {"vue-modal-resizer":!0,clicked:this.clicked}}},methods:{start:function(e){this.clicked=!0,window.addEventListener("mousemove",this.mousemove,!1),window.addEventListener("mouseup",this.stop,!1),e.stopPropagation(),e.preventDefault();},stop:function(){this.clicked=!1,window.removeEventListener("mousemove",this.mousemove,!1),window.removeEventListener("mouseup",this.stop,!1),this.$emit("resize-stop",{element:this.$el.parentElement,size:this.size});},mousemove:function(e){this.resize(e);},resize:function(e){var t=this.$el.parentElement;if(t){var n=e.clientX-t.offsetLeft,i=e.clientY-t.offsetTop;n=u(this.minWidth,window.innerWidth,n),i=u(this.minHeight,window.innerHeight,i),this.size={width:n,height:i},t.style.width=n+"px",t.style.height=i+"px",this.$emit("resize",{element:t,size:this.size});}}}};n(5);function l(e,t,n,i,o,r,a,s){var l,d="function"==typeof e?e.options:e;if(t&&(d.render=t,d.staticRenderFns=n,d._compiled=!0),i&&(d.functional=!0),r&&(d._scopeId="data-v-"+r),a?(l=function(e){(e=e||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(e=__VUE_SSR_CONTEXT__),o&&o.call(this,e),e&&e._registeredComponents&&e._registeredComponents.add(a);},d._ssrRegister=l):o&&(l=s?function(){o.call(this,this.$root.$options.shadowRoot);}:o),l)if(d.functional){d._injectStyles=l;var u=d.render;d.render=function(e,t){return l.call(t),u(e,t)};}else{var c=d.beforeCreate;d.beforeCreate=c?[].concat(c,l):[l];}return {exports:e,options:d}}var d=l(a,o,[],!1,null,null,null);d.options.__file="src/Resizer.vue";var c=d.exports;function h(e){return (h="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var f="[-+]?[0-9]*.?[0-9]+",p=[{name:"px",regexp:new RegExp("^".concat(f,"px$"))},{name:"%",regexp:new RegExp("^".concat(f,"%$"))},{name:"px",regexp:new RegExp("^".concat(f,"$"))}],v=function(e){switch(h(e)){case"number":return {type:"px",value:e};case"string":return function(e){if("auto"===e)return {type:e,value:0};for(var t=0;t<p.length;t++){var n=p[t];if(n.regexp.test(e))return {type:n.name,value:parseFloat(e)}}return {type:"",value:e}}(e);default:return {type:"",value:e}}},m=function(e){if("string"!=typeof e)return 0<=e;var t=v(e);return ("%"===t.type||"px"===t.type)&&0<t.value};var g={name:"VueJsModal",props:{name:{required:!0,type:String},delay:{type:Number,default:0},resizable:{type:Boolean,default:!1},adaptive:{type:Boolean,default:!1},draggable:{type:[Boolean,String],default:!1},scrollable:{type:Boolean,default:!1},reset:{type:Boolean,default:!1},overlayTransition:{type:String,default:"overlay-fade"},transition:{type:String},clickToClose:{type:Boolean,default:!0},classes:{type:[String,Array],default:"v--modal"},minWidth:{type:Number,default:0,validator:function(e){return 0<=e}},minHeight:{type:Number,default:0,validator:function(e){return 0<=e}},maxWidth:{type:Number,default:1/0},maxHeight:{type:Number,default:1/0},width:{type:[Number,String],default:600,validator:m},height:{type:[Number,String],default:300,validator:function(e){return "auto"===e||m(e)}},pivotX:{type:Number,default:.5,validator:function(e){return 0<=e&&e<=1}},pivotY:{type:Number,default:.5,validator:function(e){return 0<=e&&e<=1}}},components:{Resizer:c},data:function(){return {visible:!1,visibility:{modal:!1,overlay:!1},shift:{left:0,top:0},modal:{width:0,widthType:"px",height:0,heightType:"px",renderedHeight:0},window:{width:0,height:0},mutationObserver:null}},created:function(){this.setInitialSize();},beforeMount:function(){var t=this;if(T.event.$on("toggle",this.handleToggleEvent),window.addEventListener("resize",this.handleWindowResize),this.handleWindowResize(),this.scrollable&&!this.isAutoHeight&&console.warn('Modal "'.concat(this.name,'" has scrollable flag set to true ')+'but height is not "auto" ('.concat(this.height,")")),this.isAutoHeight){var e=function(){if("undefined"!=typeof window)for(var e=["","WebKit","Moz","O","Ms"],t=0;t<e.length;t++){var n=e[t]+"MutationObserver";if(n in window)return window[n]}return !1}();e&&(this.mutationObserver=new e(function(e){t.updateRenderedHeight();}));}this.clickToClose&&window.addEventListener("keyup",this.handleEscapeKeyUp);},beforeDestroy:function(){T.event.$off("toggle",this.handleToggleEvent),window.removeEventListener("resize",this.handleWindowResize),this.clickToClose&&window.removeEventListener("keyup",this.handleEscapeKeyUp),this.scrollable&&document.body.classList.remove("v--modal-block-scroll");},computed:{isAutoHeight:function(){return "auto"===this.modal.heightType},position:function(){var e=this.window,t=this.shift,n=this.pivotX,i=this.pivotY,o=this.trueModalWidth,r=this.trueModalHeight,a=e.width-o,s=e.height-r,l=t.left+n*a,d=t.top+i*s;return {left:parseInt(u(0,a,l)),top:parseInt(u(0,s,d))}},trueModalWidth:function(){var e=this.window,t=this.modal,n=this.adaptive,i=this.minWidth,o=this.maxWidth,r="%"===t.widthType?e.width/100*t.width:t.width,a=Math.min(e.width,o);return n?u(i,a,r):r},trueModalHeight:function(){var e=this.window,t=this.modal,n=this.isAutoHeight,i=this.adaptive,o=this.maxHeight,r="%"===t.heightType?e.height/100*t.height:t.height;if(n)return this.modal.renderedHeight;var a=Math.min(e.height,o);return i?u(this.minHeight,a,r):r},overlayClass:function(){return {"v--modal-overlay":!0,scrollable:this.scrollable&&this.isAutoHeight}},modalClass:function(){return ["v--modal-box",this.classes]},modalStyle:function(){return {top:this.position.top+"px",left:this.position.left+"px",width:this.trueModalWidth+"px",height:this.isAutoHeight?"auto":this.trueModalHeight+"px"}}},watch:{visible:function(e){var t=this;e?(this.visibility.overlay=!0,setTimeout(function(){t.visibility.modal=!0,t.$nextTick(function(){t.addDraggableListeners(),t.callAfterEvent(!0);});},this.delay)):(this.visibility.modal=!1,setTimeout(function(){t.visibility.overlay=!1,t.$nextTick(function(){t.removeDraggableListeners(),t.callAfterEvent(!1);});},this.delay));}},methods:{handleToggleEvent:function(e,t,n){if(this.name===e){var i=void 0===t?!this.visible:t;this.toggle(i,n);}},setInitialSize:function(){var e=this.modal,t=v(this.width),n=v(this.height);e.width=t.value,e.widthType=t.type,e.height=n.value,e.heightType=n.type;},handleEscapeKeyUp:function(e){27===e.which&&this.visible&&this.$modal.hide(this.name);},handleWindowResize:function(){this.window.width=window.innerWidth,this.window.height=window.innerHeight;},createModalEvent:function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{};return r(function(o){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{},t=Object.keys(r);"function"==typeof Object.getOwnPropertySymbols&&(t=t.concat(Object.getOwnPropertySymbols(r).filter(function(e){return Object.getOwnPropertyDescriptor(r,e).enumerable}))),t.forEach(function(e){var t,n,i;t=o,i=r[n=e],n in t?Object.defineProperty(t,n,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[n]=i;});}return o}({name:this.name,ref:this.$refs.modal},e))},handleModalResize:function(e){this.modal.widthType="px",this.modal.width=e.size.width,this.modal.heightType="px",this.modal.height=e.size.height;var t=this.modal.size;this.$emit("resize",this.createModalEvent({size:t}));},toggle:function(e,t){var n=this.reset,i=this.scrollable,o=this.visible;if(o!==e){var r=o?"before-close":"before-open";"before-open"===r?(document.activeElement&&"BODY"!==document.activeElement.tagName&&document.activeElement.blur&&document.activeElement.blur(),n&&(this.setInitialSize(),this.shift.left=0,this.shift.top=0),i&&document.body.classList.add("v--modal-block-scroll")):i&&document.body.classList.remove("v--modal-block-scroll");var a=!1,s=this.createModalEvent({stop:function(){a=!0;},state:e,params:t});this.$emit(r,s),a||(this.visible=e);}},getDraggableElement:function(){var e="string"!=typeof this.draggable?".v--modal-box":this.draggable;return e?this.$refs.overlay.querySelector(e):null},handleBackgroundClick:function(){this.clickToClose&&this.toggle(!1);},callAfterEvent:function(e){e?this.connectObserver():this.disconnectObserver();var t=e?"opened":"closed",n=this.createModalEvent({state:e});this.$emit(t,n);},addDraggableListeners:function(){var r=this;if(this.draggable){var e=this.getDraggableElement();if(e){var a=0,s=0,l=0,d=0,u=function(e){return e.touches&&0<e.touches.length?e.touches[0]:e},t=function(e){var t=e.target;if(!t||"INPUT"!==t.nodeName){var n=u(e),i=n.clientX,o=n.clientY;document.addEventListener("mousemove",c),document.addEventListener("touchmove",c),document.addEventListener("mouseup",h),document.addEventListener("touchend",h),a=i,s=o,l=r.shift.left,d=r.shift.top;}},c=function(e){var t=u(e),n=t.clientX,i=t.clientY;r.shift.left=l+n-a,r.shift.top=d+i-s,e.preventDefault();},h=function e(t){document.removeEventListener("mousemove",c),document.removeEventListener("touchmove",c),document.removeEventListener("mouseup",e),document.removeEventListener("touchend",e),t.preventDefault();};e.addEventListener("mousedown",t),e.addEventListener("touchstart",t);}}},removeDraggableListeners:function(){},updateRenderedHeight:function(){this.$refs.modal&&(this.modal.renderedHeight=this.$refs.modal.getBoundingClientRect().height);},connectObserver:function(){this.mutationObserver&&this.mutationObserver.observe(this.$refs.overlay,{childList:!0,attributes:!0,subtree:!0});},disconnectObserver:function(){this.mutationObserver&&this.mutationObserver.disconnect();},beforeTransitionEnter:function(){this.connectObserver();},afterTransitionEnter:function(){},afterTransitionLeave:function(){}}},b=(n(7),l(g,i,[],!1,null,null,null));b.options.__file="src/Modal.vue";var y=b.exports,w=function(){var n=this,e=n.$createElement,i=n._self._c||e;return i("modal",{attrs:{name:"dialog",height:"auto",classes:["v--modal","vue-dialog",this.params.class],width:n.width,"pivot-y":.3,adaptive:!0,clickToClose:n.clickToClose,transition:n.transition},on:{"before-open":n.beforeOpened,"before-close":n.beforeClosed,opened:function(e){n.$emit("opened",e);},closed:function(e){n.$emit("closed",e);}}},[i("div",{staticClass:"dialog-content"},[n.params.title?i("div",{staticClass:"dialog-c-title",domProps:{innerHTML:n._s(n.params.title||"")}}):n._e(),n._v(" "),n.params.component?i(n.params.component,n._b({tag:"component"},"component",n.params.props,!1)):i("div",{staticClass:"dialog-c-text",domProps:{innerHTML:n._s(n.params.text||"")}})],1),n._v(" "),n.buttons?i("div",{staticClass:"vue-dialog-buttons"},n._l(n.buttons,function(e,t){return i("button",{key:t,class:e.class||"vue-dialog-button",style:n.buttonStyle,attrs:{type:"button"},domProps:{innerHTML:n._s(e.title)},on:{click:function(e){e.stopPropagation(),n.click(t,e);}}},[n._v("\n      "+n._s(e.title)+"\n    ")])})):i("div",{staticClass:"vue-dialog-buttons-none"})])};w._withStripped=!0;var x={name:"VueJsDialog",props:{width:{type:[Number,String],default:400},clickToClose:{type:Boolean,default:!0},transition:{type:String,default:"fade"}},data:function(){return {params:{},defaultButtons:[{title:"CLOSE"}]}},computed:{buttons:function(){return this.params.buttons||this.defaultButtons},buttonStyle:function(){return {flex:"1 1 ".concat(100/this.buttons.length,"%")}}},methods:{beforeOpened:function(e){window.addEventListener("keyup",this.onKeyUp),this.params=e.params||{},this.$emit("before-opened",e);},beforeClosed:function(e){window.removeEventListener("keyup",this.onKeyUp),this.params={},this.$emit("before-closed",e);},click:function(e,t){var n=2<arguments.length&&void 0!==arguments[2]?arguments[2]:"click",i=this.buttons[e];i&&"function"==typeof i.handler?i.handler(e,t,{source:n}):this.$modal.hide("dialog");},onKeyUp:function(e){if(13===e.which&&0<this.buttons.length){var t=1===this.buttons.length?0:this.buttons.findIndex(function(e){return e.default});-1!==t&&this.click(t,e,"keypress");}}}},_=(n(9),l(x,w,[],!1,null,null,null));_.options.__file="src/Dialog.vue";var E=_.exports,k=function(){var n=this,e=n.$createElement,i=n._self._c||e;return i("div",{attrs:{id:"modals-container"}},n._l(n.modals,function(t){return i("modal",n._g(n._b({key:t.id,on:{closed:function(e){n.remove(t.id);}}},"modal",t.modalAttrs,!1),t.modalListeners),[i(t.component,n._g(n._b({tag:"component",on:{close:function(e){n.$modal.hide(t.modalAttrs.name);}}},"component",t.componentAttrs,!1),n.$listeners))],1)}))};k._withStripped=!0;var S=l({data:function(){return {modals:[]}},created:function(){this.$root._dynamicContainer=this;},methods:{add:function(e){var t=this,n=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{},i=2<arguments.length&&void 0!==arguments[2]?arguments[2]:{},o=3<arguments.length?arguments[3]:void 0,r=s(),a=i.name||"_dynamic_modal_"+r;this.modals.push({id:r,modalAttrs:function(o){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{},t=Object.keys(r);"function"==typeof Object.getOwnPropertySymbols&&(t=t.concat(Object.getOwnPropertySymbols(r).filter(function(e){return Object.getOwnPropertyDescriptor(r,e).enumerable}))),t.forEach(function(e){var t,n,i;t=o,i=r[n=e],n in t?Object.defineProperty(t,n,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[n]=i;});}return o}({},i,{name:a}),modalListeners:o,component:e,componentAttrs:n}),this.$nextTick(function(){t.$modal.show(a);});},remove:function(e){for(var t in this.modals)if(this.modals[t].id===e)return void this.modals.splice(t,1)}}},k,[],!1,null,null,null);S.options.__file="src/ModalsContainer.vue";var C=S.exports,O={install:function(a){var s=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{};this.installed||(this.installed=!0,this.event=new a,this.rootInstance=null,this.componentName=s.componentName||"Modal",a.prototype.$modal={show:function(e,t,n){var i=3<arguments.length&&void 0!==arguments[3]?arguments[3]:{};if("string"!=typeof e){var o=n&&n.root?n.root:O.rootInstance,r=function(e,t,n){if(!n._dynamicContainer&&t.injectModalsContainer){var i=document.createElement("div");document.body.appendChild(i),new e({parent:n,render:function(e){return e(C)}}).$mount(i);}return n._dynamicContainer}(a,s,o);r?r.add(e,t,n,i):console.warn("[vue-js-modal] In order to render dynamic modals, a <modals-container> component must be present on the page");}else O.event.$emit("toggle",e,!0,t);},hide:function(e,t){O.event.$emit("toggle",e,!1,t);},toggle:function(e,t){O.event.$emit("toggle",e,void 0,t);}},a.component(this.componentName,y),s.dialog&&a.component("VDialog",E),s.dynamic&&(a.component("ModalsContainer",C),a.mixin({beforeMount:function(){null===O.rootInstance&&(O.rootInstance=this.$root);}})));}};var T=t.default=O;}])});
-  });
-
-  var VModal = unwrapExports(dist);
-
-  var Vue$1 = Vue;
-  Vue$1 = 'default' in Vue$1 ? Vue$1['default'] : Vue$1;
-
-  var version = '2.2.2';
-
-  var compatible = (/^2\./).test(Vue$1.version);
-  if (!compatible) {
-    Vue$1.util.warn('VueClickaway ' + version + ' only supports Vue 2.x, and does not support Vue ' + Vue$1.version);
-  }
-
-
-
-  // @SECTION: implementation
-
-  var HANDLER = '_vue_clickaway_handler';
-
-  function bind$2(el, binding, vnode) {
-    unbind(el);
-
-    var vm = vnode.context;
-
-    var callback = binding.value;
-    if (typeof callback !== 'function') {
-      {
-        Vue$1.util.warn(
-          'v-' + binding.name + '="' +
-          binding.expression + '" expects a function value, ' +
-          'got ' + callback
-        );
-      }
-      return;
-    }
-
-    // @NOTE: Vue binds directives in microtasks, while UI events are dispatched
-    //        in macrotasks. This causes the listener to be set up before
-    //        the "origin" click event (the event that lead to the binding of
-    //        the directive) arrives at the document root. To work around that,
-    //        we ignore events until the end of the "initial" macrotask.
-    // @REFERENCE: https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
-    // @REFERENCE: https://github.com/simplesmiler/vue-clickaway/issues/8
-    var initialMacrotaskEnded = false;
-    setTimeout(function() {
-      initialMacrotaskEnded = true;
-    }, 0);
-
-    el[HANDLER] = function(ev) {
-      // @NOTE: this test used to be just `el.containts`, but working with path is better,
-      //        because it tests whether the element was there at the time of
-      //        the click, not whether it is there now, that the event has arrived
-      //        to the top.
-      // @NOTE: `.path` is non-standard, the standard way is `.composedPath()`
-      var path = ev.path || (ev.composedPath ? ev.composedPath() : undefined);
-      if (initialMacrotaskEnded && (path ? path.indexOf(el) < 0 : !el.contains(ev.target))) {
-        return callback.call(vm, ev);
-      }
-    };
-
-    document.documentElement.addEventListener('click', el[HANDLER], false);
-  }
-
-  function unbind(el) {
-    document.documentElement.removeEventListener('click', el[HANDLER], false);
-    delete el[HANDLER];
-  }
-
-  var directive$1 = {
-    bind: bind$2,
-    update: function(el, binding) {
-      if (binding.value === binding.oldValue) return;
-      bind$2(el, binding);
-    },
-    unbind: unbind,
-  };
-  var directive_1 = directive$1;
-
-  var vueDialogDrag_umd = createCommonjsModule(function (module, exports) {
-  (function webpackUniversalModuleDefinition(root, factory) {
-  	module.exports = factory();
-  })(typeof self !== 'undefined' ? self : commonjsGlobal, function() {
-  return /******/ (function(modules) { // webpackBootstrap
-  /******/ 	// The module cache
-  /******/ 	var installedModules = {};
-  /******/
-  /******/ 	// The require function
-  /******/ 	function __webpack_require__(moduleId) {
-  /******/
-  /******/ 		// Check if module is in cache
-  /******/ 		if(installedModules[moduleId]) {
-  /******/ 			return installedModules[moduleId].exports;
-  /******/ 		}
-  /******/ 		// Create a new module (and put it into the cache)
-  /******/ 		var module = installedModules[moduleId] = {
-  /******/ 			i: moduleId,
-  /******/ 			l: false,
-  /******/ 			exports: {}
-  /******/ 		};
-  /******/
-  /******/ 		// Execute the module function
-  /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-  /******/
-  /******/ 		// Flag the module as loaded
-  /******/ 		module.l = true;
-  /******/
-  /******/ 		// Return the exports of the module
-  /******/ 		return module.exports;
-  /******/ 	}
-  /******/
-  /******/
-  /******/ 	// expose the modules object (__webpack_modules__)
-  /******/ 	__webpack_require__.m = modules;
-  /******/
-  /******/ 	// expose the module cache
-  /******/ 	__webpack_require__.c = installedModules;
-  /******/
-  /******/ 	// define getter function for harmony exports
-  /******/ 	__webpack_require__.d = function(exports, name, getter) {
-  /******/ 		if(!__webpack_require__.o(exports, name)) {
-  /******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-  /******/ 		}
-  /******/ 	};
-  /******/
-  /******/ 	// define __esModule on exports
-  /******/ 	__webpack_require__.r = function(exports) {
-  /******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-  /******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-  /******/ 		}
-  /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-  /******/ 	};
-  /******/
-  /******/ 	// create a fake namespace object
-  /******/ 	// mode & 1: value is a module id, require it
-  /******/ 	// mode & 2: merge all properties of value into the ns
-  /******/ 	// mode & 4: return value when already ns object
-  /******/ 	// mode & 8|1: behave like require
-  /******/ 	__webpack_require__.t = function(value, mode) {
-  /******/ 		if(mode & 1) value = __webpack_require__(value);
-  /******/ 		if(mode & 8) return value;
-  /******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-  /******/ 		var ns = Object.create(null);
-  /******/ 		__webpack_require__.r(ns);
-  /******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-  /******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-  /******/ 		return ns;
-  /******/ 	};
-  /******/
-  /******/ 	// getDefaultExport function for compatibility with non-harmony modules
-  /******/ 	__webpack_require__.n = function(module) {
-  /******/ 		var getter = module && module.__esModule ?
-  /******/ 			function getDefault() { return module['default']; } :
-  /******/ 			function getModuleExports() { return module; };
-  /******/ 		__webpack_require__.d(getter, 'a', getter);
-  /******/ 		return getter;
-  /******/ 	};
-  /******/
-  /******/ 	// Object.prototype.hasOwnProperty.call
-  /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-  /******/
-  /******/ 	// __webpack_public_path__
-  /******/ 	__webpack_require__.p = "";
-  /******/
-  /******/
-  /******/ 	// Load entry module and return exports
-  /******/ 	return __webpack_require__(__webpack_require__.s = "+xUi");
-  /******/ })
-  /************************************************************************/
-  /******/ ({
-
-  /***/ "+rLv":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var document = __webpack_require__("dyZX").document;
-  module.exports = document && document.documentElement;
-
-
-  /***/ }),
-
-  /***/ "+xUi":
-  /***/ (function(module, __webpack_exports__, __webpack_require__) {
-  __webpack_require__.r(__webpack_exports__);
-
-  // EXTERNAL MODULE: ./node_modules/@vue/cli-service/lib/commands/build/setPublicPath.js
-  var setPublicPath = __webpack_require__("HrLf");
-
-  // CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"/var/share/vue-dialog-drag/node_modules/.cache/vue-loader","cacheIdentifier":"847cbeee-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/vue-dialog-drag.vue?vue&type=template&id=1c049c8d&lang=pug&
-  var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"dialog-drag",class:(!_vm.drag) ? "fixed":"",style:(_vm.dialogStyle),attrs:{"id":_vm.id,"draggable":_vm.drag},on:{"mousedown":_vm.mouseDown,"touchstart":function($event){$event.preventDefault();return _vm.touchStart($event)},"&touchmove":function($event){return _vm.touchMove($event)},"touchend":function($event){$event.stopPropagation();return _vm.touchEnd($event)}}},[_c('div',{staticClass:"dialog-header",on:{"dragstart":function($event){$event.stopPropagation();}}},[_c('div',{staticClass:"title"},[_vm._t("title",[(_vm.title)?_c('span',[_vm._v(_vm._s(_vm.title))]):_c('span',[_vm._v(" ")])])],2),_c('div',{staticClass:"buttons"},[(_vm.buttonPin)?_c('button',{staticClass:"pin",on:{"click":_vm.setDrag,"touchstart":_vm.setDrag}},[(_vm.drag)?_vm._t("button-pin"):_vm._e(),(!_vm.drag)?_vm._t("button-pinned",[(!_vm.drag)?_vm._t("button-pin"):_vm._e()]):_vm._e()],2):_vm._e(),(_vm.buttonClose)?_c('button',{staticClass:"close",on:{"click":function($event){$event.stopPropagation();return _vm.close($event)},"&touchstart":function($event){return _vm.close($event)}}},[_vm._t("button-close")],2):_vm._e()])]),_c('div',{staticClass:"dialog-body",on:{"dragstart":function($event){$event.stopPropagation();}}},[_vm._t("default",[_c('div',{staticClass:"blank-body"})])],2)])};
-  var staticRenderFns = [];
-
-
-  // CONCATENATED MODULE: ./src/components/vue-dialog-drag.vue?vue&type=template&id=1c049c8d&lang=pug&
-
-  // EXTERNAL MODULE: ./node_modules/core-js/modules/es7.symbol.async-iterator.js
-  var es7_symbol_async_iterator = __webpack_require__("rE2o");
-
-  // EXTERNAL MODULE: ./node_modules/core-js/modules/es6.symbol.js
-  var es6_symbol = __webpack_require__("ioFf");
-
-  // EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom.iterable.js
-  var web_dom_iterable = __webpack_require__("rGqo");
-
-  // CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/components/vue-dialog-drag.vue?vue&type=script&lang=js&
-
-
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  /* harmony default export */ var vue_dialog_dragvue_type_script_lang_js_ = ({
-    name: 'dialog-drag',
-    props: ['id', 'title', 'options', 'eventCb'],
-    data: function data() {
-      return {
-        width: 0,
-        height: 0,
-        zIndex: 0,
-        offset: {
-          x: 0,
-          y: 0
-        },
-        left: 0,
-        top: 0,
-        buttonClose: true,
-        buttonPin: true,
-        dragEnabled: true,
-        drag: true,
-        touch: null,
-        overEvent: null,
-        centered: false,
-        dropEnabled: true,
-        dragCursor: 'default',
-        dragging: false,
-        clickButton: false,
-        pX: 0,
-        pY: 0,
-        availableOptions: ['left', 'top', 'width', 'height', 'buttonPin', 'buttonClose', 'centered', 'dropEnabled', 'dragCursor', 'zIndex']
-      };
-    },
-    created: function created() {
-      this.setOptions(this.options);
-    },
-    mounted: function mounted() {
-      if (this.dropEnabled) {
-        this.$el.addEventListener('dragstart', this.dragStart);
-        this.$el.addEventListener('dragend', this.dragEnd);
-        window.addEventListener('dragover', this.dragOver);
-      } else {
-        document.addEventListener('mousemove', this.mouseMove, {
-          passive: true
-        });
-        document.addEventListener('mouseup', this.mouseUp);
-      }
-
-      if (this.centered) {
-        var vm = this;
-        this.$nextTick(function () {
-          vm.center();
-          vm.emit('load');
-        });
-      } else {
-        this.emit('load');
-      }
-    },
-    beforeDestroy: function beforeDestroy() {
-      if (this.dropEnabled) {
-        window.removeEventListener('dragover', this.dragOver);
-      } else {
-        document.removeEventListener('mousemove', this.mouseMove);
-        document.removeEventListener('mouseup', this.mouseUp);
-      }
-    },
-    watch: {
-      options: function options(newValue) {
-        this.setOptions(newValue);
-        if (newValue.centered) this.center();
-      }
-    },
-    computed: {
-      dialogStyle: function dialogStyle() {
-        var style = {
-          left: this.left + 'px',
-          top: this.top + 'px'
-        };
-        if (this.width) style.width = this.width + 'px';
-        if (this.height) style.height = this.height + 'px';
-        if (this.zIndex) style.zIndex = this.zIndex;
-
-        if (this.drag) {
-          style['user-select'] = 'none';
-          style.cursor = this.dragCursor;
-        }
-
-        return style;
-      }
-    },
-    methods: {
-      mouseOut: function mouseOut(event) {
-        if (!this.dragEnabled && this.dragging) {
-          this.move(event);
-        }
-      },
-      dragOver: function dragOver(event) {
-        if (this.dropEnabled) {
-          this.overEvent = event;
-          this.emit('move');
-        }
-      },
-      mouseOver: function mouseOver(event) {
-        setTimeout(this.mouseMove(event), 50);
-      },
-      close: function close() {
-        this.clickButton = 'close';
-        this.emit('close');
-      },
-      setDrag: function setDrag() {
-        if (this.dragEnabled) {
-          this.drag = !this.drag;
-          this.emit('pin');
-        }
-      },
-      dragStart: function dragStart(event) {
-        event.stopPropagation();
-
-        if (this.drag && this.dragEnabled && this.dropEnabled) {
-          event.dataTransfer.setData('text', event.target.id);
-          this.startMove(event);
-        }
-      },
-      dragEnd: function dragEnd(event) {
-        event.preventDefault();
-
-        if (this.dropEnabled) {
-          this.move(event);
-          this.emit('drag-end');
-        }
-      },
-      mouseDown: function mouseDown(event) {
-        if (!this.dragging) this.focus();
-
-        if (!this.dropEnabled) {
-          if (this.drag) event.preventDefault();
-          this.startMove(event);
-        }
-      },
-      mouseMove: function mouseMove(event) {
-        // event.preventDefault()
-        if (!this.dropEnabled && this.dragging && this.drag) {
-          // event.stopPropagation()
-          setTimeout(this.move(event), 50);
-        }
-      },
-      mouseUp: function mouseUp(event) {
-        event.preventDefault();
-
-        if (!this.dropEnabled) {
-          this.stopMove();
-          this.emit('dragEnd');
-        }
-      },
-      touchStart: function touchStart(event) {
-        this.emit('focus');
-        this.startMove(event.targetTouches[0]);
-      },
-      touchMove: function touchMove(event) {
-        this.move(event.targetTouches[0]);
-      },
-      touchEnd: function touchEnd(event) {
-        this.emit('dragEnd');
-        this.stopMove();
-      },
-      stopMove: function stopMove() {
-        this.dragging = false;
-        this.pX = 0;
-        this.pY = 0;
-      },
-      emit: function emit(eventName, data) {
-        data = data || {
-          id: this.id,
-          left: this.left,
-          top: this.top,
-          x: this.left,
-          y: this.top,
-          z: this.zIndex,
-          pinned: !this.drag,
-          width: this.$el.clientWidth,
-          height: this.$el.clientHeight
-        };
-
-        if (this.eventCb) {
-          var ef = this.eventCb;
-
-          if (ef && typeof ef === 'function') {
-            data = ef(data);
-          }
-        }
-
-        this.$emit(eventName, data);
-      },
-      move: function move(event) {
-        if (this.drag && this.dragEnabled) {
-          if (event.clientX === 0) event = this.overEvent; // for firefox
-
-          if (event && event.clientX && event.clientY) {
-            var x = event.clientX;
-            var y = event.clientY;
-            this.left = x + this.offset.x;
-            this.top = y + this.offset.y;
-            this.dragging++;
-            this.emit('move');
-          }
-        }
-      },
-      clearSelection: function clearSelection() {
-        if (document.selection) {
-          document.selection.empty();
-        } else if (window.getSelection) {
-          window.getSelection().removeAllRanges();
-        }
-      },
-      startMove: function startMove(event) {
-        var x = this.left - event.clientX;
-        var y = this.top - event.clientY;
-        this.offset = {
-          x: x,
-          y: y
-        };
-        this.dragging = 1;
-        this.emit('drag-start');
-      },
-      focus: function focus(event) {
-        if (this.drag) this.clearSelection();
-        var vm = this;
-        setTimeout(function () {
-          if (!vm.clickButton) vm.emit('focus');
-        }, 200);
-      },
-      center: function center() {
-        var ww, wh;
-
-        if (this.centered === 'window') {
-          ww = window.innerWidth;
-          wh = window.innerHeight;
-        }
-
-        if (this.centered === 'viewport') {
-          var body = document.body;
-          ww = body.clientWidth + body.scrollLeft;
-          wh = body.clientHeight + body.scrollTop;
-        }
-
-        ww = ww || this.$parent.$el.clientWidth;
-        wh = wh || this.$parent.$el.clientHeight;
-        this.left = ww / 2 - this.$el.clientWidth / 2;
-        this.top = wh / 2 - this.$el.clientHeight / 2;
-      },
-      setOptions: function setOptions(options) {
-        if (options) {
-          if (options.x) options.left = options.x;
-          if (options.y) options.top = options.y;
-          if (options.z) options.zIndex = options.z;
-          this.drag = this.options.pinned ? false : this.drag; // available options
-
-          var ops = this.availableOptions;
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = ops[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var op = _step.value;
-
-              if (this.options.hasOwnProperty(op)) {
-                this.$set(this, op, this.options[op]);
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-  // CONCATENATED MODULE: ./src/components/vue-dialog-drag.vue?vue&type=script&lang=js&
-   /* harmony default export */ var components_vue_dialog_dragvue_type_script_lang_js_ = (vue_dialog_dragvue_type_script_lang_js_); 
-  // EXTERNAL MODULE: ./src/components/vue-dialog-drag.vue?vue&type=style&index=0&lang=stylus&
-  var vue_dialog_dragvue_type_style_index_0_lang_stylus_ = __webpack_require__("r8ud");
-
-  // CONCATENATED MODULE: ./node_modules/vue-loader/lib/runtime/componentNormalizer.js
-  /* globals __VUE_SSR_CONTEXT__ */
-
-  // IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
-  // This module is a runtime utility for cleaner component module output and will
-  // be included in the final webpack user bundle.
-
-  function normalizeComponent (
-    scriptExports,
-    render,
-    staticRenderFns,
-    functionalTemplate,
-    injectStyles,
-    scopeId,
-    moduleIdentifier, /* server only */
-    shadowMode /* vue-cli only */
-  ) {
-    // Vue.extend constructor export interop
-    var options = typeof scriptExports === 'function'
-      ? scriptExports.options
-      : scriptExports;
-
-    // render functions
-    if (render) {
-      options.render = render;
-      options.staticRenderFns = staticRenderFns;
-      options._compiled = true;
-    }
-
-    // functional template
-    if (functionalTemplate) {
-      options.functional = true;
-    }
-
-    // scopedId
-    if (scopeId) {
-      options._scopeId = 'data-v-' + scopeId;
-    }
-
-    var hook;
-    if (moduleIdentifier) { // server build
-      hook = function (context) {
-        // 2.3 injection
-        context =
-          context || // cached call
-          (this.$vnode && this.$vnode.ssrContext) || // stateful
-          (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
-        // 2.2 with runInNewContext: true
-        if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-          context = __VUE_SSR_CONTEXT__;
-        }
-        // inject component styles
-        if (injectStyles) {
-          injectStyles.call(this, context);
-        }
-        // register component module identifier for async chunk inferrence
-        if (context && context._registeredComponents) {
-          context._registeredComponents.add(moduleIdentifier);
-        }
-      };
-      // used by ssr in case component is cached and beforeCreate
-      // never gets called
-      options._ssrRegister = hook;
-    } else if (injectStyles) {
-      hook = shadowMode
-        ? function () { injectStyles.call(this, this.$root.$options.shadowRoot); }
-        : injectStyles;
-    }
-
-    if (hook) {
-      if (options.functional) {
-        // for template-only hot-reload because in that case the render fn doesn't
-        // go through the normalizer
-        options._injectStyles = hook;
-        // register for functioal component in vue file
-        var originalRender = options.render;
-        options.render = function renderWithStyleInjection (h, context) {
-          hook.call(context);
-          return originalRender(h, context)
-        };
-      } else {
-        // inject component registration as beforeCreate hook
-        var existing = options.beforeCreate;
-        options.beforeCreate = existing
-          ? [].concat(existing, hook)
-          : [hook];
-      }
-    }
-
-    return {
-      exports: scriptExports,
-      options: options
-    }
-  }
-
-  // CONCATENATED MODULE: ./src/components/vue-dialog-drag.vue
-
-
-
-
-
-
-  /* normalize component */
-
-  var component = normalizeComponent(
-    components_vue_dialog_dragvue_type_script_lang_js_,
-    render,
-    staticRenderFns,
-    false,
-    null,
-    null,
-    null
-    
-  );
-
-  /* harmony default export */ var vue_dialog_drag = (component.exports);
-  // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib.js
-
-
-  /* harmony default export */ var entry_lib = __webpack_exports__["default"] = (vue_dialog_drag);
-
-
-
-  /***/ }),
-
-  /***/ "0/R4":
-  /***/ (function(module, exports) {
-
-  module.exports = function (it) {
-    return typeof it === 'object' ? it !== null : typeof it === 'function';
-  };
-
-
-  /***/ }),
-
-  /***/ "1MBn":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // all enumerable object keys, includes symbols
-  var getKeys = __webpack_require__("DVgA");
-  var gOPS = __webpack_require__("JiEa");
-  var pIE = __webpack_require__("UqcF");
-  module.exports = function (it) {
-    var result = getKeys(it);
-    var getSymbols = gOPS.f;
-    if (getSymbols) {
-      var symbols = getSymbols(it);
-      var isEnum = pIE.f;
-      var i = 0;
-      var key;
-      while (symbols.length > i) if (isEnum.call(it, key = symbols[i++])) result.push(key);
-    } return result;
-  };
-
-
-  /***/ }),
-
-  /***/ "1TsA":
-  /***/ (function(module, exports) {
-
-  module.exports = function (done, value) {
-    return { value: value, done: !!done };
-  };
-
-
-  /***/ }),
-
-  /***/ "2OiF":
-  /***/ (function(module, exports) {
-
-  module.exports = function (it) {
-    if (typeof it != 'function') throw TypeError(it + ' is not a function!');
-    return it;
-  };
-
-
-  /***/ }),
-
-  /***/ "4R4u":
-  /***/ (function(module, exports) {
-
-  // IE 8- don't enum bug keys
-  module.exports = (
-    'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-  ).split(',');
-
-
-  /***/ }),
-
-  /***/ "Afnz":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var LIBRARY = __webpack_require__("LQAc");
-  var $export = __webpack_require__("XKFU");
-  var redefine = __webpack_require__("KroJ");
-  var hide = __webpack_require__("Mukb");
-  var Iterators = __webpack_require__("hPIQ");
-  var $iterCreate = __webpack_require__("QaDb");
-  var setToStringTag = __webpack_require__("fyDq");
-  var getPrototypeOf = __webpack_require__("OP3Y");
-  var ITERATOR = __webpack_require__("K0xU")('iterator');
-  var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
-  var FF_ITERATOR = '@@iterator';
-  var KEYS = 'keys';
-  var VALUES = 'values';
-
-  var returnThis = function () { return this; };
-
-  module.exports = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
-    $iterCreate(Constructor, NAME, next);
-    var getMethod = function (kind) {
-      if (!BUGGY && kind in proto) return proto[kind];
-      switch (kind) {
-        case KEYS: return function keys() { return new Constructor(this, kind); };
-        case VALUES: return function values() { return new Constructor(this, kind); };
-      } return function entries() { return new Constructor(this, kind); };
-    };
-    var TAG = NAME + ' Iterator';
-    var DEF_VALUES = DEFAULT == VALUES;
-    var VALUES_BUG = false;
-    var proto = Base.prototype;
-    var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
-    var $default = $native || getMethod(DEFAULT);
-    var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
-    var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
-    var methods, key, IteratorPrototype;
-    // Fix native
-    if ($anyNative) {
-      IteratorPrototype = getPrototypeOf($anyNative.call(new Base()));
-      if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
-        // Set @@toStringTag to native iterators
-        setToStringTag(IteratorPrototype, TAG, true);
-        // fix for some old engines
-        if (!LIBRARY && typeof IteratorPrototype[ITERATOR] != 'function') hide(IteratorPrototype, ITERATOR, returnThis);
-      }
-    }
-    // fix Array#{values, @@iterator}.name in V8 / FF
-    if (DEF_VALUES && $native && $native.name !== VALUES) {
-      VALUES_BUG = true;
-      $default = function values() { return $native.call(this); };
-    }
-    // Define iterator
-    if ((!LIBRARY || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])) {
-      hide(proto, ITERATOR, $default);
-    }
-    // Plug for library
-    Iterators[NAME] = $default;
-    Iterators[TAG] = returnThis;
-    if (DEFAULT) {
-      methods = {
-        values: DEF_VALUES ? $default : getMethod(VALUES),
-        keys: IS_SET ? $default : getMethod(KEYS),
-        entries: $entries
-      };
-      if (FORCED) for (key in methods) {
-        if (!(key in proto)) redefine(proto, key, methods[key]);
-      } else $export($export.P + $export.F * (BUGGY || VALUES_BUG), NAME, methods);
-    }
-    return methods;
-  };
-
-
-  /***/ }),
-
-  /***/ "Ayid":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // extracted by mini-css-extract-plugin
-
-  /***/ }),
-
-  /***/ "DVgA":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 19.1.2.14 / 15.2.3.14 Object.keys(O)
-  var $keys = __webpack_require__("zhAb");
-  var enumBugKeys = __webpack_require__("4R4u");
-
-  module.exports = Object.keys || function keys(O) {
-    return $keys(O, enumBugKeys);
-  };
-
-
-  /***/ }),
-
-  /***/ "EWmC":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 7.2.2 IsArray(argument)
-  var cof = __webpack_require__("LZWt");
-  module.exports = Array.isArray || function isArray(arg) {
-    return cof(arg) == 'Array';
-  };
-
-
-  /***/ }),
-
-  /***/ "EemH":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var pIE = __webpack_require__("UqcF");
-  var createDesc = __webpack_require__("RjD/");
-  var toIObject = __webpack_require__("aCFj");
-  var toPrimitive = __webpack_require__("apmT");
-  var has = __webpack_require__("aagx");
-  var IE8_DOM_DEFINE = __webpack_require__("xpql");
-  var gOPD = Object.getOwnPropertyDescriptor;
-
-  exports.f = __webpack_require__("nh4g") ? gOPD : function getOwnPropertyDescriptor(O, P) {
-    O = toIObject(O);
-    P = toPrimitive(P, true);
-    if (IE8_DOM_DEFINE) try {
-      return gOPD(O, P);
-    } catch (e) { /* empty */ }
-    if (has(O, P)) return createDesc(!pIE.f.call(O, P), O[P]);
-  };
-
-
-  /***/ }),
-
-  /***/ "FJW5":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var dP = __webpack_require__("hswa");
-  var anObject = __webpack_require__("y3w9");
-  var getKeys = __webpack_require__("DVgA");
-
-  module.exports = __webpack_require__("nh4g") ? Object.defineProperties : function defineProperties(O, Properties) {
-    anObject(O);
-    var keys = getKeys(Properties);
-    var length = keys.length;
-    var i = 0;
-    var P;
-    while (length > i) dP.f(O, P = keys[i++], Properties[P]);
-    return O;
-  };
-
-
-  /***/ }),
-
-  /***/ "HrLf":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // This file is imported into lib/wc client bundles.
-
-  if (typeof window !== 'undefined') {
-    var i;
-    if ((i = window.document.currentScript) && (i = i.src.match(/(.+\/)[^/]+\.js$/))) {
-      __webpack_require__.p = i[1]; // eslint-disable-line
-    }
-  }
-
-
-  /***/ }),
-
-  /***/ "Iw71":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var isObject = __webpack_require__("0/R4");
-  var document = __webpack_require__("dyZX").document;
-  // typeof document.createElement is 'object' in old IE
-  var is = isObject(document) && isObject(document.createElement);
-  module.exports = function (it) {
-    return is ? document.createElement(it) : {};
-  };
-
-
-  /***/ }),
-
-  /***/ "JiEa":
-  /***/ (function(module, exports) {
-
-  exports.f = Object.getOwnPropertySymbols;
-
-
-  /***/ }),
-
-  /***/ "K0xU":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var store = __webpack_require__("VTer")('wks');
-  var uid = __webpack_require__("ylqs");
-  var Symbol = __webpack_require__("dyZX").Symbol;
-  var USE_SYMBOL = typeof Symbol == 'function';
-
-  var $exports = module.exports = function (name) {
-    return store[name] || (store[name] =
-      USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
-  };
-
-  $exports.store = store;
-
-
-  /***/ }),
-
-  /***/ "KroJ":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var global = __webpack_require__("dyZX");
-  var hide = __webpack_require__("Mukb");
-  var has = __webpack_require__("aagx");
-  var SRC = __webpack_require__("ylqs")('src');
-  var TO_STRING = 'toString';
-  var $toString = Function[TO_STRING];
-  var TPL = ('' + $toString).split(TO_STRING);
-
-  __webpack_require__("g3g5").inspectSource = function (it) {
-    return $toString.call(it);
-  };
-
-  (module.exports = function (O, key, val, safe) {
-    var isFunction = typeof val == 'function';
-    if (isFunction) has(val, 'name') || hide(val, 'name', key);
-    if (O[key] === val) return;
-    if (isFunction) has(val, SRC) || hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
-    if (O === global) {
-      O[key] = val;
-    } else if (!safe) {
-      delete O[key];
-      hide(O, key, val);
-    } else if (O[key]) {
-      O[key] = val;
-    } else {
-      hide(O, key, val);
-    }
-  // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
-  })(Function.prototype, TO_STRING, function toString() {
-    return typeof this == 'function' && this[SRC] || $toString.call(this);
-  });
-
-
-  /***/ }),
-
-  /***/ "Kuth":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-  var anObject = __webpack_require__("y3w9");
-  var dPs = __webpack_require__("FJW5");
-  var enumBugKeys = __webpack_require__("4R4u");
-  var IE_PROTO = __webpack_require__("YTvA")('IE_PROTO');
-  var Empty = function () { /* empty */ };
-  var PROTOTYPE = 'prototype';
-
-  // Create object with fake `null` prototype: use iframe Object with cleared prototype
-  var createDict = function () {
-    // Thrash, waste and sodomy: IE GC bug
-    var iframe = __webpack_require__("Iw71")('iframe');
-    var i = enumBugKeys.length;
-    var lt = '<';
-    var gt = '>';
-    var iframeDocument;
-    iframe.style.display = 'none';
-    __webpack_require__("+rLv").appendChild(iframe);
-    iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-    // createDict = iframe.contentWindow.Object;
-    // html.removeChild(iframe);
-    iframeDocument = iframe.contentWindow.document;
-    iframeDocument.open();
-    iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-    iframeDocument.close();
-    createDict = iframeDocument.F;
-    while (i--) delete createDict[PROTOTYPE][enumBugKeys[i]];
-    return createDict();
-  };
-
-  module.exports = Object.create || function create(O, Properties) {
-    var result;
-    if (O !== null) {
-      Empty[PROTOTYPE] = anObject(O);
-      result = new Empty();
-      Empty[PROTOTYPE] = null;
-      // add "__proto__" for Object.getPrototypeOf polyfill
-      result[IE_PROTO] = O;
-    } else result = createDict();
-    return Properties === undefined ? result : dPs(result, Properties);
-  };
-
-
-  /***/ }),
-
-  /***/ "LQAc":
-  /***/ (function(module, exports) {
-
-  module.exports = false;
-
-
-  /***/ }),
-
-  /***/ "LZWt":
-  /***/ (function(module, exports) {
-
-  var toString = {}.toString;
-
-  module.exports = function (it) {
-    return toString.call(it).slice(8, -1);
-  };
-
-
-  /***/ }),
-
-  /***/ "Mukb":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var dP = __webpack_require__("hswa");
-  var createDesc = __webpack_require__("RjD/");
-  module.exports = __webpack_require__("nh4g") ? function (object, key, value) {
-    return dP.f(object, key, createDesc(1, value));
-  } : function (object, key, value) {
-    object[key] = value;
-    return object;
-  };
-
-
-  /***/ }),
-
-  /***/ "N8g3":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  exports.f = __webpack_require__("K0xU");
-
-
-  /***/ }),
-
-  /***/ "OP3Y":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-  var has = __webpack_require__("aagx");
-  var toObject = __webpack_require__("S/j/");
-  var IE_PROTO = __webpack_require__("YTvA")('IE_PROTO');
-  var ObjectProto = Object.prototype;
-
-  module.exports = Object.getPrototypeOf || function (O) {
-    O = toObject(O);
-    if (has(O, IE_PROTO)) return O[IE_PROTO];
-    if (typeof O.constructor == 'function' && O instanceof O.constructor) {
-      return O.constructor.prototype;
-    } return O instanceof Object ? ObjectProto : null;
-  };
-
-
-  /***/ }),
-
-  /***/ "OnI7":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var global = __webpack_require__("dyZX");
-  var core = __webpack_require__("g3g5");
-  var LIBRARY = __webpack_require__("LQAc");
-  var wksExt = __webpack_require__("N8g3");
-  var defineProperty = __webpack_require__("hswa").f;
-  module.exports = function (name) {
-    var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
-    if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, { value: wksExt.f(name) });
-  };
-
-
-  /***/ }),
-
-  /***/ "QaDb":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var create = __webpack_require__("Kuth");
-  var descriptor = __webpack_require__("RjD/");
-  var setToStringTag = __webpack_require__("fyDq");
-  var IteratorPrototype = {};
-
-  // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-  __webpack_require__("Mukb")(IteratorPrototype, __webpack_require__("K0xU")('iterator'), function () { return this; });
-
-  module.exports = function (Constructor, NAME, next) {
-    Constructor.prototype = create(IteratorPrototype, { next: descriptor(1, next) });
-    setToStringTag(Constructor, NAME + ' Iterator');
-  };
-
-
-  /***/ }),
-
-  /***/ "RYi7":
-  /***/ (function(module, exports) {
-
-  // 7.1.4 ToInteger
-  var ceil = Math.ceil;
-  var floor = Math.floor;
-  module.exports = function (it) {
-    return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-  };
-
-
-  /***/ }),
-
-  /***/ "RjD/":
-  /***/ (function(module, exports) {
-
-  module.exports = function (bitmap, value) {
-    return {
-      enumerable: !(bitmap & 1),
-      configurable: !(bitmap & 2),
-      writable: !(bitmap & 4),
-      value: value
-    };
-  };
-
-
-  /***/ }),
-
-  /***/ "S/j/":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 7.1.13 ToObject(argument)
-  var defined = __webpack_require__("vhPU");
-  module.exports = function (it) {
-    return Object(defined(it));
-  };
-
-
-  /***/ }),
-
-  /***/ "UqcF":
-  /***/ (function(module, exports) {
-
-  exports.f = {}.propertyIsEnumerable;
-
-
-  /***/ }),
-
-  /***/ "VTer":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var core = __webpack_require__("g3g5");
-  var global = __webpack_require__("dyZX");
-  var SHARED = '__core-js_shared__';
-  var store = global[SHARED] || (global[SHARED] = {});
-
-  (module.exports = function (key, value) {
-    return store[key] || (store[key] = value !== undefined ? value : {});
-  })('versions', []).push({
-    version: core.version,
-    mode: __webpack_require__("LQAc") ? 'pure' : 'global',
-    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
-  });
-
-
-  /***/ }),
-
-  /***/ "XKFU":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var global = __webpack_require__("dyZX");
-  var core = __webpack_require__("g3g5");
-  var hide = __webpack_require__("Mukb");
-  var redefine = __webpack_require__("KroJ");
-  var ctx = __webpack_require__("m0Pp");
-  var PROTOTYPE = 'prototype';
-
-  var $export = function (type, name, source) {
-    var IS_FORCED = type & $export.F;
-    var IS_GLOBAL = type & $export.G;
-    var IS_STATIC = type & $export.S;
-    var IS_PROTO = type & $export.P;
-    var IS_BIND = type & $export.B;
-    var target = IS_GLOBAL ? global : IS_STATIC ? global[name] || (global[name] = {}) : (global[name] || {})[PROTOTYPE];
-    var exports = IS_GLOBAL ? core : core[name] || (core[name] = {});
-    var expProto = exports[PROTOTYPE] || (exports[PROTOTYPE] = {});
-    var key, own, out, exp;
-    if (IS_GLOBAL) source = name;
-    for (key in source) {
-      // contains in native
-      own = !IS_FORCED && target && target[key] !== undefined;
-      // export native or passed
-      out = (own ? target : source)[key];
-      // bind timers to global for call from export context
-      exp = IS_BIND && own ? ctx(out, global) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-      // extend global
-      if (target) redefine(target, key, out, type & $export.U);
-      // export
-      if (exports[key] != out) hide(exports, key, exp);
-      if (IS_PROTO && expProto[key] != out) expProto[key] = out;
-    }
-  };
-  global.core = core;
-  // type bitmap
-  $export.F = 1;   // forced
-  $export.G = 2;   // global
-  $export.S = 4;   // static
-  $export.P = 8;   // proto
-  $export.B = 16;  // bind
-  $export.W = 32;  // wrap
-  $export.U = 64;  // safe
-  $export.R = 128; // real proto method for `library`
-  module.exports = $export;
-
-
-  /***/ }),
-
-  /***/ "YTvA":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var shared = __webpack_require__("VTer")('keys');
-  var uid = __webpack_require__("ylqs");
-  module.exports = function (key) {
-    return shared[key] || (shared[key] = uid(key));
-  };
-
-
-  /***/ }),
-
-  /***/ "Ymqv":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-  var cof = __webpack_require__("LZWt");
-  // eslint-disable-next-line no-prototype-builtins
-  module.exports = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
-    return cof(it) == 'String' ? it.split('') : Object(it);
-  };
-
-
-  /***/ }),
-
-  /***/ "Z6vF":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var META = __webpack_require__("ylqs")('meta');
-  var isObject = __webpack_require__("0/R4");
-  var has = __webpack_require__("aagx");
-  var setDesc = __webpack_require__("hswa").f;
-  var id = 0;
-  var isExtensible = Object.isExtensible || function () {
-    return true;
-  };
-  var FREEZE = !__webpack_require__("eeVq")(function () {
-    return isExtensible(Object.preventExtensions({}));
-  });
-  var setMeta = function (it) {
-    setDesc(it, META, { value: {
-      i: 'O' + ++id, // object ID
-      w: {}          // weak collections IDs
-    } });
-  };
-  var fastKey = function (it, create) {
-    // return primitive with prefix
-    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
-    if (!has(it, META)) {
-      // can't set metadata to uncaught frozen object
-      if (!isExtensible(it)) return 'F';
-      // not necessary to add metadata
-      if (!create) return 'E';
-      // add missing metadata
-      setMeta(it);
-    // return object ID
-    } return it[META].i;
-  };
-  var getWeak = function (it, create) {
-    if (!has(it, META)) {
-      // can't set metadata to uncaught frozen object
-      if (!isExtensible(it)) return true;
-      // not necessary to add metadata
-      if (!create) return false;
-      // add missing metadata
-      setMeta(it);
-    // return hash weak collections IDs
-    } return it[META].w;
-  };
-  // add metadata on freeze-family methods calling
-  var onFreeze = function (it) {
-    if (FREEZE && meta.NEED && isExtensible(it) && !has(it, META)) setMeta(it);
-    return it;
-  };
-  var meta = module.exports = {
-    KEY: META,
-    NEED: false,
-    fastKey: fastKey,
-    getWeak: getWeak,
-    onFreeze: onFreeze
-  };
-
-
-  /***/ }),
-
-  /***/ "aCFj":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // to indexed object, toObject with fallback for non-array-like ES3 strings
-  var IObject = __webpack_require__("Ymqv");
-  var defined = __webpack_require__("vhPU");
-  module.exports = function (it) {
-    return IObject(defined(it));
-  };
-
-
-  /***/ }),
-
-  /***/ "aagx":
-  /***/ (function(module, exports) {
-
-  var hasOwnProperty = {}.hasOwnProperty;
-  module.exports = function (it, key) {
-    return hasOwnProperty.call(it, key);
-  };
-
-
-  /***/ }),
-
-  /***/ "apmT":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 7.1.1 ToPrimitive(input [, PreferredType])
-  var isObject = __webpack_require__("0/R4");
-  // instead of the ES6 spec version, we didn't implement @@toPrimitive case
-  // and the second argument - flag - preferred type is a string
-  module.exports = function (it, S) {
-    if (!isObject(it)) return it;
-    var fn, val;
-    if (S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-    if (typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it))) return val;
-    if (!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-    throw TypeError("Can't convert object to primitive value");
-  };
-
-
-  /***/ }),
-
-  /***/ "d/Gc":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var toInteger = __webpack_require__("RYi7");
-  var max = Math.max;
-  var min = Math.min;
-  module.exports = function (index, length) {
-    index = toInteger(index);
-    return index < 0 ? max(index + length, 0) : min(index, length);
-  };
-
-
-  /***/ }),
-
-  /***/ "dyZX":
-  /***/ (function(module, exports) {
-
-  // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-  var global = module.exports = typeof window != 'undefined' && window.Math == Math
-    ? window : typeof self != 'undefined' && self.Math == Math ? self
-    // eslint-disable-next-line no-new-func
-    : Function('return this')();
-  if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
-
-
-  /***/ }),
-
-  /***/ "e7yV":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-  var toIObject = __webpack_require__("aCFj");
-  var gOPN = __webpack_require__("kJMx").f;
-  var toString = {}.toString;
-
-  var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
-    ? Object.getOwnPropertyNames(window) : [];
-
-  var getWindowNames = function (it) {
-    try {
-      return gOPN(it);
-    } catch (e) {
-      return windowNames.slice();
-    }
-  };
-
-  module.exports.f = function getOwnPropertyNames(it) {
-    return windowNames && toString.call(it) == '[object Window]' ? getWindowNames(it) : gOPN(toIObject(it));
-  };
-
-
-  /***/ }),
-
-  /***/ "eeVq":
-  /***/ (function(module, exports) {
-
-  module.exports = function (exec) {
-    try {
-      return !!exec();
-    } catch (e) {
-      return true;
-    }
-  };
-
-
-  /***/ }),
-
-  /***/ "fyDq":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var def = __webpack_require__("hswa").f;
-  var has = __webpack_require__("aagx");
-  var TAG = __webpack_require__("K0xU")('toStringTag');
-
-  module.exports = function (it, tag, stat) {
-    if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, { configurable: true, value: tag });
-  };
-
-
-  /***/ }),
-
-  /***/ "g3g5":
-  /***/ (function(module, exports) {
-
-  var core = module.exports = { version: '2.5.7' };
-  if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
-
-
-  /***/ }),
-
-  /***/ "hPIQ":
-  /***/ (function(module, exports) {
-
-  module.exports = {};
-
-
-  /***/ }),
-
-  /***/ "hswa":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var anObject = __webpack_require__("y3w9");
-  var IE8_DOM_DEFINE = __webpack_require__("xpql");
-  var toPrimitive = __webpack_require__("apmT");
-  var dP = Object.defineProperty;
-
-  exports.f = __webpack_require__("nh4g") ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-    anObject(O);
-    P = toPrimitive(P, true);
-    anObject(Attributes);
-    if (IE8_DOM_DEFINE) try {
-      return dP(O, P, Attributes);
-    } catch (e) { /* empty */ }
-    if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-    if ('value' in Attributes) O[P] = Attributes.value;
-    return O;
-  };
-
-
-  /***/ }),
-
-  /***/ "ioFf":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // ECMAScript 6 symbols shim
-  var global = __webpack_require__("dyZX");
-  var has = __webpack_require__("aagx");
-  var DESCRIPTORS = __webpack_require__("nh4g");
-  var $export = __webpack_require__("XKFU");
-  var redefine = __webpack_require__("KroJ");
-  var META = __webpack_require__("Z6vF").KEY;
-  var $fails = __webpack_require__("eeVq");
-  var shared = __webpack_require__("VTer");
-  var setToStringTag = __webpack_require__("fyDq");
-  var uid = __webpack_require__("ylqs");
-  var wks = __webpack_require__("K0xU");
-  var wksExt = __webpack_require__("N8g3");
-  var wksDefine = __webpack_require__("OnI7");
-  var enumKeys = __webpack_require__("1MBn");
-  var isArray = __webpack_require__("EWmC");
-  var anObject = __webpack_require__("y3w9");
-  var isObject = __webpack_require__("0/R4");
-  var toIObject = __webpack_require__("aCFj");
-  var toPrimitive = __webpack_require__("apmT");
-  var createDesc = __webpack_require__("RjD/");
-  var _create = __webpack_require__("Kuth");
-  var gOPNExt = __webpack_require__("e7yV");
-  var $GOPD = __webpack_require__("EemH");
-  var $DP = __webpack_require__("hswa");
-  var $keys = __webpack_require__("DVgA");
-  var gOPD = $GOPD.f;
-  var dP = $DP.f;
-  var gOPN = gOPNExt.f;
-  var $Symbol = global.Symbol;
-  var $JSON = global.JSON;
-  var _stringify = $JSON && $JSON.stringify;
-  var PROTOTYPE = 'prototype';
-  var HIDDEN = wks('_hidden');
-  var TO_PRIMITIVE = wks('toPrimitive');
-  var isEnum = {}.propertyIsEnumerable;
-  var SymbolRegistry = shared('symbol-registry');
-  var AllSymbols = shared('symbols');
-  var OPSymbols = shared('op-symbols');
-  var ObjectProto = Object[PROTOTYPE];
-  var USE_NATIVE = typeof $Symbol == 'function';
-  var QObject = global.QObject;
-  // Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
-  var setter = !QObject || !QObject[PROTOTYPE] || !QObject[PROTOTYPE].findChild;
-
-  // fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
-  var setSymbolDesc = DESCRIPTORS && $fails(function () {
-    return _create(dP({}, 'a', {
-      get: function () { return dP(this, 'a', { value: 7 }).a; }
-    })).a != 7;
-  }) ? function (it, key, D) {
-    var protoDesc = gOPD(ObjectProto, key);
-    if (protoDesc) delete ObjectProto[key];
-    dP(it, key, D);
-    if (protoDesc && it !== ObjectProto) dP(ObjectProto, key, protoDesc);
-  } : dP;
-
-  var wrap = function (tag) {
-    var sym = AllSymbols[tag] = _create($Symbol[PROTOTYPE]);
-    sym._k = tag;
-    return sym;
-  };
-
-  var isSymbol = USE_NATIVE && typeof $Symbol.iterator == 'symbol' ? function (it) {
-    return typeof it == 'symbol';
-  } : function (it) {
-    return it instanceof $Symbol;
-  };
-
-  var $defineProperty = function defineProperty(it, key, D) {
-    if (it === ObjectProto) $defineProperty(OPSymbols, key, D);
-    anObject(it);
-    key = toPrimitive(key, true);
-    anObject(D);
-    if (has(AllSymbols, key)) {
-      if (!D.enumerable) {
-        if (!has(it, HIDDEN)) dP(it, HIDDEN, createDesc(1, {}));
-        it[HIDDEN][key] = true;
-      } else {
-        if (has(it, HIDDEN) && it[HIDDEN][key]) it[HIDDEN][key] = false;
-        D = _create(D, { enumerable: createDesc(0, false) });
-      } return setSymbolDesc(it, key, D);
-    } return dP(it, key, D);
-  };
-  var $defineProperties = function defineProperties(it, P) {
-    anObject(it);
-    var keys = enumKeys(P = toIObject(P));
-    var i = 0;
-    var l = keys.length;
-    var key;
-    while (l > i) $defineProperty(it, key = keys[i++], P[key]);
-    return it;
-  };
-  var $create = function create(it, P) {
-    return P === undefined ? _create(it) : $defineProperties(_create(it), P);
-  };
-  var $propertyIsEnumerable = function propertyIsEnumerable(key) {
-    var E = isEnum.call(this, key = toPrimitive(key, true));
-    if (this === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key)) return false;
-    return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key] ? E : true;
-  };
-  var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key) {
-    it = toIObject(it);
-    key = toPrimitive(key, true);
-    if (it === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key)) return;
-    var D = gOPD(it, key);
-    if (D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key])) D.enumerable = true;
-    return D;
-  };
-  var $getOwnPropertyNames = function getOwnPropertyNames(it) {
-    var names = gOPN(toIObject(it));
-    var result = [];
-    var i = 0;
-    var key;
-    while (names.length > i) {
-      if (!has(AllSymbols, key = names[i++]) && key != HIDDEN && key != META) result.push(key);
-    } return result;
-  };
-  var $getOwnPropertySymbols = function getOwnPropertySymbols(it) {
-    var IS_OP = it === ObjectProto;
-    var names = gOPN(IS_OP ? OPSymbols : toIObject(it));
-    var result = [];
-    var i = 0;
-    var key;
-    while (names.length > i) {
-      if (has(AllSymbols, key = names[i++]) && (IS_OP ? has(ObjectProto, key) : true)) result.push(AllSymbols[key]);
-    } return result;
-  };
-
-  // 19.4.1.1 Symbol([description])
-  if (!USE_NATIVE) {
-    $Symbol = function Symbol() {
-      if (this instanceof $Symbol) throw TypeError('Symbol is not a constructor!');
-      var tag = uid(arguments.length > 0 ? arguments[0] : undefined);
-      var $set = function (value) {
-        if (this === ObjectProto) $set.call(OPSymbols, value);
-        if (has(this, HIDDEN) && has(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
-        setSymbolDesc(this, tag, createDesc(1, value));
-      };
-      if (DESCRIPTORS && setter) setSymbolDesc(ObjectProto, tag, { configurable: true, set: $set });
-      return wrap(tag);
-    };
-    redefine($Symbol[PROTOTYPE], 'toString', function toString() {
-      return this._k;
-    });
-
-    $GOPD.f = $getOwnPropertyDescriptor;
-    $DP.f = $defineProperty;
-    __webpack_require__("kJMx").f = gOPNExt.f = $getOwnPropertyNames;
-    __webpack_require__("UqcF").f = $propertyIsEnumerable;
-    __webpack_require__("JiEa").f = $getOwnPropertySymbols;
-
-    if (DESCRIPTORS && !__webpack_require__("LQAc")) {
-      redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
-    }
-
-    wksExt.f = function (name) {
-      return wrap(wks(name));
-    };
-  }
-
-  $export($export.G + $export.W + $export.F * !USE_NATIVE, { Symbol: $Symbol });
-
-  for (var es6Symbols = (
-    // 19.4.2.2, 19.4.2.3, 19.4.2.4, 19.4.2.6, 19.4.2.8, 19.4.2.9, 19.4.2.10, 19.4.2.11, 19.4.2.12, 19.4.2.13, 19.4.2.14
-    'hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables'
-  ).split(','), j = 0; es6Symbols.length > j;)wks(es6Symbols[j++]);
-
-  for (var wellKnownSymbols = $keys(wks.store), k = 0; wellKnownSymbols.length > k;) wksDefine(wellKnownSymbols[k++]);
-
-  $export($export.S + $export.F * !USE_NATIVE, 'Symbol', {
-    // 19.4.2.1 Symbol.for(key)
-    'for': function (key) {
-      return has(SymbolRegistry, key += '')
-        ? SymbolRegistry[key]
-        : SymbolRegistry[key] = $Symbol(key);
-    },
-    // 19.4.2.5 Symbol.keyFor(sym)
-    keyFor: function keyFor(sym) {
-      if (!isSymbol(sym)) throw TypeError(sym + ' is not a symbol!');
-      for (var key in SymbolRegistry) if (SymbolRegistry[key] === sym) return key;
-    },
-    useSetter: function () { setter = true; },
-    useSimple: function () { setter = false; }
-  });
-
-  $export($export.S + $export.F * !USE_NATIVE, 'Object', {
-    // 19.1.2.2 Object.create(O [, Properties])
-    create: $create,
-    // 19.1.2.4 Object.defineProperty(O, P, Attributes)
-    defineProperty: $defineProperty,
-    // 19.1.2.3 Object.defineProperties(O, Properties)
-    defineProperties: $defineProperties,
-    // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
-    getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
-    // 19.1.2.7 Object.getOwnPropertyNames(O)
-    getOwnPropertyNames: $getOwnPropertyNames,
-    // 19.1.2.8 Object.getOwnPropertySymbols(O)
-    getOwnPropertySymbols: $getOwnPropertySymbols
-  });
-
-  // 24.3.2 JSON.stringify(value [, replacer [, space]])
-  $JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function () {
-    var S = $Symbol();
-    // MS Edge converts symbol values to JSON as {}
-    // WebKit converts symbol values to JSON as null
-    // V8 throws on boxed symbols
-    return _stringify([S]) != '[null]' || _stringify({ a: S }) != '{}' || _stringify(Object(S)) != '{}';
-  })), 'JSON', {
-    stringify: function stringify(it) {
-      var args = [it];
-      var i = 1;
-      var replacer, $replacer;
-      while (arguments.length > i) args.push(arguments[i++]);
-      $replacer = replacer = args[1];
-      if (!isObject(replacer) && it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
-      if (!isArray(replacer)) replacer = function (key, value) {
-        if (typeof $replacer == 'function') value = $replacer.call(this, key, value);
-        if (!isSymbol(value)) return value;
-      };
-      args[1] = replacer;
-      return _stringify.apply($JSON, args);
-    }
-  });
-
-  // 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-  $Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__("Mukb")($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
-  // 19.4.3.5 Symbol.prototype[@@toStringTag]
-  setToStringTag($Symbol, 'Symbol');
-  // 20.2.1.9 Math[@@toStringTag]
-  setToStringTag(Math, 'Math', true);
-  // 24.3.3 JSON[@@toStringTag]
-  setToStringTag(global.JSON, 'JSON', true);
-
-
-  /***/ }),
-
-  /***/ "kJMx":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-  var $keys = __webpack_require__("zhAb");
-  var hiddenKeys = __webpack_require__("4R4u").concat('length', 'prototype');
-
-  exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
-    return $keys(O, hiddenKeys);
-  };
-
-
-  /***/ }),
-
-  /***/ "m0Pp":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // optional / simple context binding
-  var aFunction = __webpack_require__("2OiF");
-  module.exports = function (fn, that, length) {
-    aFunction(fn);
-    if (that === undefined) return fn;
-    switch (length) {
-      case 1: return function (a) {
-        return fn.call(that, a);
-      };
-      case 2: return function (a, b) {
-        return fn.call(that, a, b);
-      };
-      case 3: return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-    }
-    return function (/* ...args */) {
-      return fn.apply(that, arguments);
-    };
-  };
-
-
-  /***/ }),
-
-  /***/ "nGyu":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 22.1.3.31 Array.prototype[@@unscopables]
-  var UNSCOPABLES = __webpack_require__("K0xU")('unscopables');
-  var ArrayProto = Array.prototype;
-  if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__("Mukb")(ArrayProto, UNSCOPABLES, {});
-  module.exports = function (key) {
-    ArrayProto[UNSCOPABLES][key] = true;
-  };
-
-
-  /***/ }),
-
-  /***/ "ne8i":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // 7.1.15 ToLength
-  var toInteger = __webpack_require__("RYi7");
-  var min = Math.min;
-  module.exports = function (it) {
-    return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-  };
-
-
-  /***/ }),
-
-  /***/ "nh4g":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // Thank's IE8 for his funny defineProperty
-  module.exports = !__webpack_require__("eeVq")(function () {
-    return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-
-  /***/ }),
-
-  /***/ "r8ud":
-  /***/ (function(module, __webpack_exports__, __webpack_require__) {
-  /* harmony import */ var _node_modules_mini_css_extract_plugin_dist_loader_js_node_modules_css_loader_index_js_ref_11_oneOf_1_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_lib_index_js_ref_11_oneOf_1_2_node_modules_stylus_loader_index_js_ref_11_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_lib_index_js_vue_loader_options_vue_dialog_drag_vue_vue_type_style_index_0_lang_stylus___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("Ayid");
-  /* harmony import */ var _node_modules_mini_css_extract_plugin_dist_loader_js_node_modules_css_loader_index_js_ref_11_oneOf_1_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_lib_index_js_ref_11_oneOf_1_2_node_modules_stylus_loader_index_js_ref_11_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_lib_index_js_vue_loader_options_vue_dialog_drag_vue_vue_type_style_index_0_lang_stylus___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_mini_css_extract_plugin_dist_loader_js_node_modules_css_loader_index_js_ref_11_oneOf_1_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_lib_index_js_ref_11_oneOf_1_2_node_modules_stylus_loader_index_js_ref_11_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_lib_index_js_vue_loader_options_vue_dialog_drag_vue_vue_type_style_index_0_lang_stylus___WEBPACK_IMPORTED_MODULE_0__);
-  /* unused harmony reexport * */
-   /* unused harmony default export */ var _unused_webpack_default_export = (_node_modules_mini_css_extract_plugin_dist_loader_js_node_modules_css_loader_index_js_ref_11_oneOf_1_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_lib_index_js_ref_11_oneOf_1_2_node_modules_stylus_loader_index_js_ref_11_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_lib_index_js_vue_loader_options_vue_dialog_drag_vue_vue_type_style_index_0_lang_stylus___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-  /***/ }),
-
-  /***/ "rE2o":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  __webpack_require__("OnI7")('asyncIterator');
-
-
-  /***/ }),
-
-  /***/ "rGqo":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var $iterators = __webpack_require__("yt8O");
-  var getKeys = __webpack_require__("DVgA");
-  var redefine = __webpack_require__("KroJ");
-  var global = __webpack_require__("dyZX");
-  var hide = __webpack_require__("Mukb");
-  var Iterators = __webpack_require__("hPIQ");
-  var wks = __webpack_require__("K0xU");
-  var ITERATOR = wks('iterator');
-  var TO_STRING_TAG = wks('toStringTag');
-  var ArrayValues = Iterators.Array;
-
-  var DOMIterables = {
-    CSSRuleList: true, // TODO: Not spec compliant, should be false.
-    CSSStyleDeclaration: false,
-    CSSValueList: false,
-    ClientRectList: false,
-    DOMRectList: false,
-    DOMStringList: false,
-    DOMTokenList: true,
-    DataTransferItemList: false,
-    FileList: false,
-    HTMLAllCollection: false,
-    HTMLCollection: false,
-    HTMLFormElement: false,
-    HTMLSelectElement: false,
-    MediaList: true, // TODO: Not spec compliant, should be false.
-    MimeTypeArray: false,
-    NamedNodeMap: false,
-    NodeList: true,
-    PaintRequestList: false,
-    Plugin: false,
-    PluginArray: false,
-    SVGLengthList: false,
-    SVGNumberList: false,
-    SVGPathSegList: false,
-    SVGPointList: false,
-    SVGStringList: false,
-    SVGTransformList: false,
-    SourceBufferList: false,
-    StyleSheetList: true, // TODO: Not spec compliant, should be false.
-    TextTrackCueList: false,
-    TextTrackList: false,
-    TouchList: false
-  };
-
-  for (var collections = getKeys(DOMIterables), i = 0; i < collections.length; i++) {
-    var NAME = collections[i];
-    var explicit = DOMIterables[NAME];
-    var Collection = global[NAME];
-    var proto = Collection && Collection.prototype;
-    var key;
-    if (proto) {
-      if (!proto[ITERATOR]) hide(proto, ITERATOR, ArrayValues);
-      if (!proto[TO_STRING_TAG]) hide(proto, TO_STRING_TAG, NAME);
-      Iterators[NAME] = ArrayValues;
-      if (explicit) for (key in $iterators) if (!proto[key]) redefine(proto, key, $iterators[key], true);
-    }
-  }
-
-
-  /***/ }),
-
-  /***/ "vhPU":
-  /***/ (function(module, exports) {
-
-  // 7.2.1 RequireObjectCoercible(argument)
-  module.exports = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on  " + it);
-    return it;
-  };
-
-
-  /***/ }),
-
-  /***/ "w2a5":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  // false -> Array#indexOf
-  // true  -> Array#includes
-  var toIObject = __webpack_require__("aCFj");
-  var toLength = __webpack_require__("ne8i");
-  var toAbsoluteIndex = __webpack_require__("d/Gc");
-  module.exports = function (IS_INCLUDES) {
-    return function ($this, el, fromIndex) {
-      var O = toIObject($this);
-      var length = toLength(O.length);
-      var index = toAbsoluteIndex(fromIndex, length);
-      var value;
-      // Array#includes uses SameValueZero equality algorithm
-      // eslint-disable-next-line no-self-compare
-      if (IS_INCLUDES && el != el) while (length > index) {
-        value = O[index++];
-        // eslint-disable-next-line no-self-compare
-        if (value != value) return true;
-      // Array#indexOf ignores holes, Array#includes - not
-      } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
-        if (O[index] === el) return IS_INCLUDES || index || 0;
-      } return !IS_INCLUDES && -1;
-    };
-  };
-
-
-  /***/ }),
-
-  /***/ "xpql":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  module.exports = !__webpack_require__("nh4g") && !__webpack_require__("eeVq")(function () {
-    return Object.defineProperty(__webpack_require__("Iw71")('div'), 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-
-  /***/ }),
-
-  /***/ "y3w9":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var isObject = __webpack_require__("0/R4");
-  module.exports = function (it) {
-    if (!isObject(it)) throw TypeError(it + ' is not an object!');
-    return it;
-  };
-
-
-  /***/ }),
-
-  /***/ "ylqs":
-  /***/ (function(module, exports) {
-
-  var id = 0;
-  var px = Math.random();
-  module.exports = function (key) {
-    return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-  };
-
-
-  /***/ }),
-
-  /***/ "yt8O":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var addToUnscopables = __webpack_require__("nGyu");
-  var step = __webpack_require__("1TsA");
-  var Iterators = __webpack_require__("hPIQ");
-  var toIObject = __webpack_require__("aCFj");
-
-  // 22.1.3.4 Array.prototype.entries()
-  // 22.1.3.13 Array.prototype.keys()
-  // 22.1.3.29 Array.prototype.values()
-  // 22.1.3.30 Array.prototype[@@iterator]()
-  module.exports = __webpack_require__("Afnz")(Array, 'Array', function (iterated, kind) {
-    this._t = toIObject(iterated); // target
-    this._i = 0;                   // next index
-    this._k = kind;                // kind
-  // 22.1.5.2.1 %ArrayIteratorPrototype%.next()
-  }, function () {
-    var O = this._t;
-    var kind = this._k;
-    var index = this._i++;
-    if (!O || index >= O.length) {
-      this._t = undefined;
-      return step(1);
-    }
-    if (kind == 'keys') return step(0, index);
-    if (kind == 'values') return step(0, O[index]);
-    return step(0, [index, O[index]]);
-  }, 'values');
-
-  // argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
-  Iterators.Arguments = Iterators.Array;
-
-  addToUnscopables('keys');
-  addToUnscopables('values');
-  addToUnscopables('entries');
-
-
-  /***/ }),
-
-  /***/ "zhAb":
-  /***/ (function(module, exports, __webpack_require__) {
-
-  var has = __webpack_require__("aagx");
-  var toIObject = __webpack_require__("aCFj");
-  var arrayIndexOf = __webpack_require__("w2a5")(false);
-  var IE_PROTO = __webpack_require__("YTvA")('IE_PROTO');
-
-  module.exports = function (object, names) {
-    var O = toIObject(object);
-    var i = 0;
-    var result = [];
-    var key;
-    for (key in O) if (key != IE_PROTO) has(O, key) && result.push(key);
-    // Don't enum bug & hidden keys
-    while (names.length > i) if (has(O, key = names[i++])) {
-      ~arrayIndexOf(result, key) || result.push(key);
-    }
-    return result;
-  };
-
-
-  /***/ })
-
-  /******/ })["default"];
-  });
-
-  });
-
-  var DialogDrag = unwrapExports(vueDialogDrag_umd);
-
-  /*!
-   * sciris-js v0.1.12
-   * (c) 2018-present Optima Consortium <info@ocds.co>
-   * Released under the MIT License.
-   */
-
-  const EVENT_STATUS_START = 'status:start';
-  const EVENT_STATUS_UPDATE = 'status:update';
-  const EVENT_STATUS_SUCCEED = 'status:success';
-  const EVENT_STATUS_FAIL = 'status:fail';
-  const events$1 = {
-    EVENT_STATUS_START,
-    EVENT_STATUS_UPDATE,
-    EVENT_STATUS_SUCCEED,
-    EVENT_STATUS_FAIL
-  };
-  const EventBus = new Vue();
-  EventBus.$on(events$1.EVENT_STATUS_START, vm => {
-    if (vm.$spinner) vm.$spinner.start();
-  });
-  EventBus.$on(events$1.EVENT_STATUS_UPDATE, (vm, progress) => {
-    if (vm.$Progress) vm.$Progress.set(progress);
-  });
-  EventBus.$on(events$1.EVENT_STATUS_SUCCEED, (vm, notif) => {
-    if (vm.$spinner) vm.$spinner.stop();
-    if (vm.$Progress) vm.$Progress.finish();
-    if (notif && notif.message && vm.$notifications) vm.$notifications.notify(notif);
-  });
-  EventBus.$on(events$1.EVENT_STATUS_FAIL, (vm, notif) => {
-    if (vm.$spinner) vm.$spinner.stop();
-    if (vm.$Progress) vm.$Progress.fail();
-    if (notif && notif.message && vm.$notifications) vm.$notifications.notify(notif);
-  });
-
-  // progress-indicator-service.js -- functions for showing progress
-  var complete = 0.0; // Put this here so it's global
-
-  function start(vm, message) {
-    if (!message) {
-      message = 'Starting progress';
-    }
-
-    var delay = 100;
-    var stepsize = 1.0;
-    complete = 0.0; // Reset this
-
-    console.log(message);
-    setTimeout(function run() {
-      // Run in a delay loop
-      setFunc();
-
-      if (complete < 99) {
-        setTimeout(run, delay);
-      }
-    }, delay);
-
-    function setFunc() {
-      complete = complete + stepsize * (1 - complete / 100); // Increase asymptotically
-
-      EventBus.$emit(events$1.EVENT_STATUS_UPDATE, vm, complete);
-    }
-
-    EventBus.$emit(events$1.EVENT_STATUS_START, vm);
-  }
-
-  function succeed(vm, successMessage) {
-    console.log(successMessage);
-    complete = 100; // End the counter
-
-    var notif = {};
-
-    if (successMessage !== '') {
-      // Success popup.
-      notif = {
-        message: successMessage,
-        icon: 'ti-check',
-        type: 'success',
-        verticalAlign: 'top',
-        horizontalAlign: 'right',
-        timeout: 2000
-      };
-    }
-
-    EventBus.$emit(events$1.EVENT_STATUS_SUCCEED, vm, notif);
-  }
-
-  function fail(vm, failMessage, error) {
-    console.log(failMessage);
-    var error = error || {
-      "message": "unknown message"
-    };
-    var msgsplit = error.message.split('Exception details:'); // WARNING, must match sc_app.py
-
-    var usermsg = msgsplit[0].replace(/\n/g, '<br>');
-    console.log(error.message);
-    console.log(usermsg);
-    complete = 100;
-    var notif = {};
-
-    if (failMessage !== '') {
-      // Put up a failure notification.
-      notif = {
-        message: '<b>' + failMessage + '</b>' + '<br><br>' + usermsg,
-        icon: 'ti-face-sad',
-        type: 'warning',
-        verticalAlign: 'top',
-        horizontalAlign: 'right',
-        timeout: 0
-      };
-    }
-
-    EventBus.$emit(events$1.EVENT_STATUS_FAIL, vm, notif);
-  }
-
-  var status = {
-    start,
-    succeed,
-    fail
-  };
-
-  /*
-   * Small utilities that are shared across pages
-   */
-  function sleep(time) {
-    // Return a promise that resolves after _time_ milliseconds.
-    return new Promise(resolve => setTimeout(resolve, time));
-  }
-
-  function getUniqueName(fileName, otherNames) {
-    let tryName = fileName;
-    let numAdded = 0;
-
-    while (otherNames.indexOf(tryName) > -1) {
-      numAdded = numAdded + 1;
-      tryName = fileName + ' (' + numAdded + ')';
-    }
-
-    return tryName;
-  }
-
-  function validateYears(vm) {
-    if (vm.startYear > vm.simEnd) {
-      vm.startYear = vm.simEnd;
-    } else if (vm.startYear < vm.simStart) {
-      vm.startYear = vm.simStart;
-    }
-
-    if (vm.endYear > vm.simEnd) {
-      vm.endYear = vm.simEnd;
-    } else if (vm.endYear < vm.simStart) {
-      vm.endYear = vm.simStart;
-    }
-  }
-
-  function projectID(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      let projectID = vm.$store.state.activeProject.project.id;
-      return projectID;
-    }
-  }
-
-  function hasData(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return false;
-    } else {
-      return vm.$store.state.activeProject.project.hasData;
-    }
-  }
-
-  function hasPrograms(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return false;
-    } else {
-      return vm.$store.state.activeProject.project.hasPrograms;
-    }
-  }
-
-  function simStart(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      return vm.$store.state.activeProject.project.sim_start;
-    }
-  }
-
-  function simEnd(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      return vm.$store.state.activeProject.project.sim_end;
-    }
-  }
-
-  function simYears(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return [];
-    } else {
-      var sim_start = vm.$store.state.activeProject.project.sim_start;
-      var sim_end = vm.$store.state.activeProject.project.sim_end;
-      var years = [];
-
-      for (var i = sim_start; i <= sim_end; i++) {
-        years.push(i);
-      }
-
-      console.log('Sim years: ' + years);
-      return years;
-    }
-  }
-
-  function dataStart(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      return vm.$store.state.activeProject.project.data_start;
-    }
-  }
-
-  function dataEnd(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      console.log('dataEnd: ' + vm.$store.state.activeProject.project.data_end);
-      return vm.$store.state.activeProject.project.data_end;
-    }
-  }
-
-  function dataYears(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return [];
-    } else {
-      let data_start = vm.$store.state.activeProject.project.data_start;
-      let data_end = vm.$store.state.activeProject.project.data_end;
-      let years = [];
-
-      for (let i = data_start; i <= data_end; i++) {
-        years.push(i);
-      }
-
-      console.log('data years: ' + years);
-      return years;
-    }
-  } // projection years are used for scenario and optimization plot year dropdowns
-
-
-  function projectionYears(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return [];
-    } else {
-      let data_end = vm.$store.state.activeProject.project.data_end;
-      let sim_end = vm.$store.state.activeProject.project.sim_end;
-      let years = [];
-
-      for (let i = data_end; i <= sim_end; i++) {
-        years.push(i);
-      }
-
-      console.log('projection years: ' + years);
-      return years;
-    }
-  }
-
-  function activePops(vm) {
-    if (vm.$store.state.activeProject.project === undefined) {
-      return '';
-    } else {
-      let pop_pairs = vm.$store.state.activeProject.project.pops;
-      let pop_list = ["All"];
-
-      for (let i = 0; i < pop_pairs.length; ++i) {
-        pop_list.push(pop_pairs[i][1]);
-      }
-
-      return pop_list;
-    }
-  }
-
-  function updateSorting(vm, sortColumn) {
-    console.log('updateSorting() called');
-
-    if (vm.sortColumn === sortColumn) {
-      // If the active sorting column is clicked...
-      vm.sortReverse = !vm.sortReverse; // Reverse the sort.
-    } else {
-      // Otherwise.
-      vm.sortColumn = sortColumn; // Select the new column for sorting.
-
-      vm.sortReverse = false; // Set the sorting for non-reverse.
-    }
-  }
-
-  var utils$2 = {
-    sleep,
-    getUniqueName,
-    validateYears,
-    projectID,
-    hasData,
-    hasPrograms,
-    simStart,
-    simEnd,
-    simYears,
-    dataStart,
-    dataEnd,
-    dataYears,
-    projectionYears,
-    activePops,
-    updateSorting
-  };
-
-  // rpc-service.js -- RPC functions for Vue to call
-
-  function consoleLogCommand(type, funcname, args, kwargs) {
-    if (!args) {
-      // Don't show any arguments if none are passed in.
-      args = '';
-    }
-
-    if (!kwargs) {
-      // Don't show any kwargs if none are passed in.
-      kwargs = '';
-    }
-
-    console.log("RPC service call (" + type + "): " + funcname, args, kwargs);
-  } // readJsonFromBlob(theBlob) -- Attempt to convert a Blob passed in to a JSON. Passes back a Promise.
-
-
-  function readJsonFromBlob(theBlob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader(); // Create a FileReader; reader.result contains the contents of blob as text when this is called
-
-      reader.addEventListener("loadend", function () {
-        // Create a callback for after the load attempt is finished
-        try {
-          // Call a resolve passing back a JSON version of this.
-          var jsonresult = JSON.parse(reader.result); // Try the conversion.
-
-          resolve(jsonresult); // (Assuming successful) make the Promise resolve with the JSON result.
-        } catch (e) {
-          reject(Error('Failed to convert blob to JSON')); // On failure to convert to JSON, reject the Promise.
-        }
-      });
-      reader.readAsText(theBlob); // Start the load attempt, trying to read the blob in as text.
-    });
-  }
-
-  var rpcs = {
-    rpc(funcname, args, kwargs) {
-      // rpc() -- normalRPC() /api/procedure calls in api.py.
-      consoleLogCommand("normal", funcname, args, kwargs); // Log the RPC call.
-
-      return new Promise((resolve, reject) => {
-        // Do the RPC processing, returning results as a Promise.
-        axios$1.post('/api/rpcs', {
-          // Send the POST request for the RPC call.
-          funcname: funcname,
-          args: args,
-          kwargs: kwargs
-        }).then(response => {
-          if (typeof response.data.error !== 'undefined') {
-            // If there is an error in the POST response.
-            console.log('RPC error: ' + response.data.error);
-            reject(Error(response.data.error));
-          } else {
-            console.log('RPC succeeded');
-            resolve(response); // Signal success with the response.
-          }
-        }).catch(error => {
-          console.log('RPC error: ' + error);
-
-          if (error.response) {
-            // If there was an actual response returned from the server...
-            if (typeof error.response.data.exception !== 'undefined') {
-              // If we have exception information in the response (which indicates an exception on the server side)...
-              reject(Error(error.response.data.exception)); // For now, reject with an error message matching the exception.
-            }
-          } else {
-            reject(error); // Reject with the error axios got.
-          }
-        });
-      });
-    },
-
-    download(funcname, args, kwargs) {
-      // download() -- download() /api/download calls in api.py.
-      consoleLogCommand("download", funcname, args, kwargs); // Log the download RPC call.
-
-      return new Promise((resolve, reject) => {
-        // Do the RPC processing, returning results as a Promise.
-        axios$1.post('/api/rpcs', {
-          // Send the POST request for the RPC call.
-          funcname: funcname,
-          args: args,
-          kwargs: kwargs
-        }, {
-          responseType: 'blob'
-        }).then(response => {
-          readJsonFromBlob(response.data).then(responsedata => {
-            if (typeof responsedata.error != 'undefined') {
-              // If we have error information in the response (which indicates a logical error on the server side)...
-              reject(Error(responsedata.error)); // For now, reject with an error message matching the error.
-            }
-          }).catch(error2 => {
-            // An error here indicates we do in fact have a file to download.
-            var blob = new Blob([response.data]); // Create a new blob object (containing the file data) from the response.data component.
-
-            var filename = response.headers.filename; // Grab the file name from response.headers.
-
-            FileSaver_min(blob, filename); // Bring up the browser dialog allowing the user to save the file or cancel doing so.
-
-            resolve(response); // Signal success with the response.
-          });
-        }).catch(error => {
-          if (error.response) {
-            // If there was an actual response returned from the server...
-            readJsonFromBlob(error.response.data).then(responsedata => {
-              if (typeof responsedata.exception !== 'undefined') {
-                // If we have exception information in the response (which indicates an exception on the server side)...
-                reject(Error(responsedata.exception)); // For now, reject with an error message matching the exception.
-              }
-            }).catch(error2 => {
-              reject(error); // Reject with the error axios got.
-            });
-          } else {
-            reject(error); // Otherwise (no response was delivered), reject with the error axios got.
-          }
-        });
-      });
-    },
-
-    // upload() -- upload() /api/upload calls in api.py.
-    upload(funcname, args, kwargs, fileType) {
-      consoleLogCommand("upload", funcname, args, kwargs); // Log the upload RPC call.
-
-      return new Promise((resolve, reject) => {
-        // Do the RPC processing, returning results as a Promise.
-        var onFileChange = e => {
-          // Function for trapping the change event that has the user-selected file.
-          var files = e.target.files || e.dataTransfer.files; // Pull out the files (should only be 1) that were selected.
-
-          if (!files.length) // If no files were selected, reject the promise.
-            reject(Error('No file selected'));
-          const formData = new FormData(); // Create a FormData object for holding the file.
-
-          formData.append('uploadfile', files[0]); // Put the selected file in the formData object with 'uploadfile' key.
-
-          formData.append('funcname', funcname); // Add the RPC function name to the form data.
-
-          formData.append('args', JSON.stringify(args)); // Add args and kwargs to the form data.
-
-          formData.append('kwargs', JSON.stringify(kwargs));
-          axios$1.post('/api/rpcs', formData) // Use a POST request to pass along file to the server.
-          .then(response => {
-            // If there is an error in the POST response.
-            if (typeof response.data.error != 'undefined') {
-              reject(Error(response.data.error));
-            }
-
-            resolve(response); // Signal success with the response.
-          }).catch(error => {
-            if (error.response) {
-              // If there was an actual response returned from the server...
-              if (typeof error.response.data.exception != 'undefined') {
-                // If we have exception information in the response (which indicates an exception on the server side)...
-                reject(Error(error.response.data.exception)); // For now, reject with an error message matching the exception.
-              }
-            }
-
-            reject(error); // Reject with the error axios got.
-          });
-        }; // Create an invisible file input element and set its change callback to our onFileChange function.
-
-
-        var inElem = document.createElement('input');
-        inElem.setAttribute('type', 'file');
-        inElem.setAttribute('accept', fileType);
-        inElem.addEventListener('change', onFileChange);
-        inElem.click(); // Manually click the button to open the file dialog.
-      });
-    }
-
-  };
-
-  function createCommonjsModule$1(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var mpld3 = createCommonjsModule$1(function (module) {
-  !function (t) {
-    function s(t) {
-      var s = {};
-
-      for (var i in t) s[i] = t[i];
-
-      return s;
-    }
-
-    function i(t, s) {
-      t = "undefined" != typeof t ? t : 10, s = "undefined" != typeof s ? s : "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-      for (var i = s.charAt(Math.round(Math.random() * (s.length - 11))), o = 1; t > o; o++) i += s.charAt(Math.round(Math.random() * (s.length - 1)));
-
-      return i;
-    }
-
-    function o(s, i) {
-      var o = t.interpolate([s[0].valueOf(), s[1].valueOf()], [i[0].valueOf(), i[1].valueOf()]);
-      return function (t) {
-        var s = o(t);
-        return [new Date(s[0]), new Date(s[1])];
-      };
-    }
-
-    function e(t) {
-      return "undefined" == typeof t;
-    }
-
-    function r(t) {
-      return null == t || e(t);
-    }
-
-    function n(t, s) {
-      return t.length > 0 ? t[s % t.length] : null;
-    }
-
-    function a(t) {
-      function s(t, s) {
-        var n = function (t) {
-          return "function" == typeof t ? t : function () {
-            return t;
-          };
-        },
-            a = n(i),
-            p = n(o),
-            h = [],
-            l = [],
-            c = 0,
-            u = -1,
-            d = 0,
-            f = !1;
-
-        if (!s) {
-          s = ["M"];
-
-          for (var y = 1; y < t.length; y++) s.push("L");
-        }
-
-        for (; ++u < s.length;) {
-          for (d = c + r[s[u]], h = []; d > c;) e.call(this, t[c], c) ? (h.push(a.call(this, t[c], c), p.call(this, t[c], c)), c++) : (h = null, c = d);
-
-          h ? f && h.length > 0 ? (l.push("M", h[0], h[1]), f = !1) : (l.push(s[u]), l = l.concat(h)) : f = !0;
-        }
-
-        return c != t.length && console.warn("Warning: not all vertices used in Path"), l.join(" ");
-      }
-
-      var i = function (t, s) {
-        return t[0];
-      },
-          o = function (t, s) {
-        return t[1];
-      },
-          e = function (t, s) {
-        return !0;
-      },
-          r = {
-        M: 1,
-        m: 1,
-        L: 1,
-        l: 1,
-        Q: 2,
-        q: 2,
-        T: 1,
-        t: 1,
-        S: 2,
-        s: 2,
-        C: 3,
-        c: 3,
-        Z: 0,
-        z: 0
-      };
-
-      return s.x = function (t) {
-        return arguments.length ? (i = t, s) : i;
-      }, s.y = function (t) {
-        return arguments.length ? (o = t, s) : o;
-      }, s.defined = function (t) {
-        return arguments.length ? (e = t, s) : e;
-      }, s.call = s, s;
-    }
-
-    function p(t) {
-      function s(t) {
-        return i.forEach(function (s) {
-          t = s(t);
-        }), t;
-      }
-
-      var i = Array.prototype.slice.call(arguments, 0),
-          o = i.length;
-      return s.domain = function (t) {
-        return arguments.length ? (i[0].domain(t), s) : i[0].domain();
-      }, s.range = function (t) {
-        return arguments.length ? (i[o - 1].range(t), s) : i[o - 1].range();
-      }, s.step = function (t) {
-        return i[t];
-      }, s;
-    }
-
-    function h(t, s) {
-      if (F.call(this, t, s), this.cssclass = "mpld3-" + this.props.xy + "grid", "x" == this.props.xy) this.transform = "translate(0," + this.ax.height + ")", this.position = "bottom", this.scale = this.ax.xdom, this.tickSize = -this.ax.height;else {
-        if ("y" != this.props.xy) throw "unrecognized grid xy specifier: should be 'x' or 'y'";
-        this.transform = "translate(0,0)", this.position = "left", this.scale = this.ax.ydom, this.tickSize = -this.ax.width;
-      }
-    }
-
-    function l(t, s) {
-      F.call(this, t, s);
-      var i = {
-        bottom: [0, this.ax.height],
-        top: [0, 0],
-        left: [0, 0],
-        right: [this.ax.width, 0]
-      },
-          o = {
-        bottom: "x",
-        top: "x",
-        left: "y",
-        right: "y"
-      };
-      this.transform = "translate(" + i[this.props.position] + ")", this.props.xy = o[this.props.position], this.cssclass = "mpld3-" + this.props.xy + "axis", this.scale = this.ax[this.props.xy + "dom"], this.tickNr = null, this.tickFormat = null;
-    }
-
-    function c(t, s) {
-      if (this.trans = t, "undefined" == typeof s) {
-        if (this.ax = null, this.fig = null, "display" !== this.trans) throw "ax must be defined if transform != 'display'";
-      } else this.ax = s, this.fig = s.fig;
-
-      if (this.zoomable = "data" === this.trans, this.x = this["x_" + this.trans], this.y = this["y_" + this.trans], "undefined" == typeof this.x || "undefined" == typeof this.y) throw "unrecognized coordinate code: " + this.trans;
-    }
-
-    function u(t, s) {
-      F.call(this, t, s), this.data = t.fig.get_data(this.props.data), this.pathcodes = this.props.pathcodes, this.pathcoords = new c(this.props.coordinates, this.ax), this.offsetcoords = new c(this.props.offsetcoordinates, this.ax), this.datafunc = a();
-    }
-
-    function d(t, s) {
-      F.call(this, t, s), (null == this.props.facecolors || 0 == this.props.facecolors.length) && (this.props.facecolors = ["none"]), (null == this.props.edgecolors || 0 == this.props.edgecolors.length) && (this.props.edgecolors = ["none"]);
-      var i = this.ax.fig.get_data(this.props.offsets);
-      (null === i || 0 === i.length) && (i = [null]);
-      var o = Math.max(this.props.paths.length, i.length);
-      if (i.length === o) this.offsets = i;else {
-        this.offsets = [];
-
-        for (var e = 0; o > e; e++) this.offsets.push(n(i, e));
-      }
-      this.pathcoords = new c(this.props.pathcoordinates, this.ax), this.offsetcoords = new c(this.props.offsetcoordinates, this.ax);
-    }
-
-    function f(s, i) {
-      F.call(this, s, i);
-      var o = this.props;
-      o.facecolor = "none", o.edgecolor = o.color, delete o.color, o.edgewidth = o.linewidth, delete o.linewidth;
-      const e = o.drawstyle;
-
-      switch (delete o.drawstyle, this.defaultProps = u.prototype.defaultProps, u.call(this, s, o), e) {
-        case "steps":
-        case "steps-pre":
-          this.datafunc = t.line().curve(t.curveStepBefore);
-          break;
-
-        case "steps-post":
-          this.datafunc = t.line().curve(t.curveStepAfter);
-          break;
-
-        case "steps-mid":
-          this.datafunc = t.line().curve(t.curveStep);
-          break;
-
-        default:
-          this.datafunc = t.line().curve(t.curveLinear);
-      }
-    }
-
-    function y(s, i) {
-      F.call(this, s, i), null !== this.props.markerpath ? this.marker = 0 == this.props.markerpath[0].length ? null : M.path().call(this.props.markerpath[0], this.props.markerpath[1]) : this.marker = null === this.props.markername ? null : t.svg.symbol(this.props.markername).size(Math.pow(this.props.markersize, 2))();
-      var o = {
-        paths: [this.props.markerpath],
-        offsets: s.fig.get_data(this.props.data),
-        xindex: this.props.xindex,
-        yindex: this.props.yindex,
-        offsetcoordinates: this.props.coordinates,
-        edgecolors: [this.props.edgecolor],
-        edgewidths: [this.props.edgewidth],
-        facecolors: [this.props.facecolor],
-        alphas: [this.props.alpha],
-        zorder: this.props.zorder,
-        id: this.props.id
-      };
-      this.requiredProps = d.prototype.requiredProps, this.defaultProps = d.prototype.defaultProps, d.call(this, s, o);
-    }
-
-    function m(t, s) {
-      F.call(this, t, s), this.coords = new c(this.props.coordinates, this.ax);
-    }
-
-    function g(t, s) {
-      F.call(this, t, s), this.text = this.props.text, this.position = this.props.position, this.coords = new c(this.props.coordinates, this.ax);
-    }
-
-    function x(s, i) {
-      function o(t) {
-        return new Date(t[0], t[1], t[2], t[3], t[4], t[5]);
-      }
-
-      function e(t, s) {
-        return "date" !== t ? s : [o(s[0]), o(s[1])];
-      }
-
-      function r(s, i, o) {
-        var e = "date" === s ? t.scaleTime() : "log" === s ? t.scaleLog() : t.scaleLinear();
-        return e.domain(i).range(o);
-      }
-
-      F.call(this, s, i), this.axnum = this.fig.axes.length, this.axid = this.fig.figid + "_ax" + (this.axnum + 1), this.clipid = this.axid + "_clip", this.props.xdomain = this.props.xdomain || this.props.xlim, this.props.ydomain = this.props.ydomain || this.props.ylim, this.sharex = [], this.sharey = [], this.elements = [], this.axisList = [];
-      var n = this.props.bbox;
-      this.position = [n[0] * this.fig.width, (1 - n[1] - n[3]) * this.fig.height], this.width = n[2] * this.fig.width, this.height = n[3] * this.fig.height, this.isZoomEnabled = null, this.zoom = null, this.lastTransform = t.zoomIdentity, this.isBoxzoomEnabled = null, this.isLinkedBrushEnabled = null, this.isCurrentLinkedBrushTarget = !1, this.brushG = null, this.props.xdomain = e(this.props.xscale, this.props.xdomain), this.props.ydomain = e(this.props.yscale, this.props.ydomain), this.x = this.xdom = r(this.props.xscale, this.props.xdomain, [0, this.width]), this.y = this.ydom = r(this.props.yscale, this.props.ydomain, [this.height, 0]), "date" === this.props.xscale && (this.x = M.multiscale(t.scaleLinear().domain(this.props.xlim).range(this.props.xdomain.map(Number)), this.xdom)), "date" === this.props.yscale && (this.y = M.multiscale(t.scaleLinear().domain(this.props.ylim).range(this.props.ydomain.map(Number)), this.ydom));
-
-      for (var a = this.props.axes, p = 0; p < a.length; p++) {
-        var h = new M.Axis(this, a[p]);
-        this.axisList.push(h), this.elements.push(h), (this.props.gridOn || h.props.grid.gridOn) && this.elements.push(h.getGrid());
-      }
-
-      for (var l = this.props.paths, p = 0; p < l.length; p++) this.elements.push(new M.Path(this, l[p]));
-
-      for (var c = this.props.lines, p = 0; p < c.length; p++) this.elements.push(new M.Line(this, c[p]));
-
-      for (var u = this.props.markers, p = 0; p < u.length; p++) this.elements.push(new M.Markers(this, u[p]));
-
-      for (var d = this.props.texts, p = 0; p < d.length; p++) this.elements.push(new M.Text(this, d[p]));
-
-      for (var f = this.props.collections, p = 0; p < f.length; p++) this.elements.push(new M.PathCollection(this, f[p]));
-
-      for (var y = this.props.images, p = 0; p < y.length; p++) this.elements.push(new M.Image(this, y[p]));
-
-      this.elements.sort(function (t, s) {
-        return t.props.zorder - s.props.zorder;
-      });
-    }
-
-    function b(t, s) {
-      F.call(this, t, s), this.buttons = [], this.props.buttons.forEach(this.addButton.bind(this));
-    }
-
-    function v(t, s) {
-      F.call(this, t), this.toolbar = t, this.fig = this.toolbar.fig, this.cssclass = "mpld3-" + s + "button", this.active = !1;
-    }
-
-    function A(t, s) {
-      F.call(this, t, s);
-    }
-
-    function k(t, s) {
-      A.call(this, t, s);
-      var i = M.ButtonFactory({
-        buttonID: "reset",
-        sticky: !1,
-        onActivate: function () {
-          this.toolbar.fig.reset();
-        },
-        icon: function () {
-          return M.icons.reset;
-        }
-      });
-      this.fig.buttons.push(i);
-    }
-
-    function w(t, s) {
-      A.call(this, t, s), null === this.props.enabled && (this.props.enabled = !this.props.button);
-      var i = this.props.enabled;
-
-      if (this.props.button) {
-        var o = M.ButtonFactory({
-          buttonID: "zoom",
-          sticky: !0,
-          actions: ["scroll", "drag"],
-          onActivate: this.activate.bind(this),
-          onDeactivate: this.deactivate.bind(this),
-          onDraw: function () {
-            this.setState(i);
-          },
-          icon: function () {
-            return M.icons.move;
-          }
-        });
-        this.fig.buttons.push(o);
-      }
-    }
-
-    function B(t, s) {
-      A.call(this, t, s), null === this.props.enabled && (this.props.enabled = !this.props.button);
-      var i = this.props.enabled;
-
-      if (this.props.button) {
-        var o = M.ButtonFactory({
-          buttonID: "boxzoom",
-          sticky: !0,
-          actions: ["drag"],
-          onActivate: this.activate.bind(this),
-          onDeactivate: this.deactivate.bind(this),
-          onDraw: function () {
-            this.setState(i);
-          },
-          icon: function () {
-            return M.icons.zoom;
-          }
-        });
-        this.fig.buttons.push(o);
-      }
-
-      this.extentClass = "boxzoombrush";
-    }
-
-    function z(t, s) {
-      A.call(this, t, s);
-    }
-
-    function E(t, s) {
-      M.Plugin.call(this, t, s), null === this.props.enabled && (this.props.enabled = !this.props.button);
-      var i = this.props.enabled;
-
-      if (this.props.button) {
-        var o = M.ButtonFactory({
-          buttonID: "linkedbrush",
-          sticky: !0,
-          actions: ["drag"],
-          onActivate: this.activate.bind(this),
-          onDeactivate: this.deactivate.bind(this),
-          onDraw: function () {
-            this.setState(i);
-          },
-          icon: function () {
-            return M.icons.brush;
-          }
-        });
-        this.fig.buttons.push(o);
-      }
-
-      this.pathCollectionsByAxes = [], this.objectsByAxes = [], this.allObjects = [], this.extentClass = "linkedbrush", this.dataKey = "offsets", this.objectClass = null;
-    }
-
-    function P(t, s) {
-      M.Plugin.call(this, t, s);
-    }
-
-    function O(s, i) {
-      F.call(this, null, i), this.figid = s, this.width = this.props.width, this.height = this.props.height, this.data = this.props.data, this.buttons = [], this.root = t.select("#" + s).append("div").style("position", "relative"), this.axes = [];
-
-      for (var o = 0; o < this.props.axes.length; o++) this.axes.push(new x(this, this.props.axes[o]));
-
-      this.plugins = [], this.pluginsByType = {}, this.props.plugins.forEach(function (t) {
-        this.addPlugin(t);
-      }.bind(this)), this.toolbar = new M.Toolbar(this, {
-        buttons: this.buttons
-      });
-    }
-
-    function F(t, s) {
-      this.parent = r(t) ? null : t, this.props = r(s) ? {} : this.processProps(s), this.fig = t instanceof O ? t : t && "fig" in t ? t.fig : null, this.ax = t instanceof x ? t : t && "ax" in t ? t.ax : null;
-    }
-
-    var M = {
-      _mpld3IsLoaded: !0,
-      figures: [],
-      plugin_map: {}
-    };
-    M.version = "0.4.1", M.register_plugin = function (t, s) {
-      M.plugin_map[t] = s;
-    }, M.draw_figure = function (t, s, i) {
-      var o = document.getElementById(t);
-      if (null === o) throw t + " is not a valid id";
-      var e = new M.Figure(t, s);
-      return i && i(e, o), M.figures.push(e), e.draw(), e;
-    }, M.cloneObj = s, M.boundsToTransform = function (t, s) {
-      var i = t.width,
-          o = t.height,
-          e = s[1][0] - s[0][0],
-          r = s[1][1] - s[0][1],
-          n = (s[0][0] + s[1][0]) / 2,
-          a = (s[0][1] + s[1][1]) / 2,
-          p = Math.max(1, Math.min(8, .9 / Math.max(e / i, r / o))),
-          h = [i / 2 - p * n, o / 2 - p * a];
-      return {
-        translate: h,
-        scale: p
-      };
-    }, M.getTransformation = function (t) {
-      var s = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      s.setAttributeNS(null, "transform", t);
-      var i,
-          o,
-          e,
-          r = s.transform.baseVal.consolidate().matrix,
-          n = r.a,
-          a = r.b,
-          p = r.c,
-          h = r.d,
-          l = r.e,
-          c = r.f;
-      (i = Math.sqrt(n * n + a * a)) && (n /= i, a /= i), (e = n * p + a * h) && (p -= n * e, h -= a * e), (o = Math.sqrt(p * p + h * h)) && (p /= o, h /= o, e /= o), a * p > n * h && (n = -n, a = -a, e = -e, i = -i);
-      var u = {
-        translateX: l,
-        translateY: c,
-        rotate: 180 * Math.atan2(a, n) / Math.PI,
-        skewX: 180 * Math.atan(e) / Math.PI,
-        scaleX: i,
-        scaleY: o
-      },
-          d = "translate(" + u.translateX + "," + u.translateY + ")rotate(" + u.rotate + ")skewX(" + u.skewX + ")scale(" + u.scaleX + "," + u.scaleY + ")";
-      return d;
-    }, M.merge_objects = function (t) {
-      for (var s, i = {}, o = 0; o < arguments.length; o++) {
-        s = arguments[o];
-
-        for (var e in s) i[e] = s[e];
-      }
-
-      return i;
-    }, M.generate_id = function (t, s) {
-      return console.warn("mpld3.generate_id is deprecated. Use mpld3.generateId instead."), i(t, s);
-    }, M.generateId = i, M.get_element = function (t, s) {
-      var i, o, e;
-      i = "undefined" == typeof s ? M.figures : "undefined" == typeof s.length ? [s] : s;
-
-      for (var r = 0; r < i.length; r++) {
-        if (s = i[r], s.props.id === t) return s;
-
-        for (var n = 0; n < s.axes.length; n++) {
-          if (o = s.axes[n], o.props.id === t) return o;
-
-          for (var a = 0; a < o.elements.length; a++) if (e = o.elements[a], e.props.id === t) return e;
-        }
-      }
-
-      return null;
-    }, M.insert_css = function (t, s) {
-      var i = document.head || document.getElementsByTagName("head")[0],
-          o = document.createElement("style"),
-          e = t + " {";
-
-      for (var r in s) e += r + ":" + s[r] + "; ";
-
-      e += "}", o.type = "text/css", o.styleSheet ? o.styleSheet.cssText = e : o.appendChild(document.createTextNode(e)), i.appendChild(o);
-    }, M.process_props = function (t, s, i, o) {
-      function e(t) {
-        F.call(this, null, t);
-      }
-
-      console.warn("mpld3.process_props is deprecated. Plot elements should derive from mpld3.PlotElement"), e.prototype = Object.create(F.prototype), e.prototype.constructor = e, e.prototype.requiredProps = o, e.prototype.defaultProps = i;
-      var r = new e(s);
-      return r.props;
-    }, M.interpolateDates = o, M.path = function () {
-      return a();
-    }, M.multiscale = p, M.icons = {
-      reset: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gIcACMoD/OzIwAAAJhJREFUOMtjYKAx4KDUgNsMDAx7\nyNV8i4GB4T8U76VEM8mGYNNMtCH4NBM0hBjNMIwSsMzQ0MamcDkDA8NmQi6xggpUoikwQbIkHk2u\nE0rLI7vCBknBSyxeRDZAE6qHgQkq+ZeBgYERSfFPAoHNDNUDN4BswIRmKgxwEasP2dlsDAwMYlA/\n/mVgYHiBpkkGKscIDaPfVMmuAGnOTaGsXF0MAAAAAElFTkSuQmCC\n",
-      move: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gIcACQMfLHBNQAAANZJREFUOMud07FKA0EQBuAviaKB\nlFr7COJrpAyYRlKn8hECEkFEn8ROCCm0sBMRYgh5EgVFtEhsRjiO27vkBoZd/vn5d3b+XcrjFI9q\nxgXWkc8pUjOB93GMd3zgB9d1unjDSxmhWSHQqOJki+MtOuv/b3ZifUqctIrMxwhHuG1gim4Ma5kR\nWuEkXFgU4B0MW1Ho4TeyjX3s4TDq3zn8ALvZ7q5wX9DqLOHCDA95cFBAnOO1AL/ZdNopgY3fQcqF\nyriMe37hM9w521ZkkvlMo7o/8g7nZYQ/QDctp1nTCf0AAAAASUVORK5CYII=\n",
-      zoom: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gMPDiIRPL/2oQAAANBJREFUOMvF0b9KgzEcheHHVnCT\nKoI4uXbtLXgB3oJDJxevw1VwkoJ/NjepQ2/BrZRCx0ILFURQKV2kyOeSQpAmn7WDB0Lg955zEhLy\n2scdXlBggits+4WOQqjAJ3qYR7NGLrwXGU9+sGbEtlIF18FwmuBngZ+nCt6CIacC3Rx8LSl4xzgF\nn0tusBn4UyVhuA/7ZYIv5g+pE3ail25hN/qdmzCfpsJVjKKCZesDBwtzrAqGOMQj6vhCDRsY4ALH\nmOVObltR/xeG/jph6OD2r+Fv5lZBWEhMx58AAAAASUVORK5CYII=\n",
-      brush: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAEQkAABEJAFAZ8RUAAAAB3RJTUUH3gMCEiQKB9YaAgAAAWtJREFUOMuN0r1qVVEQhuFn700k\nnfEvBq0iNiIiOKXgH4KCaBeIhWARK/EibLwFCwVLjyAWaQzRGG9grC3URkHUBKKgRuWohWvL5pjj\nyTSLxcz7rZlZHyMiItqzFxGTEVF18/UoODNFxDIO4x12dkXqTcBPsCUzD+AK3ndFqhHwEsYz82gn\nN4dbmMRK9R/4KY7jAvbiWmYeHBT5Z4QCP8J1rGAeN3GvU3Mbl/Gq3qCDcxjLzOV+v78fq/iFIxFx\nPyJ2lNJpfBy2g59YzMyzEbEVLzGBJjOriLiBq5gaJrCIU3hcRCbwAtuwjm/Yg/V6I9NgDA1OR8RC\nZq6Vcd7iUwtn5h8fdMBdETGPE+Xe4ExELDRNs4bX2NfCUHe+7UExyfkCP8MhzOA7PuAkvrbwXyNF\nxF3MDqxiqlhXC7SPdaOKiN14g0u4g3H0MvOiTUSNY3iemb0ywmfMdfYyUmAJ2yPiBx6Wr/oy2Oqw\n+A1SupBzAOuE/AAAAABJRU5ErkJggg==\n"
-    }, M.Grid = h, h.prototype = Object.create(F.prototype), h.prototype.constructor = h, h.prototype.requiredProps = ["xy"], h.prototype.defaultProps = {
-      color: "gray",
-      dasharray: "2,2",
-      alpha: "0.5",
-      nticks: 10,
-      gridOn: !0,
-      tickvalues: null,
-      zorder: 0
-    }, h.prototype.draw = function () {
-      var s = {
-        left: "axisLeft",
-        right: "axisRight",
-        top: "axisTop",
-        bottom: "axisBottom"
-      }[this.position];
-      this.grid = t[s](this.scale).ticks(this.props.nticks).tickValues(this.props.tickvalues).tickSize(this.tickSize, 0, 0).tickFormat(""), this.elem = this.ax.axes.append("g").attr("class", this.cssclass).attr("transform", this.transform).call(this.grid), M.insert_css("div#" + this.ax.fig.figid + " ." + this.cssclass + " .tick", {
-        stroke: this.props.color,
-        "stroke-dasharray": this.props.dasharray,
-        "stroke-opacity": this.props.alpha
-      }), M.insert_css("div#" + this.ax.fig.figid + " ." + this.cssclass + " path", {
-        "stroke-width": 0
-      }), M.insert_css("div#" + this.ax.fig.figid + " ." + this.cssclass + " .domain", {
-        "pointer-events": "none"
-      });
-    }, h.prototype.zoomed = function (t) {
-      t ? "x" == this.props.xy ? this.elem.call(this.grid.scale(t.rescaleX(this.scale))) : this.elem.call(this.grid.scale(t.rescaleY(this.scale))) : this.elem.call(this.grid);
-    }, M.Axis = l, l.prototype = Object.create(F.prototype), l.prototype.constructor = l, l.prototype.requiredProps = ["position"], l.prototype.defaultProps = {
-      nticks: 10,
-      tickvalues: null,
-      tickformat: null,
-      tickformat_formatter: null,
-      fontsize: "11px",
-      fontcolor: "black",
-      axiscolor: "black",
-      scale: "linear",
-      grid: {},
-      zorder: 0,
-      visible: !0
-    }, l.prototype.getGrid = function () {
-      var t = {
-        nticks: this.props.nticks,
-        zorder: this.props.zorder,
-        tickvalues: null,
-        xy: this.props.xy
-      };
-      if (this.props.grid) for (var s in this.props.grid) t[s] = this.props.grid[s];
-      return new h(this.ax, t);
-    }, l.prototype.draw = function () {
-      function s(s, i, o) {
-        o = o || 1.2, s.each(function () {
-          for (var s, e = t.select(this), r = e.node().getBBox(), n = r.height, a = e.text().split(/\s+/).reverse(), p = [], h = 0, l = e.attr("y"), c = n, u = e.text(null).append("tspan").attr("x", 0).attr("y", l).attr("dy", c); s = a.pop();) p.push(s), u.text(p.join(" ")), u.node().getComputedTextLength() > i && (p.pop(), u.text(p.join(" ")), p = [s], u = e.append("tspan").attr("x", 0).attr("y", l).attr("dy", ++h * (n * o) + c).text(s));
-        });
-      }
-
-      var i = 80,
-          o = "x" === this.props.xy ? this.parent.props.xscale : this.parent.props.yscale;
-
-      if ("date" === o && this.props.tickvalues) {
-        var e = "x" === this.props.xy ? this.parent.x.domain() : this.parent.y.domain(),
-            r = "x" === this.props.xy ? this.parent.xdom.domain() : this.parent.ydom.domain(),
-            n = t.scaleLinear().domain(e).range(r);
-        this.props.tickvalues = this.props.tickvalues.map(function (t) {
-          return new Date(n(t));
-        });
-      }
-
-      var a = {
-        left: "axisLeft",
-        right: "axisRight",
-        top: "axisTop",
-        bottom: "axisBottom"
-      }[this.props.position];
-      this.axis = t[a](this.scale);
-      var p = this;
-      "index" == this.props.tickformat_formatter ? this.axis = this.axis.tickFormat(function (t, s) {
-        return p.props.tickformat[t];
-      }) : "percent" == this.props.tickformat_formatter ? this.axis = this.axis.tickFormat(function (s, i) {
-        var o = s / p.props.tickformat.xmax * 100,
-            e = p.props.tickformat.decimals || 0,
-            r = t.format("." + e + "f")(o);
-        return r + p.props.tickformat.symbol;
-      }) : "str_method" == this.props.tickformat_formatter ? this.axis = this.axis.tickFormat(function (s, i) {
-        var o = t.format(p.props.tickformat.format_string)(s);
-        return p.props.tickformat.prefix + o + p.props.tickformat.suffix;
-      }) : "fixed" == this.props.tickformat_formatter ? this.axis = this.axis.tickFormat(function (t, s) {
-        return p.props.tickformat[s];
-      }) : this.axis = this.axis.tickFormat(this.tickFormat), this.tickNr && (this.axis = this.axis.ticks(this.tickNr)), this.props.tickvalues && (this.axis = this.axis.tickValues(this.props.tickvalues), this.filter_ticks(this.axis.tickValues, this.axis.scale().domain())), this.elem = this.ax.baseaxes.append("g").attr("transform", this.transform).attr("class", this.cssclass).call(this.axis), "x" == this.props.xy && this.elem.selectAll("text").call(s, i), M.insert_css("div#" + this.ax.fig.figid + " ." + this.cssclass + " line,  ." + this.cssclass + " path", {
-        "shape-rendering": "crispEdges",
-        stroke: this.props.axiscolor,
-        fill: "none"
-      }), M.insert_css("div#" + this.ax.fig.figid + " ." + this.cssclass + " text", {
-        "font-family": "sans-serif",
-        "font-size": this.props.fontsize + "px",
-        fill: this.props.fontcolor,
-        stroke: "none"
-      });
-    }, l.prototype.zoomed = function (t) {
-      this.props.tickvalues && this.filter_ticks(this.axis.tickValues, this.axis.scale().domain()), t ? "x" == this.props.xy ? this.elem.call(this.axis.scale(t.rescaleX(this.scale))) : this.elem.call(this.axis.scale(t.rescaleY(this.scale))) : this.elem.call(this.axis);
-    }, l.prototype.setTicks = function (t, s) {
-      this.tickNr = t, this.tickFormat = s;
-    }, l.prototype.filter_ticks = function (t, s) {
-      null != this.props.tickvalues && t(this.props.tickvalues.filter(function (t) {
-        return t >= s[0] && t <= s[1];
-      }));
-    }, M.Coordinates = c, c.prototype.xy = function (t, s, i) {
-      return s = "undefined" == typeof s ? 0 : s, i = "undefined" == typeof i ? 1 : i, [this.x(t[s]), this.y(t[i])];
-    }, c.prototype.x_data = function (t) {
-      return this.ax.x(t);
-    }, c.prototype.y_data = function (t) {
-      return this.ax.y(t);
-    }, c.prototype.x_display = function (t) {
-      return t;
-    }, c.prototype.y_display = function (t) {
-      return t;
-    }, c.prototype.x_axes = function (t) {
-      return t * this.ax.width;
-    }, c.prototype.y_axes = function (t) {
-      return this.ax.height * (1 - t);
-    }, c.prototype.x_figure = function (t) {
-      return t * this.fig.width - this.ax.position[0];
-    }, c.prototype.y_figure = function (t) {
-      return (1 - t) * this.fig.height - this.ax.position[1];
-    }, M.Path = u, u.prototype = Object.create(F.prototype), u.prototype.constructor = u, u.prototype.requiredProps = ["data"], u.prototype.defaultProps = {
-      xindex: 0,
-      yindex: 1,
-      coordinates: "data",
-      facecolor: "green",
-      edgecolor: "black",
-      edgewidth: 1,
-      dasharray: "none",
-      pathcodes: null,
-      offset: null,
-      offsetcoordinates: "data",
-      alpha: 1,
-      drawstyle: "none",
-      zorder: 1
-    }, u.prototype.finiteFilter = function (t, s) {
-      return isFinite(this.pathcoords.x(t[this.props.xindex])) && isFinite(this.pathcoords.y(t[this.props.yindex]));
-    }, u.prototype.draw = function () {
-      if (this.datafunc.defined(this.finiteFilter.bind(this)).x(function (t) {
-        return this.pathcoords.x(t[this.props.xindex]);
-      }.bind(this)).y(function (t) {
-        return this.pathcoords.y(t[this.props.yindex]);
-      }.bind(this)), this.pathcoords.zoomable ? this.path = this.ax.paths.append("svg:path") : this.path = this.ax.staticPaths.append("svg:path"), this.path = this.path.attr("d", this.datafunc(this.data, this.pathcodes)).attr("class", "mpld3-path").style("stroke", this.props.edgecolor).style("stroke-width", this.props.edgewidth).style("stroke-dasharray", this.props.dasharray).style("stroke-opacity", this.props.alpha).style("fill", this.props.facecolor).style("fill-opacity", this.props.alpha).attr("vector-effect", "non-scaling-stroke"), null !== this.props.offset) {
-        var t = this.offsetcoords.xy(this.props.offset);
-        this.path.attr("transform", "translate(" + t + ")");
-      }
-    }, u.prototype.elements = function (t) {
-      return this.path;
-    }, M.PathCollection = d, d.prototype = Object.create(F.prototype), d.prototype.constructor = d, d.prototype.requiredProps = ["paths", "offsets"], d.prototype.defaultProps = {
-      xindex: 0,
-      yindex: 1,
-      pathtransforms: [],
-      pathcoordinates: "display",
-      offsetcoordinates: "data",
-      offsetorder: "before",
-      edgecolors: ["#000000"],
-      drawstyle: "none",
-      edgewidths: [1],
-      facecolors: ["#0000FF"],
-      alphas: [1],
-      zorder: 2
-    }, d.prototype.transformFunc = function (t, s) {
-      var i = this.props.pathtransforms,
-          o = 0 == i.length ? "" : M.getTransformation("matrix(" + n(i, s) + ")").toString(),
-          e = null === t || "undefined" == typeof t ? "translate(0, 0)" : "translate(" + this.offsetcoords.xy(t, this.props.xindex, this.props.yindex) + ")";
-      return "after" === this.props.offsetorder ? o + e : e + o;
-    }, d.prototype.pathFunc = function (t, s) {
-      return a().x(function (t) {
-        return this.pathcoords.x(t[0]);
-      }.bind(this)).y(function (t) {
-        return this.pathcoords.y(t[1]);
-      }.bind(this)).apply(this, n(this.props.paths, s));
-    }, d.prototype.styleFunc = function (t, s) {
-      var i = {
-        stroke: n(this.props.edgecolors, s),
-        "stroke-width": n(this.props.edgewidths, s),
-        "stroke-opacity": n(this.props.alphas, s),
-        fill: n(this.props.facecolors, s),
-        "fill-opacity": n(this.props.alphas, s)
-      },
-          o = "";
-
-      for (var e in i) o += e + ":" + i[e] + ";";
-
-      return o;
-    }, d.prototype.allFinite = function (t) {
-      return t instanceof Array ? t.length == t.filter(isFinite).length : !0;
-    }, d.prototype.draw = function () {
-      this.offsetcoords.zoomable || this.pathcoords.zoomable ? this.group = this.ax.paths.append("svg:g") : this.group = this.ax.staticPaths.append("svg:g"), this.pathsobj = this.group.selectAll("paths").data(this.offsets.filter(this.allFinite)).enter().append("svg:path").attr("d", this.pathFunc.bind(this)).attr("class", "mpld3-path").attr("transform", this.transformFunc.bind(this)).attr("style", this.styleFunc.bind(this)).attr("vector-effect", "non-scaling-stroke");
-    }, d.prototype.elements = function (t) {
-      return this.group.selectAll("path");
-    }, M.Line = f, f.prototype = Object.create(u.prototype), f.prototype.constructor = f, f.prototype.requiredProps = ["data"], f.prototype.defaultProps = {
-      xindex: 0,
-      yindex: 1,
-      coordinates: "data",
-      color: "salmon",
-      linewidth: 2,
-      dasharray: "none",
-      alpha: 1,
-      zorder: 2,
-      drawstyle: "none"
-    }, M.Markers = y, y.prototype = Object.create(d.prototype), y.prototype.constructor = y, y.prototype.requiredProps = ["data"], y.prototype.defaultProps = {
-      xindex: 0,
-      yindex: 1,
-      coordinates: "data",
-      facecolor: "salmon",
-      edgecolor: "black",
-      edgewidth: 1,
-      alpha: 1,
-      markersize: 6,
-      markername: "circle",
-      drawstyle: "none",
-      markerpath: null,
-      zorder: 3
-    }, y.prototype.pathFunc = function (t, s) {
-      return this.marker;
-    }, M.Image = m, m.prototype = Object.create(F.prototype), m.prototype.constructor = m, m.prototype.requiredProps = ["data", "extent"], m.prototype.defaultProps = {
-      alpha: 1,
-      coordinates: "data",
-      drawstyle: "none",
-      zorder: 1
-    }, m.prototype.draw = function () {
-      this.image = this.ax.paths.append("svg:image"), this.image = this.image.attr("class", "mpld3-image").attr("xlink:href", "data:image/png;base64," + this.props.data).style("opacity", this.props.alpha).attr("preserveAspectRatio", "none"), this.updateDimensions();
-    }, m.prototype.elements = function (s) {
-      return t.select(this.image);
-    }, m.prototype.updateDimensions = function () {
-      var t = this.props.extent;
-      this.image.attr("x", this.coords.x(t[0])).attr("y", this.coords.y(t[3])).attr("width", this.coords.x(t[1]) - this.coords.x(t[0])).attr("height", this.coords.y(t[2]) - this.coords.y(t[3]));
-    }, M.Text = g, g.prototype = Object.create(F.prototype), g.prototype.constructor = g, g.prototype.requiredProps = ["text", "position"], g.prototype.defaultProps = {
-      coordinates: "data",
-      h_anchor: "start",
-      v_baseline: "auto",
-      rotation: 0,
-      fontsize: 11,
-      drawstyle: "none",
-      color: "black",
-      alpha: 1,
-      zorder: 3
-    }, g.prototype.draw = function () {
-      "data" == this.props.coordinates ? this.coords.zoomable ? this.obj = this.ax.paths.append("text") : this.obj = this.ax.staticPaths.append("text") : this.obj = this.ax.baseaxes.append("text"), this.obj.attr("class", "mpld3-text").text(this.text).style("text-anchor", this.props.h_anchor).style("dominant-baseline", this.props.v_baseline).style("font-size", this.props.fontsize).style("fill", this.props.color).style("opacity", this.props.alpha), this.applyTransform();
-    }, g.prototype.elements = function (s) {
-      return t.select(this.obj);
-    }, g.prototype.applyTransform = function () {
-      var t = this.coords.xy(this.position);
-      this.obj.attr("x", t[0]).attr("y", t[1]), this.props.rotation && this.obj.attr("transform", "rotate(" + this.props.rotation + "," + t + ")");
-    }, M.Axes = x, x.prototype = Object.create(F.prototype), x.prototype.constructor = x, x.prototype.requiredProps = ["xlim", "ylim"], x.prototype.defaultProps = {
-      bbox: [.1, .1, .8, .8],
-      axesbg: "#FFFFFF",
-      axesbgalpha: 1,
-      gridOn: !1,
-      xdomain: null,
-      ydomain: null,
-      xscale: "linear",
-      yscale: "linear",
-      zoomable: !0,
-      axes: [{
-        position: "left"
-      }, {
-        position: "bottom"
-      }],
-      lines: [],
-      paths: [],
-      markers: [],
-      texts: [],
-      collections: [],
-      sharex: [],
-      sharey: [],
-      images: []
-    }, x.prototype.draw = function () {
-      for (var s = 0; s < this.props.sharex.length; s++) this.sharex.push(M.get_element(this.props.sharex[s]));
-
-      for (var s = 0; s < this.props.sharey.length; s++) this.sharey.push(M.get_element(this.props.sharey[s]));
-
-      this.baseaxes = this.fig.canvas.append("g").attr("transform", "translate(" + this.position[0] + "," + this.position[1] + ")").attr("width", this.width).attr("height", this.height).attr("class", "mpld3-baseaxes"), this.axes = this.baseaxes.append("g").attr("class", "mpld3-axes").style("pointer-events", "visiblefill"), this.clip = this.axes.append("svg:clipPath").attr("id", this.clipid).append("svg:rect").attr("x", 0).attr("y", 0).attr("width", this.width).attr("height", this.height), this.axesbg = this.axes.append("svg:rect").attr("width", this.width).attr("height", this.height).attr("class", "mpld3-axesbg").style("fill", this.props.axesbg).style("fill-opacity", this.props.axesbgalpha), this.pathsContainer = this.axes.append("g").attr("clip-path", "url(#" + this.clipid + ")").attr("x", 0).attr("y", 0).attr("width", this.width).attr("height", this.height).attr("class", "mpld3-paths-container"), this.paths = this.pathsContainer.append("g").attr("class", "mpld3-paths"), this.staticPaths = this.axes.append("g").attr("class", "mpld3-staticpaths"), this.brush = t.brush().extent([[0, 0], [this.fig.width, this.fig.height]]).on("start", this.brushStart.bind(this)).on("brush", this.brushMove.bind(this)).on("end", this.brushEnd.bind(this)).on("start.nokey", function () {
-        t.select(window).on("keydown.brush keyup.brush", null);
-      });
-
-      for (var s = 0; s < this.elements.length; s++) this.elements[s].draw();
-    }, x.prototype.bindZoom = function () {
-      this.zoom || (this.zoom = t.zoom(), this.zoom.on("zoom", this.zoomed.bind(this)), this.axes.call(this.zoom));
-    }, x.prototype.unbindZoom = function () {
-      this.zoom && (this.zoom.on("zoom", null), this.axes.on(".zoom", null), this.zoom = null);
-    }, x.prototype.bindBrush = function () {
-      this.brushG || (this.brushG = this.axes.append("g").attr("class", "mpld3-brush").call(this.brush));
-    }, x.prototype.unbindBrush = function () {
-      this.brushG && (this.brushG.remove(), this.brushG.on(".brush", null), this.brushG = null);
-    }, x.prototype.reset = function () {
-      this.zoom ? this.doZoom(!1, t.zoomIdentity, 750) : (this.bindZoom(), this.doZoom(!1, t.zoomIdentity, 750, function () {
-        this.isSomeTypeOfZoomEnabled || this.unbindZoom();
-      }.bind(this)));
-    }, x.prototype.enableOrDisableBrushing = function () {
-      this.isBoxzoomEnabled || this.isLinkedBrushEnabled ? this.bindBrush() : this.unbindBrush();
-    }, x.prototype.isSomeTypeOfZoomEnabled = function () {
-      return this.isZoomEnabled || this.isBoxzoomEnabled;
-    }, x.prototype.enableOrDisableZooming = function () {
-      this.isSomeTypeOfZoomEnabled() ? this.bindZoom() : this.unbindZoom();
-    }, x.prototype.enableLinkedBrush = function () {
-      this.isLinkedBrushEnabled = !0, this.enableOrDisableBrushing();
-    }, x.prototype.disableLinkedBrush = function () {
-      this.isLinkedBrushEnabled = !1, this.enableOrDisableBrushing();
-    }, x.prototype.enableBoxzoom = function () {
-      this.isBoxzoomEnabled = !0, this.enableOrDisableBrushing(), this.enableOrDisableZooming();
-    }, x.prototype.disableBoxzoom = function () {
-      this.isBoxzoomEnabled = !1, this.enableOrDisableBrushing(), this.enableOrDisableZooming();
-    }, x.prototype.enableZoom = function () {
-      this.isZoomEnabled = !0, this.enableOrDisableZooming(), this.axes.style("cursor", "move");
-    }, x.prototype.disableZoom = function () {
-      this.isZoomEnabled = !1, this.enableOrDisableZooming(), this.axes.style("cursor", null);
-    }, x.prototype.doZoom = function (t, s, i, o) {
-      if (this.props.zoomable && this.zoom) {
-        if (i) {
-          var e = this.axes.transition().duration(i).call(this.zoom.transform, s);
-          o && e.on("end", o);
-        } else this.axes.call(this.zoom.transform, s);
-
-        t ? (this.lastTransform = s, this.sharex.forEach(function (t) {
-          t.doZoom(!1, s, i);
-        }), this.sharey.forEach(function (t) {
-          t.doZoom(!1, s, i);
-        })) : this.lastTransform = s;
-      }
-    }, x.prototype.zoomed = function () {
-      var s = t.event.sourceEvent && "zoom" != t.event.sourceEvent.type;
-      if (s) this.doZoom(!0, t.event.transform, !1);else {
-        var i = t.event.transform;
-        this.paths.attr("transform", i), this.elements.forEach(function (t) {
-          t.zoomed && t.zoomed(i);
-        }.bind(this));
-      }
-    }, x.prototype.resetBrush = function () {
-      this.brushG.call(this.brush.move, null);
-    }, x.prototype.doBoxzoom = function (s) {
-      if (s && this.brushG) {
-        var i = s.map(this.lastTransform.invert, this.lastTransform),
-            o = i[1][0] - i[0][0],
-            e = i[1][1] - i[0][1],
-            r = (i[0][0] + i[1][0]) / 2,
-            n = (i[0][1] + i[1][1]) / 2,
-            a = o > e ? this.width / o : this.height / e,
-            p = this.width / 2 - a * r,
-            h = this.height / 2 - a * n,
-            l = t.zoomIdentity.translate(p, h).scale(a);
-        this.doZoom(!0, l, 750), this.resetBrush();
-      }
-    }, x.prototype.brushStart = function () {
-      this.isLinkedBrushEnabled && (this.isCurrentLinkedBrushTarget = "MouseEvent" == t.event.sourceEvent.constructor.name, this.isCurrentLinkedBrushTarget && this.fig.resetBrushForOtherAxes(this.axid));
-    }, x.prototype.brushMove = function () {
-      var s = t.event.selection;
-      this.isLinkedBrushEnabled && this.fig.updateLinkedBrush(s);
-    }, x.prototype.brushEnd = function () {
-      var s = t.event.selection;
-      this.isBoxzoomEnabled && this.doBoxzoom(s), this.isLinkedBrushEnabled && (s || this.fig.endLinkedBrush(), this.isCurrentLinkedBrushTarget = !1);
-    }, x.prototype.setTicks = function (t, s, i) {
-      this.axisList.forEach(function (o) {
-        o.props.xy == t && o.setTicks(s, i);
-      });
-    }, M.Toolbar = b, b.prototype = Object.create(F.prototype), b.prototype.constructor = b, b.prototype.defaultProps = {
-      buttons: ["reset", "move"]
-    }, b.prototype.addButton = function (t) {
-      this.buttons.push(new t(this));
-    }, b.prototype.draw = function () {
-      function s() {
-        this.buttonsobj.transition(750).attr("y", 0);
-      }
-
-      function i() {
-        this.buttonsobj.transition(750).delay(250).attr("y", 16);
-      }
-
-      M.insert_css("div#" + this.fig.figid + " .mpld3-toolbar image", {
-        cursor: "pointer",
-        opacity: .2,
-        display: "inline-block",
-        margin: "0px"
-      }), M.insert_css("div#" + this.fig.figid + " .mpld3-toolbar image.active", {
-        opacity: .4
-      }), M.insert_css("div#" + this.fig.figid + " .mpld3-toolbar image.pressed", {
-        opacity: .6
-      }), this.fig.canvas.on("mouseenter", s.bind(this)).on("mouseleave", i.bind(this)).on("touchenter", s.bind(this)).on("touchstart", s.bind(this)), this.toolbar = this.fig.canvas.append("svg:svg").attr("width", 16 * this.buttons.length).attr("height", 16).attr("x", 2).attr("y", this.fig.height - 16 - 2).attr("class", "mpld3-toolbar"), this.buttonsobj = this.toolbar.append("svg:g").selectAll("buttons").data(this.buttons).enter().append("svg:image").attr("class", function (t) {
-        return t.cssclass;
-      }).attr("xlink:href", function (t) {
-        return t.icon();
-      }).attr("width", 16).attr("height", 16).attr("x", function (t, s) {
-        return 16 * s;
-      }).attr("y", 16).on("click", function (t) {
-        t.click();
-      }).on("mouseenter", function () {
-        t.select(this).classed("active", !0);
-      }).on("mouseleave", function () {
-        t.select(this).classed("active", !1);
-      });
-
-      for (var o = 0; o < this.buttons.length; o++) this.buttons[o].onDraw();
-    }, b.prototype.deactivate_all = function () {
-      this.buttons.forEach(function (t) {
-        t.deactivate();
-      });
-    }, b.prototype.deactivate_by_action = function (t) {
-      function s(s) {
-        return -1 !== t.indexOf(s);
-      }
-
-      t.length > 0 && this.buttons.forEach(function (t) {
-        t.actions.filter(s).length > 0 && t.deactivate();
-      });
-    }, M.Button = v, v.prototype = Object.create(F.prototype), v.prototype.constructor = v, v.prototype.setState = function (t) {
-      t ? this.activate() : this.deactivate();
-    }, v.prototype.click = function () {
-      this.active ? this.deactivate() : this.activate();
-    }, v.prototype.activate = function () {
-      this.toolbar.deactivate_by_action(this.actions), this.onActivate(), this.active = !0, this.toolbar.toolbar.select("." + this.cssclass).classed("pressed", !0), this.sticky || this.deactivate();
-    }, v.prototype.deactivate = function () {
-      this.onDeactivate(), this.active = !1, this.toolbar.toolbar.select("." + this.cssclass).classed("pressed", !1);
-    }, v.prototype.sticky = !1, v.prototype.actions = [], v.prototype.icon = function () {
-      return "";
-    }, v.prototype.onActivate = function () {}, v.prototype.onDeactivate = function () {}, v.prototype.onDraw = function () {}, M.ButtonFactory = function (t) {
-      function s(t) {
-        v.call(this, t, this.buttonID);
-      }
-
-      if ("string" != typeof t.buttonID) throw "ButtonFactory: buttonID must be present and be a string";
-      s.prototype = Object.create(v.prototype), s.prototype.constructor = s;
-
-      for (var i in t) s.prototype[i] = t[i];
-
-      return s;
-    }, M.Plugin = A, A.prototype = Object.create(F.prototype), A.prototype.constructor = A, A.prototype.requiredProps = [], A.prototype.defaultProps = {}, A.prototype.draw = function () {}, M.ResetPlugin = k, M.register_plugin("reset", k), k.prototype = Object.create(A.prototype), k.prototype.constructor = k, k.prototype.requiredProps = [], k.prototype.defaultProps = {}, M.ZoomPlugin = w, M.register_plugin("zoom", w), w.prototype = Object.create(A.prototype), w.prototype.constructor = w, w.prototype.requiredProps = [], w.prototype.defaultProps = {
-      button: !0,
-      enabled: null
-    }, w.prototype.activate = function () {
-      this.fig.enableZoom();
-    }, w.prototype.deactivate = function () {
-      this.fig.disableZoom();
-    }, w.prototype.draw = function () {
-      this.props.enabled ? this.activate() : this.deactivate();
-    }, M.BoxZoomPlugin = B, M.register_plugin("boxzoom", B), B.prototype = Object.create(A.prototype), B.prototype.constructor = B, B.prototype.requiredProps = [], B.prototype.defaultProps = {
-      button: !0,
-      enabled: null
-    }, B.prototype.activate = function () {
-      this.fig.enableBoxzoom();
-    }, B.prototype.deactivate = function () {
-      this.fig.disableBoxzoom();
-    }, B.prototype.draw = function () {
-      this.props.enabled ? this.activate() : this.deactivate();
-    }, M.TooltipPlugin = z, M.register_plugin("tooltip", z), z.prototype = Object.create(A.prototype), z.prototype.constructor = z, z.prototype.requiredProps = ["id"], z.prototype.defaultProps = {
-      labels: null,
-      hoffset: 0,
-      voffset: 10,
-      location: "mouse"
-    }, z.prototype.draw = function () {
-      function s(t, s) {
-        this.tooltip.style("visibility", "visible").text(null === r ? "(" + t + ")" : n(r, s));
-      }
-
-      function i(s, i) {
-        if ("mouse" === a) {
-          var o = t.mouse(this.fig.canvas.node());
-          this.x = o[0] + this.props.hoffset, this.y = o[1] - this.props.voffset;
-        }
-
-        this.tooltip.attr("x", this.x).attr("y", this.y);
-      }
-
-      function o(t, s) {
-        this.tooltip.style("visibility", "hidden");
-      }
-
-      var e = M.get_element(this.props.id, this.fig),
-          r = this.props.labels,
-          a = this.props.location;
-      this.tooltip = this.fig.canvas.append("text").attr("class", "mpld3-tooltip-text").attr("x", 0).attr("y", 0).text("").style("visibility", "hidden"), "bottom left" == a || "top left" == a ? (this.x = e.ax.position[0] + 5 + this.props.hoffset, this.tooltip.style("text-anchor", "beginning")) : "bottom right" == a || "top right" == a ? (this.x = e.ax.position[0] + e.ax.width - 5 + this.props.hoffset, this.tooltip.style("text-anchor", "end")) : this.tooltip.style("text-anchor", "middle"), "bottom left" == a || "bottom right" == a ? this.y = e.ax.position[1] + e.ax.height - 5 + this.props.voffset : ("top left" == a || "top right" == a) && (this.y = e.ax.position[1] + 5 + this.props.voffset), e.elements().on("mouseover", s.bind(this)).on("mousemove", i.bind(this)).on("mouseout", o.bind(this));
-    }, M.LinkedBrushPlugin = E, M.register_plugin("linkedbrush", E), E.prototype = Object.create(M.Plugin.prototype), E.prototype.constructor = E, E.prototype.requiredProps = ["id"], E.prototype.defaultProps = {
-      button: !0,
-      enabled: null
-    }, E.prototype.activate = function () {
-      this.fig.enableLinkedBrush();
-    }, E.prototype.deactivate = function () {
-      this.fig.disableLinkedBrush();
-    }, E.prototype.isPathInSelection = function (t, s, i, o) {
-      var e = o[0][0] < t[s] && o[1][0] > t[s] && o[0][1] < t[i] && o[1][1] > t[i];
-      return e;
-    }, E.prototype.invertSelection = function (t, s) {
-      var i = [s.x.invert(t[0][0]), s.x.invert(t[1][0])],
-          o = [s.y.invert(t[1][1]), s.y.invert(t[0][1])];
-      return [[Math.min.apply(Math, i), Math.min.apply(Math, o)], [Math.max.apply(Math, i), Math.max.apply(Math, o)]];
-    }, E.prototype.update = function (t) {
-      t && this.pathCollectionsByAxes.forEach(function (s, i) {
-        var o = s[0],
-            e = this.objectsByAxes[i],
-            r = this.invertSelection(t, this.fig.axes[i]),
-            n = o.props.xindex,
-            a = o.props.yindex;
-        e.selectAll("path").classed("mpld3-hidden", function (t, s) {
-          return !this.isPathInSelection(t, n, a, r);
-        }.bind(this));
-      }.bind(this));
-    }, E.prototype.end = function () {
-      this.allObjects.selectAll("path").classed("mpld3-hidden", !1);
-    }, E.prototype.draw = function () {
-      M.insert_css("#" + this.fig.figid + " path.mpld3-hidden", {
-        stroke: "#ccc !important",
-        fill: "#ccc !important"
-      });
-      var t = M.get_element(this.props.id);
-      if (!t) throw new Error("[LinkedBrush] Could not find path collection");
-      if (!("offsets" in t.props)) throw new Error("[LinkedBrush] Figure is not a scatter plot.");
-      this.objectClass = "mpld3-brushtarget-" + t.props[this.dataKey], this.pathCollectionsByAxes = this.fig.axes.map(function (s) {
-        return s.elements.map(function (s) {
-          return s.props[this.dataKey] == t.props[this.dataKey] ? (s.group.classed(this.objectClass, !0), s) : void 0;
-        }.bind(this)).filter(function (t) {
-          return t;
-        });
-      }.bind(this)), this.objectsByAxes = this.fig.axes.map(function (t) {
-        return t.axes.selectAll("." + this.objectClass);
-      }.bind(this)), this.allObjects = this.fig.canvas.selectAll("." + this.objectClass);
-    }, M.register_plugin("mouseposition", P), P.prototype = Object.create(M.Plugin.prototype), P.prototype.constructor = P, P.prototype.requiredProps = [], P.prototype.defaultProps = {
-      fontsize: 12,
-      fmt: ".3g"
-    }, P.prototype.draw = function () {
-      for (var s = this.fig, i = t.format(this.props.fmt), o = s.canvas.append("text").attr("class", "mpld3-coordinates").style("text-anchor", "end").style("font-size", this.props.fontsize).attr("x", this.fig.width - 5).attr("y", this.fig.height - 5), e = 0; e < this.fig.axes.length; e++) {
-        var r = function () {
-          var r = s.axes[e];
-          return function () {
-            var s = t.mouse(this),
-                e = r.x.invert(s[0]),
-                n = r.y.invert(s[1]);
-            o.text("(" + i(e) + ", " + i(n) + ")");
-          };
-        }();
-
-        s.axes[e].baseaxes.on("mousemove", r).on("mouseout", function () {
-          o.text("");
-        });
-      }
-    }, M.Figure = O, O.prototype = Object.create(F.prototype), O.prototype.constructor = O, O.prototype.requiredProps = ["width", "height"], O.prototype.defaultProps = {
-      data: {},
-      axes: [],
-      plugins: [{
-        type: "reset"
-      }, {
-        type: "zoom"
-      }, {
-        type: "boxzoom"
-      }]
-    }, O.prototype.addPlugin = function (t) {
-      if (!t.type) return console.warn("unspecified plugin type. Skipping this");
-      var i;
-      if (!(t.type in M.plugin_map)) return console.warn("Skipping unrecognized plugin: " + i);
-      i = M.plugin_map[t.type], (t.clear_toolbar || t.buttons) && console.warn("DEPRECATION WARNING: You are using pluginInfo.clear_toolbar or pluginInfo, which have been deprecated. Please see the build-in plugins for the new method to add buttons, otherwise contact the mpld3 maintainers.");
-      var o = s(t);
-      delete o.type;
-      var e = new i(this, o);
-      this.plugins.push(e), this.pluginsByType[t.type] = e;
-    }, O.prototype.draw = function () {
-      M.insert_css("div#" + this.figid, {
-        "font-family": "Helvetica, sans-serif"
-      }), this.canvas = this.root.append("svg:svg").attr("class", "mpld3-figure").attr("width", this.width).attr("height", this.height);
-
-      for (var t = 0; t < this.axes.length; t++) this.axes[t].draw();
-
-      this.disableZoom();
-
-      for (var t = 0; t < this.plugins.length; t++) this.plugins[t].draw();
-
-      this.toolbar.draw();
-    }, O.prototype.resetBrushForOtherAxes = function (t) {
-      this.axes.forEach(function (s) {
-        s.axid != t && s.resetBrush();
-      });
-    }, O.prototype.updateLinkedBrush = function (t) {
-      this.pluginsByType.linkedbrush && this.pluginsByType.linkedbrush.update(t);
-    }, O.prototype.endLinkedBrush = function () {
-      this.pluginsByType.linkedbrush && this.pluginsByType.linkedbrush.end();
-    }, O.prototype.reset = function (t) {
-      this.axes.forEach(function (t) {
-        t.reset();
-      });
-    }, O.prototype.enableLinkedBrush = function () {
-      this.axes.forEach(function (t) {
-        t.enableLinkedBrush();
-      });
-    }, O.prototype.disableLinkedBrush = function () {
-      this.axes.forEach(function (t) {
-        t.disableLinkedBrush();
-      });
-    }, O.prototype.enableBoxzoom = function () {
-      this.axes.forEach(function (t) {
-        t.enableBoxzoom();
-      });
-    }, O.prototype.disableBoxzoom = function () {
-      this.axes.forEach(function (t) {
-        t.disableBoxzoom();
-      });
-    }, O.prototype.enableZoom = function () {
-      this.axes.forEach(function (t) {
-        t.enableZoom();
-      });
-    }, O.prototype.disableZoom = function () {
-      this.axes.forEach(function (t) {
-        t.disableZoom();
-      });
-    }, O.prototype.toggleZoom = function () {
-      this.isZoomEnabled ? this.disableZoom() : this.enableZoom();
-    }, O.prototype.setTicks = function (t, s, i) {
-      this.axes.forEach(function (o) {
-        o.setTicks(t, s, i);
-      });
-    }, O.prototype.setXTicks = function (t, s) {
-      this.setTicks("x", t, s);
-    }, O.prototype.setYTicks = function (t, s) {
-      this.setTicks("y", t, s);
-    }, O.prototype.get_data = function (t) {
-      return null === t || "undefined" == typeof t ? null : "string" == typeof t ? this.data[t] : t;
-    }, M.PlotElement = F, F.prototype.requiredProps = [], F.prototype.defaultProps = {}, F.prototype.processProps = function (t) {
-      t = s(t);
-      var i = {},
-          o = this.name();
-      this.requiredProps.forEach(function (s) {
-        if (!(s in t)) throw "property '" + s + "' must be specified for " + o;
-        i[s] = t[s], delete t[s];
-      });
-
-      for (var e in this.defaultProps) e in t ? (i[e] = t[e], delete t[e]) : i[e] = this.defaultProps[e];
-
-      "id" in t ? (i.id = t.id, delete t.id) : "id" in i || (i.id = M.generateId());
-
-      for (var e in t) console.warn("Unrecognized property '" + e + "' for object " + this.name() + " (value = " + t[e] + ").");
-
-      return i;
-    }, F.prototype.name = function () {
-      var t = /function (.{1,})\(/,
-          s = t.exec(this.constructor.toString());
-      return s && s.length > 1 ? s[1] : "";
-    }, module.exports ? module.exports = M : this.mpld3 = M, console.log("Loaded mpld3 version " + M.version);
-  }(d3);
-  });
-
-  /*
-   * Graphing functions (shared between calibration, scenarios, and optimization)
-   */
-
-  function getPlotOptions(vm, project_id) {
-    return new Promise((resolve, reject) => {
-      console.log('getPlotOptions() called');
-      status.start(vm); // Start indicating progress.
-
-      rpcs.rpc('get_supported_plots', [project_id, true]).then(response => {
-        vm.plotOptions = response.data; // Get the parameter values
-
-        status.succeed(vm, '');
-        resolve(response);
-      }).catch(error => {
-        status.fail(vm, 'Could not get plot options', error);
-        reject(error);
-      });
-    });
-  }
-
-  function togglePlotControls(vm) {
-    vm.showPlotControls = !vm.showPlotControls;
-  }
-
-  function placeholders(vm, startVal) {
-    let indices = [];
-
-    if (!startVal) {
-      startVal = 0;
-    }
-
-    for (let i = startVal; i <= 100; i++) {
-      indices.push(i);
-      vm.showGraphDivs.push(false);
-      vm.showLegendDivs.push(false);
-    }
-
-    return indices;
-  }
-
-  function clearGraphs(vm) {
-    for (let index = 0; index <= 100; index++) {
-      let divlabel = 'fig' + index;
-      let div = document.getElementById(divlabel); // CK: Not sure if this is necessary? To ensure the div is clear first
-
-      while (div && div.firstChild) {
-        div.removeChild(div.firstChild);
-      }
-
-      vm.hasGraphs = false;
-    }
-  }
-
-  function makeGraphs(vm, data, routepath) {
-    if (routepath && routepath !== vm.$route.path) {
-      // Don't render graphs if we've changed page
-      console.log('Not rendering graphs since route changed: ' + routepath + ' vs. ' + vm.$route.path);
-    } else {
-      // Proceed...
-      let waitingtime = 0.5;
-      var graphdata = data.graphs; // var legenddata = data.legends
-
-      status.start(vm); // Start indicating progress.
-
-      vm.hasGraphs = true;
-      utils$2.sleep(waitingtime * 1000).then(response => {
-        let n_plots = graphdata.length; // let n_legends = legenddata.length
-
-        console.log('Rendering ' + n_plots + ' graphs'); // if (n_plots !== n_legends) {
-        //   console.log('WARNING: different numbers of plots and legends: ' + n_plots + ' vs. ' + n_legends)
-        // }
-
-        for (var index = 0; index <= n_plots; index++) {
-          console.log('Rendering plot ' + index);
-          var figlabel = 'fig' + index;
-          var figdiv = document.getElementById(figlabel); // CK: Not sure if this is necessary? To ensure the div is clear first
-
-          if (figdiv) {
-            while (figdiv.firstChild) {
-              figdiv.removeChild(figdiv.firstChild);
-            }
-          } else {
-            console.log('WARNING: figdiv not found: ' + figlabel);
-          } // Show figure containers
-
-
-          if (index >= 1 && index < n_plots) {
-            var figcontainerlabel = 'figcontainer' + index;
-            var figcontainerdiv = document.getElementById(figcontainerlabel); // CK: Not sure if this is necessary? To ensure the div is clear first
-
-            if (figcontainerdiv) {
-              figcontainerdiv.style.display = 'flex';
-            } else {
-              console.log('WARNING: figcontainerdiv not found: ' + figcontainerlabel);
-            } // var legendlabel = 'legend' + index
-            // var legenddiv  = document.getElementById(legendlabel);
-            // if (legenddiv) {
-            //   while (legenddiv.firstChild) {
-            //     legenddiv.removeChild(legenddiv.firstChild);
-            //   }
-            // } else {
-            //   console.log('WARNING: legenddiv not found: ' + legendlabel)
-            // }
-
-          } // Draw figures
-
-
-          try {
-            mpld3.draw_figure(figlabel, graphdata[index], function (fig, element) {
-              fig.setXTicks(6, function (d) {
-                return d3.format('.0f')(d);
-              }); // fig.setYTicks(null, function (d) { // Looks too weird with 500m for 0.5
-              //   return d3.format('.2s')(d);
-              // });
-            });
-          } catch (error) {
-            console.log('Could not plot graph: ' + error.message);
-          } // Draw legends
-          // if (index>=1 && index<n_plots) {
-          //   try {
-          //     mpld3.draw_figure(legendlabel, legenddata[index], function (fig, element) {
-          //     });
-          //   } catch (error) {
-          //     console.log(error)
-          //   }
-          //
-          // }
-
-
-          vm.showGraphDivs[index] = true;
-        }
-
-        status.succeed(vm, 'Graphs created'); // CK: This should be a promise, otherwise this appears before the graphs do
-      });
-    }
-  }
-
-  function reloadGraphs(vm, project_id, cache_id, showNoCacheError, iscalibration, plotbudget) {
-    console.log('reloadGraphs() called');
-    utils$2.validateYears(vm); // Make sure the start end years are in the right range.
-
-    status.start(vm);
-    rpcs.rpc('plot_results', [project_id, cache_id, vm.plotOptions], {
-      tool: vm.$globaltool,
-      'cascade': null,
-      plotyear: vm.endYear,
-      pops: vm.activePop,
-      calibration: iscalibration,
-      plotbudget: plotbudget
-    }).then(response => {
-      vm.table = response.data.table;
-      vm.makeGraphs(response.data);
-      status.succeed(vm, 'Data loaded, graphs now rendering...');
-    }).catch(error => {
-      if (showNoCacheError) {
-        status.fail(vm, 'Could not make graphs', error);
-      } else {
-        status.succeed(vm, ''); // Silently stop progress bar and spinner.
-      }
-    });
-  } //
-  // Graphs DOM functions
-  //
-
-
-  function showBrowserWindowSize() {
-    let w = window.innerWidth;
-    let h = window.innerHeight;
-    let ow = window.outerWidth; //including toolbars and status bar etc.
-
-    let oh = window.outerHeight;
-    console.log('Browser window size:');
-    console.log(w, h, ow, oh);
-  }
-
-  function scaleElem(svg, frac) {
-    // It might ultimately be better to redraw the graph, but this works
-    let width = svg.getAttribute("width");
-    let height = svg.getAttribute("height");
-    let viewBox = svg.getAttribute("viewBox");
-
-    if (!viewBox) {
-      svg.setAttribute("viewBox", '0 0 ' + width + ' ' + height);
-    } // if this causes the image to look weird, you may want to look at "preserveAspectRatio" attribute
-
-
-    svg.setAttribute("width", width * frac);
-    svg.setAttribute("height", height * frac);
-  }
-
-  function scaleFigs(vm, frac) {
-    vm.figscale = vm.figscale * frac;
-
-    if (frac === 1.0) {
-      frac = 1.0 / vm.figscale;
-      vm.figscale = 1.0;
-    }
-
-    let graphs = window.top.document.querySelectorAll('svg.mpld3-figure');
-
-    for (let g = 0; g < graphs.length; g++) {
-      scaleElem(graphs[g], frac);
-    }
-  } //
-  // Legend functions
-  // 
-
-
-  function addListener(vm) {
-    document.addEventListener('mousemove', function (e) {
-      onMouseUpdate(e, vm);
-    }, false);
-  }
-
-  function onMouseUpdate(e, vm) {
-    vm.mousex = e.pageX;
-    vm.mousey = e.pageY; // console.log(vm.mousex, vm.mousey)
-  }
-
-  function createDialogs(vm) {
-    let vals = placeholders(vm);
-
-    for (let val in vals) {
-      newDialog(vm, val, 'Dialog ' + val, 'Placeholder content ' + val);
-    }
-  } // Create a new dialog
-
-
-  function newDialog(vm, id, name, content) {
-    let options = {
-      left: 123 + Number(id),
-      top: 123
-    };
-    let style = {
-      options: options
-    };
-    let properties = {
-      id,
-      name,
-      content,
-      style,
-      options
-    };
-    return vm.openDialogs.push(properties);
-  }
-
-  function findDialog(vm, id, dialogs) {
-    console.log('looking');
-    let index = dialogs.findIndex(val => {
-      return String(val.id) === String(id); // Force type conversion
-    });
-    return index > -1 ? index : null;
-  } // "Show" the dialog
-
-
-  function maximize(vm, id) {
-    let index = Number(id);
-    let DDlabel = 'DD' + id; // DD for dialog-drag
-
-    let DDdiv = document.getElementById(DDlabel);
-
-    if (DDdiv) {
-      DDdiv.style.left = String(vm.mousex - 80) + 'px';
-      DDdiv.style.top = String(vm.mousey - 300) + 'px';
-    } else {
-      console.log('WARNING: DDdiv not found: ' + DDlabel);
-    }
-
-    if (index !== null) {
-      vm.openDialogs[index].options.left = vm.mousex - 80; // Before opening, move it to where the mouse currently is
-
-      vm.openDialogs[index].options.top = vm.mousey - 300;
-    }
-
-    vm.showLegendDivs[index] = true; // Not really used, but here for completeness
-
-    let containerlabel = 'legendcontainer' + id;
-    let containerdiv = document.getElementById(containerlabel);
-
-    if (containerdiv) {
-      containerdiv.style.display = 'inline-block'; // Ensure they're invisible
-    } else {
-      console.log('WARNING: containerdiv not found: ' + containerlabel);
-    }
-  } // "Hide" the dialog
-
-
-  function minimize(vm, id) {
-    let index = Number(id);
-    vm.showLegendDivs[index] = false;
-    let containerlabel = 'legendcontainer' + id;
-    let containerdiv = document.getElementById(containerlabel);
-
-    if (containerdiv) {
-      containerdiv.style.display = 'none'; // Ensure they're invisible
-    } else {
-      console.log('WARNING: containerdiv not found: ' + containerlabel);
-    }
-  }
-
-  var graphs = {
-    placeholders,
-    clearGraphs,
-    getPlotOptions,
-    togglePlotControls,
-    makeGraphs,
-    reloadGraphs,
-    scaleFigs,
-    showBrowserWindowSize,
-    addListener,
-    onMouseUpdate,
-    createDialogs,
-    newDialog,
-    findDialog,
-    maximize,
-    minimize,
-    mpld3
-  };
-
-  // task-service.js -- task queuing functions for Vue to call
-  // sec.), and a remote task function name and its args, try to launch 
-  // the task, then wait for the waiting time, then try to get the 
-  // result.
-
-  function getTaskResultWaiting(task_id, waitingtime, func_name, args, kwargs) {
-    if (!args) {
-      // Set the arguments to an empty list if none are passed in.
-      args = [];
-    }
-
-    return new Promise((resolve, reject) => {
-      rpcs.rpc('launch_task', [task_id, func_name, args, kwargs]) // Launch the task.
-      .then(response => {
-        utils$2.sleep(waitingtime * 1000) // Sleep waitingtime seconds.
-        .then(response2 => {
-          rpcs.rpc('get_task_result', [task_id]) // Get the result of the task.
-          .then(response3 => {
-            rpcs.rpc('delete_task', [task_id]); // Clean up the task_id task.
-
-            resolve(response3); // Signal success with the result response.
-          }).catch(error => {
-            // While we might want to clean up the task as below, the Celery
-            // worker is likely to "resurrect" the task if it actually is
-            // running the task to completion.
-            // Clean up the task_id task.
-            // rpcCall('delete_task', [task_id])
-            reject(error); // Reject with the error the task result get attempt gave.
-          });
-        });
-      }).catch(error => {
-        reject(error); // Reject with the error the launch gave.
-      });
-    });
-  } // getTaskResultPolling() -- given a task_id string, a timeout time (in 
-  // sec.), a polling interval (also in sec.), and a remote task function name
-  //  and its args, try to launch the task, then start the polling if this is 
-  // successful, returning the ultimate results of the polling process. 
-
-
-  function getTaskResultPolling(task_id, timeout, pollinterval, func_name, args, kwargs) {
-    if (!args) {
-      // Set the arguments to an empty list if none are passed in.
-      args = [];
-    }
-
-    return new Promise((resolve, reject) => {
-      rpcs.rpc('launch_task', [task_id, func_name, args, kwargs]) // Launch the task.
-      .then(response => {
-        pollStep(task_id, timeout, pollinterval, 0) // Do the whole sequence of polling steps, starting with the first (recursive) call.
-        .then(response2 => {
-          resolve(response2); // Resolve with the final polling result.
-        }).catch(error => {
-          reject(error); // Reject with the error the polling gave.
-        });
-      }).catch(error => {
-        reject(error); // Reject with the error the launch gave.
-      });
-    });
-  } // pollStep() -- A polling step for getTaskResultPolling().  Uses the task_id, 
-  // a timeout value (in sec.) a poll interval (in sec.) and the time elapsed 
-  // since the start of the entire polling process.  If timeout is zero or 
-  // negative, no timeout check is applied.  Otherwise, an error will be 
-  // returned if the polling has gone on beyond the timeout period.  Otherwise, 
-  // this function does a sleep() and then a check_task().  If the task is 
-  // completed, it will get the result.  Otherwise, it will recursively spawn 
-  // another pollStep().
-
-
-  function pollStep(task_id, timeout, pollinterval, elapsedtime) {
-    return new Promise((resolve, reject) => {
-      if (elapsedtime > timeout && timeout > 0) {
-        // Check to see if the elapsed time is longer than the timeout (and we have a timeout we actually want to check against) and if so, fail.
-        reject(Error('Task polling timed out'));
-      } else {
-        // Otherwise, we've not run out of time yet, so do a polling step.
-        utils$2.sleep(pollinterval * 1000) // Sleep timeout seconds.
-        .then(response => {
-          rpcs.rpc('check_task', [task_id]) // Check the status of the task.
-          .then(response2 => {
-            if (response2.data.task.status == 'completed') {
-              // If the task is completed...
-              rpcs.rpc('get_task_result', [task_id]) // Get the result of the task.
-              .then(response3 => {
-                rpcs.rpc('delete_task', [task_id]); // Clean up the task_id task.
-
-                resolve(response3); // Signal success with the response.
-              }).catch(error => {
-                reject(error); // Reject with the error the task result get attempt gave.
-              });
-            } else if (response2.data.task.status == 'error') {
-              // Otherwise, if the task ended in an error...
-              reject(Error(response2.data.task.errorText)); // Reject with an error for the exception.
-            } else {
-              // Otherwise, do another poll step, passing in an incremented elapsed time.
-              pollStep(task_id, timeout, pollinterval, elapsedtime + pollinterval).then(response3 => {
-                resolve(response3); // Resolve with the result of the next polling step (which may include subsequent (recursive) steps.
-              });
-            }
-          });
-        });
-      }
-    });
-  }
-
-  var tasks = {
-    getTaskResultWaiting,
-    getTaskResultPolling
-  };
-
-  // loginCall() -- Call rpc() for performing a login.
-
-  function loginCall(username, password) {
-    // Get a hex version of a hashed password using the SHA224 algorithm.
-    var hashPassword = sha224(password).toString(); // Make the actual RPC call.
-
-    return rpcs.rpc('user_login', [username, hashPassword]);
-  } // logoutCall() -- Call rpc() for performing a logout.
-
-
-  function logoutCall() {
-    // Make the actual RPC call.
-    return rpcs.rpc('user_logout');
-  } // getCurrentUserInfo() -- Call rpc() for reading the currently
-  // logged in user.
-
-
-  function getCurrentUserInfo() {
-    // Make the actual RPC call.
-    return rpcs.rpc('get_current_user_info');
-  } // registerUser() -- Call rpc() for registering a new user.
-
-
-  function registerUser(username, password, displayname, email) {
-    // Get a hex version of a hashed password using the SHA224 algorithm.
-    var hashPassword = sha224(password).toString(); // Make the actual RPC call.
-
-    return rpcs.rpc('user_register', [username, hashPassword, displayname, email]);
-  } // changeUserInfo() -- Call rpc() for changing a user's info.
-
-
-  function changeUserInfo(username, password, displayname, email) {
-    // Get a hex version of a hashed password using the SHA224 algorithm.
-    var hashPassword = sha224(password).toString(); // Make the actual RPC call.
-
-    return rpcs.rpc('user_change_info', [username, hashPassword, displayname, email]);
-  } // changeUserPassword() -- Call rpc() for changing a user's password.
-
-
-  function changeUserPassword(oldpassword, newpassword) {
-    // Get a hex version of the hashed passwords using the SHA224 algorithm.
-    var hashOldPassword = sha224(oldpassword).toString();
-    var hashNewPassword = sha224(newpassword).toString(); // Make the actual RPC call.
-
-    return rpcs.rpc('user_change_password', [hashOldPassword, hashNewPassword]);
-  } // adminGetUserInfo() -- Call rpc() for getting user information at the admin level.
-
-
-  function adminGetUserInfo(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_get_user_info', [username]);
-  } // deleteUser() -- Call rpc() for deleting a user.
-
-
-  function deleteUser(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_delete_user', [username]);
-  } // activateUserAccount() -- Call rpc() for activating a user account.
-
-
-  function activateUserAccount(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_activate_account', [username]);
-  } // deactivateUserAccount() -- Call rpc() for deactivating a user account.
-
-
-  function deactivateUserAccount(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_deactivate_account', [username]);
-  } // grantUserAdminRights() -- Call rpc() for granting a user admin rights.
-
-
-  function grantUserAdminRights(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_grant_admin', [username]);
-  } // revokeUserAdminRights() -- Call rpc() for revoking user admin rights.
-
-
-  function revokeUserAdminRights(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_revoke_admin', [username]);
-  } // resetUserPassword() -- Call rpc() for resetting a user's password.
-
-
-  function resetUserPassword(username) {
-    // Make the actual RPC call.
-    return rpcs.rpc('admin_reset_password', [username]);
-  } // Higher level user functions that call the lower level ones above
-
-
-  function getUserInfo(store) {
-    // Do the actual RPC call.
-    getCurrentUserInfo().then(response => {
-      // Set the username to what the server indicates.
-      store.commit('newUser', response.data.user);
-    }).catch(error => {
-      // Set the username to {}.  An error probably means the
-      // user is not logged in.
-      store.commit('newUser', {});
-    });
-  }
-
-  function checkLoggedIn() {
-    if (this.currentUser.displayname === undefined) return false;else return true;
-  }
-
-  function checkAdminLoggedIn() {
-    console.log(this);
-
-    if (this.checkLoggedIn()) {
-      return this.currentUser.admin;
-    }
-  }
-
-  var user = {
-    loginCall,
-    logoutCall,
-    getCurrentUserInfo,
-    registerUser,
-    changeUserInfo,
-    changeUserPassword,
-    adminGetUserInfo,
-    deleteUser,
-    activateUserAccount,
-    deactivateUserAccount,
-    grantUserAdminRights,
-    revokeUserAdminRights,
-    resetUserPassword,
-    getUserInfo,
-    checkLoggedIn,
-    checkAdminLoggedIn
-  };
-
-  /*
-   * Heftier functions that are shared across pages
-   */
-
-  function updateSets(vm) {
-    return new Promise((resolve, reject) => {
-      console.log('updateSets() called');
-      rpcs.rpc('get_parset_info', [vm.projectID]) // Get the current user's parsets from the server.
-      .then(response => {
-        vm.parsetOptions = response.data; // Set the scenarios to what we received.
-
-        if (vm.parsetOptions.indexOf(vm.activeParset) === -1) {
-          console.log('Parameter set ' + vm.activeParset + ' no longer found');
-          vm.activeParset = vm.parsetOptions[0]; // If the active parset no longer exists in the array, reset it
-        } else {
-          console.log('Parameter set ' + vm.activeParset + ' still found');
-        }
-
-        vm.newParsetName = vm.activeParset; // WARNING, KLUDGY
-
-        console.log('Parset options: ' + vm.parsetOptions);
-        console.log('Active parset: ' + vm.activeParset);
-        rpcs.rpc('get_progset_info', [vm.projectID]) // Get the current user's progsets from the server.
-        .then(response => {
-          vm.progsetOptions = response.data; // Set the scenarios to what we received.
-
-          if (vm.progsetOptions.indexOf(vm.activeProgset) === -1) {
-            console.log('Program set ' + vm.activeProgset + ' no longer found');
-            vm.activeProgset = vm.progsetOptions[0]; // If the active parset no longer exists in the array, reset it
-          } else {
-            console.log('Program set ' + vm.activeProgset + ' still found');
-          }
-
-          vm.newProgsetName = vm.activeProgset; // WARNING, KLUDGY
-
-          console.log('Progset options: ' + vm.progsetOptions);
-          console.log('Active progset: ' + vm.activeProgset);
-          resolve(response);
-        }).catch(error => {
-          status.fail(this, 'Could not get progset info', error);
-          reject(error);
-        });
-      }).catch(error => {
-        status.fail(this, 'Could not get parset info', error);
-        reject(error);
-      });
-    }).catch(error => {
-      status.fail(this, 'Could not get parset info', error);
-      reject(error);
-    });
-  }
-
-  function exportGraphs(vm) {
-    return new Promise((resolve, reject) => {
-      console.log('exportGraphs() called');
-      rpcs.download('download_graphs', [vm.$store.state.currentUser.username]).then(response => {
-        resolve(response);
-      }).catch(error => {
-        status.fail(vm, 'Could not download graphs', error);
-        reject(error);
-      });
-    });
-  }
-
-  function exportResults(vm, serverDatastoreId) {
-    return new Promise((resolve, reject) => {
-      console.log('exportResults()');
-      rpcs.download('export_results', [serverDatastoreId, vm.$store.state.currentUser.username]).then(response => {
-        resolve(response);
-      }).catch(error => {
-        status.fail(vm, 'Could not export results', error);
-        reject(error);
-      });
-    });
-  }
-
-  function updateDatasets(vm) {
-    return new Promise((resolve, reject) => {
-      console.log('updateDatasets() called');
-      rpcs.rpc('get_dataset_keys', [vm.projectID]) // Get the current user's datasets from the server.
-      .then(response => {
-        vm.datasetOptions = response.data; // Set the scenarios to what we received.
-
-        if (vm.datasetOptions.indexOf(vm.activeDataset) === -1) {
-          console.log('Dataset ' + vm.activeDataset + ' no longer found');
-          vm.activeDataset = vm.datasetOptions[0]; // If the active dataset no longer exists in the array, reset it
-        } else {
-          console.log('Dataset ' + vm.activeDataset + ' still found');
-        }
-
-        vm.newDatsetName = vm.activeDataset; // WARNING, KLUDGY
-
-        console.log('Datset options: ' + vm.datasetOptions);
-        console.log('Active dataset: ' + vm.activeDataset);
-      }).catch(error => {
-        status.fail(this, 'Could not get dataset info', error);
-        reject(error);
-      });
-    });
-  }
-
-  var shared = {
-    updateSets,
-    updateDatasets,
-    exportGraphs,
-    exportResults
-  };
-
-  //
-  var script$k = {
-    name: 'PopupSpinner',
-    components: {
-      FulfillingBouncingCircleSpinner
-    },
-    props: {
-      loading: {
-        type: Boolean,
-        default: true
-      },
-      title: {
-        type: String,
-        default: ''
-      },
-      hasCancelButton: {
-        type: Boolean,
-        default: false
-      },
-      color: {
-        type: String,
-        default: '#0000ff'
-      },
-      size: {
-        type: String,
-        default: '50px'
-      },
-      margin: {
-        type: String,
-        default: '2px'
-      },
-      padding: {
-        type: String,
-        default: '15px'
-      },
-      radius: {
-        type: String,
-        default: '100%'
-      }
-    },
-
-    data() {
-      return {
-        titleStyle: {
-          textAlign: 'center'
-        },
-        cancelButtonStyle: {
-          padding: '2px'
-        },
-        opened: false
-      };
-    },
-
-    beforeMount() {
-      // Create listener for start event.
-      EventBus.$on('spinner:start', () => {
-        this.show();
-      }); // Create listener for stop event.
-
-      EventBus.$on('spinner:stop', () => {
-        this.hide();
-      });
-    },
-
-    computed: {
-      spinnerSize() {
-        return parseFloat(this.size) - 25;
-      },
-
-      modalHeight() {
-        // Start with the height of the spinner wrapper.
-        let fullHeight = parseFloat(this.size) + 2 * parseFloat(this.padding); // If there is a title there, add space for the text.
-
-        if (this.title !== '') {
-          fullHeight = fullHeight + 20 + parseFloat(this.padding);
-        } // If there is a cancel button there, add space for it.
-
-
-        if (this.hasCancelButton) {
-          fullHeight = fullHeight + 20 + parseFloat(this.padding);
-        }
-
-        return fullHeight + 'px';
-      },
-
-      modalWidth() {
-        return parseFloat(this.size) + 2 * parseFloat(this.padding) + 'px';
-      }
-
-    },
-    methods: {
-      beforeOpen() {
-        window.addEventListener('keyup', this.onKey);
-        this.opened = true;
-      },
-
-      beforeClose() {
-        window.removeEventListener('keyup', this.onKey);
-        this.opened = false;
-      },
-
-      onKey(event) {
-        if (event.keyCode == 27) {
-          console.log('Exited spinner through Esc key');
-          this.cancel();
-        }
-      },
-
-      cancel() {
-        this.$emit('spinner-cancel');
-        this.hide();
-      },
-
-      show() {
-        this.$modal.show('popup-spinner'); // Bring up the spinner modal.
-      },
-
-      hide() {
-        this.$modal.hide('popup-spinner'); // Dispel the spinner modal.
-      }
-
-    }
-  };
-
-  /* script */
-              const __vue_script__$k = script$k;
-              
-  /* template */
-  var __vue_render__$k = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('modal',{staticStyle:{"opacity":"1.0"},attrs:{"name":"popup-spinner","height":_vm.modalHeight,"width":_vm.modalWidth,"click-to-close":false},on:{"before-open":_vm.beforeOpen,"before-close":_vm.beforeClose}},[_c('div',{staticClass:"overlay-box"},[_c('div',{staticClass:"loader-box"},[_c('fulfilling-bouncing-circle-spinner',{attrs:{"color":_vm.color,"size":_vm.spinnerSize,"animation-duration":2000}})],1),_vm._v(" "),(_vm.title !== '')?_c('div',{style:(_vm.titleStyle)},[_vm._v("\n      "+_vm._s(_vm.title)+"\n    ")]):_vm._e(),_vm._v(" "),(_vm.hasCancelButton)?_c('div',{staticStyle:{"padding":"13px"}},[_c('button',{style:(_vm.cancelButtonStyle),on:{"click":_vm.cancel}},[_vm._v("Cancel")])]):_vm._e()])])};
-  var __vue_staticRenderFns__$k = [];
-
-    /* style */
-    const __vue_inject_styles__$k = function (inject) {
-      if (!inject) return
-      inject("data-v-3bb427d4_0", { source: ".loader-box[data-v-3bb427d4]{display:flex;justify-content:center}.overlay-box[data-v-3bb427d4]{display:flex;flex-direction:column;height:100%;justify-content:space-evenly}", map: undefined, media: undefined });
-
-    };
-    /* scoped */
-    const __vue_scope_id__$k = "data-v-3bb427d4";
-    /* module identifier */
-    const __vue_module_identifier__$k = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$k = false;
-    /* style inject SSR */
-    
-
-    
-    var PopupSpinner = normalizeComponent(
-      { render: __vue_render__$k, staticRenderFns: __vue_staticRenderFns__$k },
-      __vue_inject_styles__$k,
-      __vue_script__$k,
-      __vue_scope_id__$k,
-      __vue_is_functional_template__$k,
-      __vue_module_identifier__$k,
-      createInjector,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  var script$1$1 = {
-    name: 'notification',
-    props: {
-      message: String,
-      icon: {
-        type: String,
-        default: 'ti-info-alt'
-      },
-      verticalAlign: {
-        type: String,
-        default: 'top'
-      },
-      horizontalAlign: {
-        type: String,
-        default: 'right'
-      },
-      type: {
-        type: String,
-        default: 'info'
-      },
-      timeout: {
-        type: Number,
-        default: 2000
-      },
-      timestamp: {
-        type: Date,
-        default: () => new Date()
-      }
-    },
-
-    data() {
-      return {};
-    },
-
-    computed: {
-      hasIcon() {
-        return this.icon && this.icon.length > 0;
-      },
-
-      alertType() {
-        return `alert-${this.type}`;
-      },
-
-      customPosition() {
-        let initialMargin = 20;
-        let alertHeight = 60;
-        let sameAlertsCount = this.$notifications.state.filter(alert => {
-          return alert.horizontalAlign === this.horizontalAlign && alert.verticalAlign === this.verticalAlign;
-        }).length;
-        let pixels = (sameAlertsCount - 1) * alertHeight + initialMargin;
-        let styles = {};
-
-        if (this.verticalAlign === 'top') {
-          styles.top = `${pixels}px`;
-        } else {
-          styles.bottom = `${pixels}px`;
-        }
-
-        return styles;
-      }
-
-    },
-    methods: {
-      close() {
-        this.$parent.$emit('on-close', this.timestamp);
-      }
-
-    },
-
-    mounted() {
-      if (this.timeout) {
-        setTimeout(this.close, this.timeout);
-      }
-    }
-
-  };
-
-  /* script */
-              const __vue_script__$1$1 = script$1$1;
-              
-  /* template */
-  var __vue_render__$1$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"alert open alert-with-icon",class:[_vm.verticalAlign, _vm.horizontalAlign, _vm.alertType],style:(_vm.customPosition),attrs:{"role":"alert","data-notify":"container","data-notify-position":"top-center"}},[_c('div',{staticClass:"notification-box"},[_c('div',[_c('span',{staticClass:"alert-icon",class:_vm.icon,attrs:{"data-notify":"message"}})]),_vm._v(" "),_c('div',{staticClass:"message-box"},[_c('div',{staticClass:"message",attrs:{"data-notify":"message"},domProps:{"innerHTML":_vm._s(_vm.message)}})]),_vm._v(" "),_c('div',[_c('button',{staticClass:"btn__trans close-button",attrs:{"aria-hidden":"true","data-notify":"dismiss"},on:{"click":_vm.close}},[_c('i',{staticClass:"ti-close"})])])])])};
-  var __vue_staticRenderFns__$1$1 = [];
-
-    /* style */
-    const __vue_inject_styles__$1$1 = function (inject) {
-      if (!inject) return
-      inject("data-v-61be677e_0", { source: "@import url(https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css);", map: undefined, media: undefined })
-  ,inject("data-v-61be677e_1", { source: ".fade-enter-active[data-v-61be677e],.fade-leave-active[data-v-61be677e]{transition:opacity .3s}.fade-enter[data-v-61be677e],.fade-leave-to[data-v-61be677e]{opacity:0}.close-button[data-v-61be677e],.close-button[data-v-61be677e]:hover{background:0 0;line-height:0;padding:5px 5px;margin-left:10px;border-radius:3px}.close-button[data-v-61be677e]:hover{background:#ffffff63;color:#737373}.alert[data-v-61be677e]{border:0;border-radius:0;color:#fff;padding:20px 15px;font-size:14px;z-index:100;display:inline-block;position:fixed;transition:all .5s ease-in-out}.container .alert[data-v-61be677e]{border-radius:4px}.alert.center[data-v-61be677e]{left:0;right:0;margin:0 auto}.alert.left[data-v-61be677e]{left:20px}.alert.right[data-v-61be677e]{right:20px}.container .alert[data-v-61be677e]{border-radius:0}.alert .alert-icon[data-v-61be677e]{font-size:30px;margin-right:5px}.alert .close~span[data-v-61be677e]{display:inline-block;max-width:89%}.alert[data-notify=container][data-v-61be677e]{padding:0;border-radius:2px}.alert span[data-notify=icon][data-v-61be677e]{font-size:30px;display:block;left:15px;position:absolute;top:50%;margin-top:-20px}.alert-info[data-v-61be677e]{background-color:#7ce4fe;color:#3091b2}.alert-success[data-v-61be677e]{background-color:#080;color:#fff}.alert-warning[data-v-61be677e]{background-color:#e29722;color:#fff}.alert-danger[data-v-61be677e]{background-color:#ff8f5e;color:#b33c12}.message-box[data-v-61be677e]{font-size:15px;align-content:center;max-width:400px;min-width:150px;padding-left:10px;flex-grow:1}.message-box .message[data-v-61be677e]{line-height:1.5em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%}.notification-box[data-v-61be677e]{display:flex;justify-content:flex-start;padding:10px 15px}.notification-box>div[data-v-61be677e]{align-self:center}.btn__trans[data-v-61be677e]{font-size:18px;color:#fff;background-color:transparent;background-repeat:no-repeat;border:none;cursor:pointer;overflow:hidden;background-image:none;outline:0}", map: undefined, media: undefined });
-
-    };
-    /* scoped */
-    const __vue_scope_id__$1$1 = "data-v-61be677e";
-    /* module identifier */
-    const __vue_module_identifier__$1$1 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$1$1 = false;
-    /* style inject SSR */
-    
-
-    
-    var Notification = normalizeComponent(
-      { render: __vue_render__$1$1, staticRenderFns: __vue_staticRenderFns__$1$1 },
-      __vue_inject_styles__$1$1,
-      __vue_script__$1$1,
-      __vue_scope_id__$1$1,
-      __vue_is_functional_template__$1$1,
-      __vue_module_identifier__$1$1,
-      createInjector,
-      undefined
-    );
-
-  //
-  var script$2$1 = {
-    components: {
-      Notification
-    },
-
-    data() {
-      return {
-        notifications: this.$notifications.state
-      };
-    },
-
-    methods: {
-      removeNotification(timestamp) {
-        this.$notifications.removeNotification(timestamp);
-      },
-
-      clearAllNotifications() {
-        this.$notifications.clear();
-      }
-
-    }
-  };
-
-  /* script */
-              const __vue_script__$2$1 = script$2$1;
-              
-  /* template */
-  var __vue_render__$2$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"notifications"},[_c('transition-group',{attrs:{"name":"list"},on:{"on-close":_vm.removeNotification}},_vm._l((_vm.notifications),function(notification,index){return _c('notification',{attrs:{"message":notification.message,"icon":notification.icon,"type":notification.type,"vertical-align":notification.verticalAlign,"horizontal-align":notification.horizontalAlign,"timeout":notification.timeout,"timestamp":notification.timestamp}})}),1)],1)};
-  var __vue_staticRenderFns__$2$1 = [];
-
-    /* style */
-    const __vue_inject_styles__$2$1 = function (inject) {
-      if (!inject) return
-      inject("data-v-321d3bee_0", { source: ".list-item{display:inline-block;margin-right:10px}.list-enter-active,.list-leave-active{transition:all 1s}.list-enter,.list-leave-to{opacity:0;transform:translateY(-30px)}", map: undefined, media: undefined });
-
-    };
-    /* scoped */
-    const __vue_scope_id__$2$1 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$2$1 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$2$1 = false;
-    /* style inject SSR */
-    
-
-    
-    var Notifications = normalizeComponent(
-      { render: __vue_render__$2$1, staticRenderFns: __vue_staticRenderFns__$2$1 },
-      __vue_inject_styles__$2$1,
-      __vue_script__$2$1,
-      __vue_scope_id__$2$1,
-      __vue_is_functional_template__$2$1,
-      __vue_module_identifier__$2$1,
-      createInjector,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  var script$3$1 = {
-    props: {
-      title: String,
-      icon: String,
-      width: {
-        type: String,
-        default: "170px"
-      }
-    },
-
-    data() {
-      return {
-        isOpen: false
-      };
-    },
-
-    computed: {
-      style() {
-        return 'width: ' + this.width;
-      }
-
-    },
-    methods: {
-      toggleDropDown() {
-        this.isOpen = !this.isOpen;
-      },
-
-      closeDropDown() {
-        this.isOpen = false;
-      }
-
-    }
-  };
-
-  /* script */
-              const __vue_script__$3$1 = script$3$1;
-              
-  /* template */
-  var __vue_render__$3$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{directives:[{name:"click-outside",rawName:"v-click-outside",value:(_vm.closeDropDown),expression:"closeDropDown"}],staticClass:"dropdown",class:{open:_vm.isOpen}},[_c('a',{staticClass:"dropdown-toggle btn-rotate",style:(_vm.style),attrs:{"href":"javascript:void(0)","data-toggle":"dropdown"},on:{"click":_vm.toggleDropDown}},[_vm._t("title",[_c('i',{class:_vm.icon}),_vm._v(" "),_c('div',{staticClass:"dropdown-title"},[_vm._v(_vm._s(_vm.title)+"\n        "),_c('b',{staticClass:"caret"})])])],2),_vm._v(" "),_c('ul',{staticClass:"dropdown-menu"},[_vm._t("default")],2)])};
-  var __vue_staticRenderFns__$3$1 = [];
-
-    /* style */
-    const __vue_inject_styles__$3$1 = function (inject) {
-      if (!inject) return
-      inject("data-v-73a696f8_0", { source: ".dropdown-toggle{cursor:pointer;display:flex;justify-content:space-evenly;text-transform:initial}.dropdown-toggle:after{position:absolute;right:10px;top:50%;margin-top:-2px}.dropdown-menu{margin-top:20px}", map: undefined, media: undefined });
-
-    };
-    /* scoped */
-    const __vue_scope_id__$3$1 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$3$1 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$3$1 = false;
-    /* style inject SSR */
-    
-
-    
-    var Dropdown = normalizeComponent(
-      { render: __vue_render__$3$1, staticRenderFns: __vue_staticRenderFns__$3$1 },
-      __vue_inject_styles__$3$1,
-      __vue_script__$3$1,
-      __vue_scope_id__$3$1,
-      __vue_is_functional_template__$3$1,
-      __vue_module_identifier__$3$1,
-      createInjector,
-      undefined
-    );
-
-  const NotificationStore = {
-    state: [],
-
-    // here the notifications will be added
-    removeNotification(timestamp) {
-      const indexToDelete = this.state.findIndex(n => n.timestamp === timestamp);
-
-      if (indexToDelete !== -1) {
-        this.state.splice(indexToDelete, 1);
-      }
-    },
-
-    notify(notification) {
-      // Create a timestamp to serve as a unique ID for the notification.
-      notification.timestamp = new Date();
-      notification.timestamp.setMilliseconds(notification.timestamp.getMilliseconds() + this.state.length);
-      this.state.push(notification);
-    },
-
-    clear() {
-      // This removes all of them in a way that the GUI keeps up.
-      while (this.state.length > 0) {
-        this.removeNotification(this.state[0].timestamp);
-      }
-    }
-
-  };
-
-  function setupSpinner(Vue$$1) {
-    // Create the global $spinner functions the user can call 
-    // from inside any component.
-    Vue$$1.prototype.$spinner = {
-      start() {
-        // Send a start event to the bus.
-        EventBus.$emit('spinner:start');
-      },
-
-      stop() {
-        // Send a stop event to the bus.
-        EventBus.$emit('spinner:stop');
-      }
-
-    };
-  }
-
-  function setupNotifications(Vue$$1) {
-    Object.defineProperty(Vue$$1.prototype, '$notifications', {
-      get() {
-        return NotificationStore;
-      }
-
-    });
-  }
-
-  function setupProgressBar(Vue$$1, options) {
-    Vue$$1.use(vueProgressbar, options);
-  }
-
-  function install(Vue$$1, options = {}) {
-    Vue$$1.use(VModal);
-
-    if (!options.notifications || !options.notifications.disabled) {
-      setupNotifications(Vue$$1);
-      Vue$$1.component('Notifications', Notifications);
-    }
-
-    if ((!options.spinner || !options.spinner.disabled) && !this.spinnerInstalled) {
-      this.spinnerInstalled = true;
-      setupSpinner(Vue$$1);
-      Vue$$1.component('PopupSpinner', PopupSpinner);
-    }
-
-    if (!options.progressbar || !options.progressbar.disabled) {
-      var progressbarOptions = options.progressbar ? options.progressbar.options : {};
-      setupProgressBar(Vue$$1, progressbarOptions);
-    }
-
-    Vue$$1.component('Dropdown', Dropdown);
-    Vue$$1.component('DialogDrag', DialogDrag);
-    Vue$$1.directive('click-outside', directive_1);
-  } // Automatic installation if Vue has been added to the global scope.
-
-
-  if (typeof window !== 'undefined' && window.Vue) {
-    window.Vue.use({
-      install
-    });
-  }
-
-  var ScirisVue = {
-    install
-  };
-
-  const rpc = rpcs.rpc;
-  const download = rpcs.download;
-  const upload = rpcs.upload;
-  const succeed$1 = status.succeed;
-  const fail$1 = status.fail;
-  const start$1 = status.start;
-  const updateSets$1 = shared.updateSets;
-  const updateDatasets$1 = shared.updateDatasets;
-  const exportGraphs$1 = shared.exportGraphs;
-  const exportResults$1 = shared.exportResults;
-  const placeholders$1 = graphs.placeholders;
-  const clearGraphs$1 = graphs.clearGraphs;
-  const getPlotOptions$1 = graphs.getPlotOptions;
-  const togglePlotControls$1 = graphs.togglePlotControls;
-  const makeGraphs$1 = graphs.makeGraphs;
-  const reloadGraphs$1 = graphs.reloadGraphs;
-  const scaleFigs$1 = graphs.scaleFigs;
-  const showBrowserWindowSize$1 = graphs.showBrowserWindowSize;
-  const addListener$1 = graphs.addListener;
-  const onMouseUpdate$1 = graphs.onMouseUpdate;
-  const createDialogs$1 = graphs.createDialogs;
-  const newDialog$1 = graphs.newDialog;
-  const findDialog$1 = graphs.findDialog;
-  const maximize$1 = graphs.maximize;
-  const minimize$1 = graphs.minimize;
-  const mpld3$1 = graphs.mpld3;
-  const draw_figure = mpld3$1.draw_figure;
-  const getTaskResultWaiting$1 = tasks.getTaskResultWaiting;
-  const getTaskResultPolling$1 = tasks.getTaskResultPolling;
-  const loginCall$1 = user.loginCall;
-  const logoutCall$1 = user.logoutCall;
-  const getCurrentUserInfo$1 = user.getCurrentUserInfo;
-  const registerUser$1 = user.registerUser;
-  const changeUserInfo$1 = user.changeUserInfo;
-  const changeUserPassword$1 = user.changeUserPassword;
-  const adminGetUserInfo$1 = user.adminGetUserInfo;
-  const deleteUser$1 = user.deleteUser;
-  const activateUserAccount$1 = user.activateUserAccount;
-  const deactivateUserAccount$1 = user.deactivateUserAccount;
-  const grantUserAdminRights$1 = user.grantUserAdminRights;
-  const revokeUserAdminRights$1 = user.revokeUserAdminRights;
-  const resetUserPassword$1 = user.resetUserPassword;
-  const getUserInfo$1 = user.getUserInfo;
-  const currentUser = user.currentUser;
-  const checkLoggedIn$1 = user.checkLoggedIn;
-  const checkAdminLoggedIn$1 = user.checkAdminLoggedIn;
-  const logOut = user.logOut;
-  const sleep$1 = utils$2.sleep;
-  const getUniqueName$1 = utils$2.getUniqueName;
-  const validateYears$1 = utils$2.validateYears;
-  const projectID$1 = utils$2.projectID;
-  const hasData$1 = utils$2.hasData;
-  const hasPrograms$1 = utils$2.hasPrograms;
-  const simStart$1 = utils$2.simStart;
-  const simEnd$1 = utils$2.simEnd;
-  const simYears$1 = utils$2.simYears;
-  const dataStart$1 = utils$2.dataStart;
-  const dataEnd$1 = utils$2.dataEnd;
-  const dataYears$1 = utils$2.dataYears;
-  const projectionYears$1 = utils$2.projectionYears;
-  const activePops$1 = utils$2.activePops;
-  const updateSorting$1 = utils$2.updateSorting;
-  const sciris = {
-    // rpc-service.js
-    rpc,
-    download,
-    upload,
-    // shared.js
-    updateSets: updateSets$1,
-    updateDatasets: updateDatasets$1,
-    exportGraphs: exportGraphs$1,
-    exportResults: exportResults$1,
-    // graphs.js
-    placeholders: placeholders$1,
-    clearGraphs: clearGraphs$1,
-    getPlotOptions: getPlotOptions$1,
-    togglePlotControls: togglePlotControls$1,
-    makeGraphs: makeGraphs$1,
-    reloadGraphs: reloadGraphs$1,
-    scaleFigs: scaleFigs$1,
-    showBrowserWindowSize: showBrowserWindowSize$1,
-    addListener: addListener$1,
-    onMouseUpdate: onMouseUpdate$1,
-    createDialogs: createDialogs$1,
-    newDialog: newDialog$1,
-    findDialog: findDialog$1,
-    maximize: maximize$1,
-    minimize: minimize$1,
-    mpld3: mpld3$1,
-    draw_figure,
-    // status-service.js
-    succeed: succeed$1,
-    fail: fail$1,
-    start: start$1,
-    // task-service.js
-    getTaskResultWaiting: getTaskResultWaiting$1,
-    getTaskResultPolling: getTaskResultPolling$1,
-    // user-service.js
-    loginCall: loginCall$1,
-    logoutCall: logoutCall$1,
-    getCurrentUserInfo: getCurrentUserInfo$1,
-    registerUser: registerUser$1,
-    changeUserInfo: changeUserInfo$1,
-    changeUserPassword: changeUserPassword$1,
-    adminGetUserInfo: adminGetUserInfo$1,
-    deleteUser: deleteUser$1,
-    activateUserAccount: activateUserAccount$1,
-    deactivateUserAccount: deactivateUserAccount$1,
-    grantUserAdminRights: grantUserAdminRights$1,
-    revokeUserAdminRights: revokeUserAdminRights$1,
-    resetUserPassword: resetUserPassword$1,
-    getUserInfo: getUserInfo$1,
-    currentUser,
-    checkLoggedIn: checkLoggedIn$1,
-    checkAdminLoggedIn: checkAdminLoggedIn$1,
-    logOut,
-    // utils.js
-    sleep: sleep$1,
-    getUniqueName: getUniqueName$1,
-    validateYears: validateYears$1,
-    projectID: projectID$1,
-    hasData: hasData$1,
-    hasPrograms: hasPrograms$1,
-    simStart: simStart$1,
-    simEnd: simEnd$1,
-    simYears: simYears$1,
-    dataStart: dataStart$1,
-    dataEnd: dataEnd$1,
-    dataYears: dataYears$1,
-    projectionYears: projectionYears$1,
-    activePops: activePops$1,
-    updateSorting: updateSorting$1,
-    rpcs,
-    graphs,
-    status,
-    shared,
-    user,
-    tasks,
-    utils: utils$2,
-    ScirisVue,
-    EventBus
-  };
-
-  const EVENT_LOGIN_SUCCESS = 'sciris:login:success';
-  const EVENT_LOGIN_FAIL = 'sciris:login:fail';
-  const EVENT_PASSWORD_CHANGE_SUCCESS = 'sciris:passwordchange:success';
-  const EVENT_PASSWORD_CHANGE_FAIL = 'sciris:passwordchange:fail';
-  const EVENT_REGISTER_SUCCESS = 'sciris:register:success';
-  const EVENT_REGISTER_FAIL = 'sciris:register:fail';
-  const EVENT_INFO_CHANGE_SUCCESS$1 = 'sciris:infochange:success';
-  const EVENT_INFO_CHANGE_FAIL$1 = 'sciris:infochange:fail';
-  const EVENT_LOGOUT_SUCCESS = 'sciris:logout:success';
-  const events$2 = {
-    EVENT_LOGIN_FAIL,
-    EVENT_LOGIN_SUCCESS,
-    EVENT_REGISTER_SUCCESS,
-    EVENT_REGISTER_FAIL,
-    EVENT_PASSWORD_CHANGE_SUCCESS,
-    EVENT_PASSWORD_CHANGE_FAIL,
-    EVENT_INFO_CHANGE_SUCCESS: EVENT_INFO_CHANGE_SUCCESS$1,
-    EVENT_INFO_CHANGE_FAIL: EVENT_INFO_CHANGE_FAIL$1,
-    EVENT_LOGOUT_SUCCESS
-  };
-  const EventBus$1 = new Vue();
-
-  //
-  var script$l = {
-    name: 'LoginPage',
-    props: {
-      homepage: {
-        type: String,
-        default: ""
-      },
-      logo: {
-        type: String,
-        default: ""
-      },
-      verboseToolName: {
-        type: String,
-        default: ""
-      },
-      authBackgroundColour: {
-        type: String,
-        default: "#0c2544"
-      },
-      favicon: {
-        type: String,
-        default: ""
-      }
-    },
-
-    data() {
-      return {
-        loginUserName: '',
-        loginPassword: '',
-        loginResult: '',
-        version: '',
-        date: ''
-      };
-    },
-
-    computed: {
-      getVersionInfo() {
-        sciris.rpc('get_version_info').then(response => {
-          this.version = response.data['version'];
-          this.date = response.data['date'];
-        });
-      }
-
-    },
-    methods: {
-      tryLogin() {
-        sciris.loginCall(this.loginUserName, this.loginPassword).then(response => {
-          if (response.data === 'success') {
-            // Set a success result to show.
-            this.loginResult = 'Logging in...'; // Read in the full current user information.
-
-            sciris.getCurrentUserInfo().then(response2 => {
-              // Set the username to what the server indicates.
-              let user = response2.data.user;
-              this.$store.commit('newUser', user); // Navigate automatically to the home page.
-
-              EventBus$1.$emit(events$2.EVENT_LOGIN_SUCCESS, user);
-            }).catch(error => {
-              // Set the username to {}.  An error probably means the
-              // user is not logged in.
-              this.$store.commit('newUser', {});
-            });
-          } else {
-            // Set a failure result to show.
-            this.loginResult = response.data;
-          }
-        }).catch(error => {
-          EventBus$1.$emit(events$2.EVENT_LOGIN_FAIL, error);
-          console.log('Login failed', error);
-          this.loginResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
-        });
-      }
-
-    }
-  };
-
-  /* script */
-              const __vue_script__$l = script$l;
-              
-  /* template */
-  var __vue_render__$l = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),(_vm.version)?_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[(_vm.verboseToolName)?_c('div',[_vm._v("\n            "+_vm._s(_vm.verboseToolName)+" \n          ")]):_vm._e(),_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")]):_vm._e()])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"LogInForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryLogin($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Login")]),_vm._v(" "),(_vm.loginResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.loginResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginUserName),expression:"loginUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.loginUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.loginPassword),expression:"loginPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.loginPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.loginPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Login")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          New user?\n          "),_c('router-link',{attrs:{"to":"/register"}},[_vm._v("\n            Register here\n          ")])],1)])])])])};
-  var __vue_staticRenderFns__$l = [];
-
-    /* style */
-    const __vue_inject_styles__$l = undefined;
-    /* scoped */
-    const __vue_scope_id__$l = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$l = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$l = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-
-    
-    var LoginPage = normalizeComponent(
-      { render: __vue_render__$l, staticRenderFns: __vue_staticRenderFns__$l },
-      __vue_inject_styles__$l,
-      __vue_script__$l,
-      __vue_scope_id__$l,
-      __vue_is_functional_template__$l,
-      __vue_module_identifier__$l,
-      undefined,
-      undefined
-    );
-
-  //
-  var script$m = {
     name: 'ChangePasswordPage',
 
     data() {
@@ -17958,16 +8305,16 @@
 
     methods: {
       tryChangePassword() {
-        sciris.changeUserPassword(this.oldPassword, this.newPassword).then(response => {
+        this.$sciris.changeUserPassword(this.oldPassword, this.newPassword).then(response => {
           if (response.data === 'success') {
-            sciris.succeed(this, 'Password updated'); // Read in the full current user information.
+            this.$sciris.succeed(this, 'Password updated'); // Read in the full current user information.
 
-            sciris.getCurrentUserInfo().then(response2 => {
+            this.$sciris.getCurrentUserInfo().then(response2 => {
               // Set the username to what the server indicates.
               let user = response2.data.user;
               this.$store.commit('newUser', user); // Navigate automatically to the home page.
 
-              EventBus$1.$emit(events$2.EVENT_PASSWORD_CHANGE_SUCCESS, user);
+              EventBus.$emit(events$1.EVENT_PASSWORD_CHANGE_SUCCESS, user);
             }).catch(error => {
               // Set the username to {}.  An error probably means the
               // user is not logged in.
@@ -17977,8 +8324,8 @@
             this.changeResult = response.data;
           }
         }).catch(error => {
-          sciris.fail(this, 'Password updated failed', error);
-          EventBus$1.$emit(events$2.EVENT_PASSWORD_CHANGE_FAIL, error);
+          this.$sciris.fail(this, 'Password updated failed', error);
+          EventBus.$emit(events$1.EVENT_PASSWORD_CHANGE_FAIL, error);
         });
       }
 
@@ -17986,20 +8333,22 @@
   };
 
   /* script */
-              const __vue_script__$m = script$m;
-              
+  const __vue_script__$1 = script$1;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$1.__file = "ChangePasswordPage.vue";
+
   /* template */
-  var __vue_render__$m = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])};
-  var __vue_staticRenderFns__$m = [];
+  var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e(),_vm._v(" "),_c('form',{staticClass:"password-change-form",attrs:{"name":"ChangePasswordForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangePassword($event)}}},[_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.oldPassword),expression:"oldPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"oldpassword","placeholder":"Reenter old password","required":"required"},domProps:{"value":(_vm.oldPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.oldPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.newPassword),expression:"newPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Enter new password","required":"required"},domProps:{"value":(_vm.newPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.newPassword=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br')])])};
+  var __vue_staticRenderFns__$1 = [];
 
     /* style */
-    const __vue_inject_styles__$m = undefined;
+    const __vue_inject_styles__$1 = undefined;
     /* scoped */
-    const __vue_scope_id__$m = undefined;
+    const __vue_scope_id__$1 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$m = undefined;
+    const __vue_module_identifier__$1 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$m = false;
+    const __vue_is_functional_template__$1 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18007,18 +8356,56 @@
 
     
     var ChangePasswordPage = normalizeComponent(
-      { render: __vue_render__$m, staticRenderFns: __vue_staticRenderFns__$m },
-      __vue_inject_styles__$m,
-      __vue_script__$m,
-      __vue_scope_id__$m,
-      __vue_is_functional_template__$m,
-      __vue_module_identifier__$m,
+      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+      __vue_inject_styles__$1,
+      __vue_script__$1,
+      __vue_scope_id__$1,
+      __vue_is_functional_template__$1,
+      __vue_module_identifier__$1,
       undefined,
       undefined
     );
 
   //
-  var script$n = {
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  var script$2 = {
     name: 'MainAdminPage',
 
     data() {
@@ -18034,7 +8421,7 @@
 
     methods: {
       getUsersInfo() {
-        sciris.getAllUsersInfo().then(response => {
+        this.$sciris.getAllUsersInfo().then(response => {
           this.usersList = response.data;
         }).catch(error => {
           // Give result message.
@@ -18043,7 +8430,7 @@
       },
 
       activateAccount(username) {
-        sciris.activateUserAccount(username).then(response => {
+        this.$sciris.activateUserAccount(username).then(response => {
           // If the response was successful...
           if (response.data == 'success') // Give result message.
             this.adminResult = 'User account activated.'; // Otherwise (failure)
@@ -18058,7 +8445,7 @@
       },
 
       deactivateAccount(username) {
-        sciris.deactivateUserAccount(username).then(response => {
+        this.$sciris.deactivateUserAccount(username).then(response => {
           // If the response was successful...
           if (response.data == 'success') // Give result message.
             this.adminResult = 'User account deactivated.'; // Otherwise (failure)
@@ -18073,7 +8460,7 @@
       },
 
       grantAdmin(username) {
-        sciris.grantUserAdminRights(username).then(response => {
+        this.$sciris.grantUserAdminRights(username).then(response => {
           // If the response was successful...
           if (response.data == 'success') // Give result message.
             this.adminResult = 'Admin access granted.'; // Otherwise (failure)
@@ -18088,7 +8475,7 @@
       },
 
       revokeAdmin(username) {
-        sciris.revokeUserAdminRights(username).then(response => {
+        this.$sciris.revokeUserAdminRights(username).then(response => {
           // If the response was successful...
           if (response.data == 'success') // Give result message.
             this.adminResult = 'Admin access revoked.'; // Otherwise (failure)
@@ -18103,7 +8490,7 @@
       },
 
       resetPassword(username) {
-        sciris.resetUserPassword(username).then(response => {
+        this.$sciris.resetUserPassword(username).then(response => {
           // If the response was successful...
           if (response.data == 'success') // Give result message.
             this.adminResult = 'Password reset.'; // Otherwise (failure)
@@ -18118,7 +8505,7 @@
       },
 
       deleteUser(username) {
-        sciris.deleteUser(username).then(response => {
+        this.$sciris.deleteUser(username).then(response => {
           // Give result message.
           this.adminResult = 'User deleted.'; // Get the users info again.
 
@@ -18133,20 +8520,22 @@
   };
 
   /* script */
-              const __vue_script__$n = script$n;
-              
+  const __vue_script__$2 = script$2;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$2.__file = "MainAdminPage.vue";
+
   /* template */
-  var __vue_render__$n = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])};
-  var __vue_staticRenderFns__$n = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}];
+  var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage"},[_c('h2',[_vm._v("Users")]),_vm._v(" "),(_vm.usersList[0] != undefined)?_c('table',[_vm._m(0),_vm._v(" "),_vm._l((_vm.usersList),function(userobj){return _c('tr',[_c('td',[_vm._v(_vm._s(userobj.user.username))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.displayname))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.email))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.accountactive))]),_vm._v(" "),_c('td',[_vm._v(_vm._s(userobj.user.admin))]),_vm._v(" "),_c('td',[_c('button',{on:{"click":function($event){_vm.activateAccount(userobj.user.username);}}},[_vm._v("Activate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deactivateAccount(userobj.user.username);}}},[_vm._v("Deactivate Account")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.grantAdmin(userobj.user.username);}}},[_vm._v("Grant Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.revokeAdmin(userobj.user.username);}}},[_vm._v("Revoke Admin")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.resetPassword(userobj.user.username);}}},[_vm._v("Reset Password")]),_vm._v(" "),_c('button',{on:{"click":function($event){_vm.deleteUser(userobj.user.username);}}},[_vm._v("Delete Account")])])])})],2):_vm._e(),_vm._v(" "),(_vm.adminResult != '')?_c('p',[_vm._v(_vm._s(_vm.adminResult))]):_vm._e()])};
+  var __vue_staticRenderFns__$2 = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('tr',[_c('th',[_vm._v("Username")]),_vm._v(" "),_c('th',[_vm._v("Display name")]),_vm._v(" "),_c('th',[_vm._v("Email")]),_vm._v(" "),_c('th',[_vm._v("Account active?")]),_vm._v(" "),_c('th',[_vm._v("Admin?")]),_vm._v(" "),_c('th',[_vm._v("Actions")])])}];
 
     /* style */
-    const __vue_inject_styles__$n = undefined;
+    const __vue_inject_styles__$2 = undefined;
     /* scoped */
-    const __vue_scope_id__$n = undefined;
+    const __vue_scope_id__$2 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$n = undefined;
+    const __vue_module_identifier__$2 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$n = false;
+    const __vue_is_functional_template__$2 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18154,18 +8543,18 @@
 
     
     var MainAdminPage = normalizeComponent(
-      { render: __vue_render__$n, staticRenderFns: __vue_staticRenderFns__$n },
-      __vue_inject_styles__$n,
-      __vue_script__$n,
-      __vue_scope_id__$n,
-      __vue_is_functional_template__$n,
-      __vue_module_identifier__$n,
+      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
       undefined,
       undefined
     );
 
   //
-  var script$o = {
+  var script$3 = {
     name: 'RegisterPage',
     props: {
       homepage: {
@@ -18196,7 +8585,7 @@
 
     computed: {
       getVersionInfo() {
-        sciris.rpc('get_version_info').then(response => {
+        this.$sciris.rpc('get_version_info').then(response => {
           this.version = response.data['version'];
           this.date = response.data['date'];
         });
@@ -18205,17 +8594,17 @@
     },
     methods: {
       tryRegister() {
-        sciris.registerUser(this.registerUserName, this.registerPassword, this.registerDisplayName, this.registerEmail).then(response => {
+        this.$sciris.registerUser(this.registerUserName, this.registerPassword, this.registerDisplayName, this.registerEmail).then(response => {
           if (response.data === 'success') {
             // Set a success result to show.
             this.registerResult = 'Success! Please wait while you are redirected...';
-            EventBus$1.$emit(events$2.EVENT_REGISTER_SUCCESS);
+            EventBus.$emit(events$1.EVENT_REGISTER_SUCCESS);
           } else {
             // Set a failure result to show.
             this.registerResult = response.data;
           }
         }).catch(error => {
-          EventBus$1.$emit(events$2.EVENT_REGISTER_FAIL, error);
+          EventBus.$emit(events$1.EVENT_REGISTER_FAIL, error);
           console.log('Register failed', error);
           this.registerResult = "We're sorry, it seems we're having trouble communicating with the server.  Please contact support or try again later.";
         });
@@ -18225,20 +8614,22 @@
   };
 
   /* script */
-              const __vue_script__$o = script$o;
-              
+  const __vue_script__$3 = script$3;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$3.__file = "RegisterPage.vue";
+
   /* template */
-  var __vue_render__$o = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          Already registered?\n          "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v("\n            Login\n          ")])],1)])])])])};
-  var __vue_staticRenderFns__$o = [];
+  var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"SitePage",staticStyle:{"background-color":"#f8f8f4","position":"fixed","min-height":"100%","min-width":"100%","padding":"0 0 0 0"},model:{value:(_vm.getVersionInfo),callback:function ($$v) {_vm.getVersionInfo=$$v;},expression:"getVersionInfo"}},[_c('div',{staticStyle:{"background-color":"#0c2544","position":"absolute","height":"100%","width":"260px"}},[_c('div',{staticClass:"logo"},[_c('div',{staticClass:"simple-text",staticStyle:{"font-size":"20px","color":"#fff","font-weight":"bold","padding":"20px"}},[(_vm.favicon)?_c('div',{staticClass:"logo-img",staticStyle:{"height":"40px","width":"40px","line-height":"40px","border-radius":"40px","background-color":"#fff","text-align":"center","display":"inline-block"}},[_c('img',{attrs:{"src":_vm.favicon,"width":"21px","vertical-align":"middle","alt":""}})]):_vm._e(),_vm._v(" "),_c('span',{staticStyle:{"padding-left":"10px"}},[(_vm.homepage)?_c('a',{attrs:{"href":_vm.homepage,"target":"_blank"}},[_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]):_c('img',{attrs:{"src":_vm.logo,"width":"160px","vertical-align":"middle","alt":""}})]),_vm._v(" "),_c('br'),_c('br'),_vm._v(" "),_c('div',{staticStyle:{"font-size":"14px","font-weight":"normal"}},[_vm._v("\n          Version "+_vm._s(_vm.version)+" ("+_vm._s(_vm.date)+")\n        ")])])])]),_vm._v(" "),_c('div',{staticStyle:{"margin-right":"-260px"}},[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 auto"},attrs:{"name":"RegisterForm"},on:{"submit":function($event){$event.preventDefault();return _vm.tryRegister($event)}}},[_c('div',{staticClass:"modal-body"},[_c('h2',[_vm._v("Register")]),_vm._v(" "),(_vm.registerResult != '')?_c('div',{staticClass:"section"},[_vm._v(_vm._s(_vm.registerResult))]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerUserName),expression:"registerUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"username","placeholder":"User name","required":"required"},domProps:{"value":(_vm.registerUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerUserName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerPassword),expression:"registerPassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"password","placeholder":"Password","required":"required"},domProps:{"value":(_vm.registerPassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerPassword=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerDisplayName),expression:"registerDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"displayname","placeholder":"Display name (optional)"},domProps:{"value":(_vm.registerDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerDisplayName=$event.target.value;}}})]),_vm._v(" "),_c('div',{staticClass:"section form-input-validate"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.registerEmail),expression:"registerEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"email","placeholder":"Email (optional)"},domProps:{"value":(_vm.registerEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.registerEmail=$event.target.value;}}})]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Register")]),_vm._v(" "),_c('div',{staticClass:"section"},[_vm._v("\n          Already registered?\n          "),_c('router-link',{attrs:{"to":"/login"}},[_vm._v("\n            Login\n          ")])],1)])])])])};
+  var __vue_staticRenderFns__$3 = [];
 
     /* style */
-    const __vue_inject_styles__$o = undefined;
+    const __vue_inject_styles__$3 = undefined;
     /* scoped */
-    const __vue_scope_id__$o = undefined;
+    const __vue_scope_id__$3 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$o = undefined;
+    const __vue_module_identifier__$3 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$o = false;
+    const __vue_is_functional_template__$3 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18246,18 +8637,18 @@
 
     
     var RegisterPage = normalizeComponent(
-      { render: __vue_render__$o, staticRenderFns: __vue_staticRenderFns__$o },
-      __vue_inject_styles__$o,
-      __vue_script__$o,
-      __vue_scope_id__$o,
-      __vue_is_functional_template__$o,
-      __vue_module_identifier__$o,
+      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+      __vue_inject_styles__$3,
+      __vue_script__$3,
+      __vue_scope_id__$3,
+      __vue_is_functional_template__$3,
+      __vue_module_identifier__$3,
       undefined,
       undefined
     );
 
   //
-  var script$p = {
+  var script$4 = {
     name: 'UserChangeInfoPage',
 
     data() {
@@ -18272,16 +8663,16 @@
 
     methods: {
       tryChangeInfo() {
-        sciris.changeUserInfo(this.changeUserName, this.changePassword, this.changeDisplayName, this.changeEmail).then(response => {
+        this.$sciris.changeUserInfo(this.changeUserName, this.changePassword, this.changeDisplayName, this.changeEmail).then(response => {
           if (response.data === 'success') {
-            sciris.succeed(this, 'User info updated'); // Set a success result to show.
+            this.$sciris.succeed(this, 'User info updated'); // Set a success result to show.
 
-            sciris.getCurrentUserInfo() // Read in the full current user information.
+            this.$sciris.getCurrentUserInfo() // Read in the full current user information.
             .then(response2 => {
               let user = response2.data.user;
               this.$store.commit('newUser', user); // Set the username to what the server indicates.
 
-              EventBus$1.$emit(EVENT_INFO_CHANGE_SUCCESS, user);
+              EventBus.$emit(EVENT_INFO_CHANGE_SUCCESS, user);
               /**
               router.push('/') // Navigate automatically to the home page.
               **/
@@ -18292,8 +8683,8 @@
             this.changeResult = response.data;
           }
         }).catch(error => {
-          sciris.fail(this, 'Failed to update user info, please check password and try again', error);
-          EventBus$1.$emit(EVENT_INFO_CHANGE_FAIL, error);
+          this.$sciris.fail(this, 'Failed to update user info, please check password and try again', error);
+          EventBus.$emit(EVENT_INFO_CHANGE_FAIL, error);
         });
       }
 
@@ -18301,20 +8692,22 @@
   };
 
   /* script */
-              const __vue_script__$p = script$p;
-              
+  const __vue_script__$4 = script$4;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$4.__file = "UserChangeInfoPage.vue";
+
   /* template */
-  var __vue_render__$p = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])};
-  var __vue_staticRenderFns__$p = [];
+  var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('form',{staticStyle:{"max-width":"500px","min-width":"100px","margin":"0 0"},attrs:{"name":"ChangeUserInfo"},on:{"submit":function($event){$event.preventDefault();return _vm.tryChangeInfo($event)}}},[_c('div',{staticClass:"divTable"},[_c('div',{staticClass:"divTableBody"},[_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Username ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeUserName),expression:"changeUserName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changeusername","required":"required"},domProps:{"value":(_vm.changeUserName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeUserName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Display name ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeDisplayName),expression:"changeDisplayName"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedisplayname"},domProps:{"value":(_vm.changeDisplayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeDisplayName=$event.target.value;}}})])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Email ")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changeEmail),expression:"changeEmail"}],staticClass:"txbox __l",attrs:{"type":"text","name":"changedemail"},domProps:{"value":(_vm.changeEmail)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changeEmail=$event.target.value;}}})])])]),_vm._v(" "),_c('div',{staticClass:"divTableRow",staticStyle:{"line-height":"40px"}},[_c('div',{staticClass:"divRowLabel"},[_vm._v("Enter password")]),_vm._v(" "),_c('div',{staticClass:"divRowContent section form-input-validate",staticStyle:{"min-width":"100%","vertical-align":"middle"}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.changePassword),expression:"changePassword"}],staticClass:"txbox __l",attrs:{"type":"password","name":"changepassword","required":"required"},domProps:{"value":(_vm.changePassword)},on:{"input":function($event){if($event.target.composing){ return; }_vm.changePassword=$event.target.value;}}})])])]),_vm._v(" "),_c('button',{staticClass:"section btn __l __block",attrs:{"type":"submit"}},[_vm._v("Update")]),_vm._v(" "),_c('br'),_vm._v(" "),(_vm.changeResult != '')?_c('p',[_vm._v(_vm._s(_vm.changeResult))]):_vm._e()])])};
+  var __vue_staticRenderFns__$4 = [];
 
     /* style */
-    const __vue_inject_styles__$p = undefined;
+    const __vue_inject_styles__$4 = undefined;
     /* scoped */
-    const __vue_scope_id__$p = undefined;
+    const __vue_scope_id__$4 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$p = undefined;
+    const __vue_module_identifier__$4 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$p = false;
+    const __vue_is_functional_template__$4 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18322,12 +8715,12 @@
 
     
     var UserChangeInfoPage = normalizeComponent(
-      { render: __vue_render__$p, staticRenderFns: __vue_staticRenderFns__$p },
-      __vue_inject_styles__$p,
-      __vue_script__$p,
-      __vue_scope_id__$p,
-      __vue_is_functional_template__$p,
-      __vue_module_identifier__$p,
+      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+      __vue_inject_styles__$4,
+      __vue_script__$4,
+      __vue_scope_id__$4,
+      __vue_is_functional_template__$4,
+      __vue_module_identifier__$4,
       undefined,
       undefined
     );
@@ -18336,7 +8729,7 @@
   //
   //
   //
-  var script$q = {
+  var script$5 = {
     props: {
       moveY: {
         type: Number,
@@ -18358,20 +8751,22 @@
   };
 
   /* script */
-              const __vue_script__$q = script$q;
-              
+  const __vue_script__$5 = script$5;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$5.__file = "MovingArrow.vue";
+
   /* template */
-  var __vue_render__$q = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})};
-  var __vue_staticRenderFns__$q = [];
+  var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"moving-arrow",style:(_vm.arrowStyle)})};
+  var __vue_staticRenderFns__$5 = [];
 
     /* style */
-    const __vue_inject_styles__$q = undefined;
+    const __vue_inject_styles__$5 = undefined;
     /* scoped */
-    const __vue_scope_id__$q = undefined;
+    const __vue_scope_id__$5 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$q = undefined;
+    const __vue_module_identifier__$5 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$q = false;
+    const __vue_is_functional_template__$5 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18379,18 +8774,18 @@
 
     
     var MovingArrow = normalizeComponent(
-      { render: __vue_render__$q, staticRenderFns: __vue_staticRenderFns__$q },
-      __vue_inject_styles__$q,
-      __vue_script__$q,
-      __vue_scope_id__$q,
-      __vue_is_functional_template__$q,
-      __vue_module_identifier__$q,
+      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+      __vue_inject_styles__$5,
+      __vue_script__$5,
+      __vue_scope_id__$5,
+      __vue_is_functional_template__$5,
+      __vue_module_identifier__$5,
       undefined,
       undefined
     );
 
   //
-  var script$r = {
+  var script$6 = {
     name: "Sidebar",
     props: {
       type: {
@@ -18501,20 +8896,22 @@
   };
 
   /* script */
-              const __vue_script__$r = script$r;
-              
+  const __vue_script__$6 = script$6;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$6.__file = "Sidebar.vue";
+
   /* template */
-  var __vue_render__$r = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+"\n              ")])])])}),1),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])};
-  var __vue_staticRenderFns__$r = [];
+  var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.sidebarClasses,attrs:{"data-background-color":_vm.backgroundColor,"data-active-color":_vm.activeColor}},[_c('div',{staticClass:"sidebar-wrapper",attrs:{"id":"style-3"}},[_c('div',{staticClass:"sidebar-content"},[(_vm.favicon)?_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('div',{staticClass:"logo-img"},[_c('img',{attrs:{"src":_vm.favicon,"alt":""}})]),_vm._v(" "),_c('img',{staticClass:"logotype",attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]):_c('div',{staticClass:"logo"},[_c('a',{staticClass:"simple-text",attrs:{"href":"#"}},[_c('img',{attrs:{"src":_vm.logo,"width":_vm.logoWidth,"vertical-align":"middle","alt":""}})])]),_vm._v(" "),_vm._t("default"),_vm._v(" "),_c('ul',{class:_vm.navClasses},_vm._l((_vm.links),function(link,index){return _c('router-link',{key:link.name + index,ref:link.name,refInFor:true,staticClass:"nav-item",attrs:{"tag":"li","to":link.path}},[_c('a',[_c('i',{class:link.icon}),_vm._v(" "),_c('p',[_vm._v(_vm._s(link.name)+"\n              ")])])])}),1),_vm._v(" "),_c('moving-arrow',{attrs:{"move-y":_vm.arrowMovePx}})],2)])])};
+  var __vue_staticRenderFns__$6 = [];
 
     /* style */
-    const __vue_inject_styles__$r = undefined;
+    const __vue_inject_styles__$6 = undefined;
     /* scoped */
-    const __vue_scope_id__$r = undefined;
+    const __vue_scope_id__$6 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$r = undefined;
+    const __vue_module_identifier__$6 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$r = false;
+    const __vue_is_functional_template__$6 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18522,18 +8919,18 @@
 
     
     var Sidebar = normalizeComponent(
-      { render: __vue_render__$r, staticRenderFns: __vue_staticRenderFns__$r },
-      __vue_inject_styles__$r,
-      __vue_script__$r,
-      __vue_scope_id__$r,
-      __vue_is_functional_template__$r,
-      __vue_module_identifier__$r,
+      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
+      __vue_inject_styles__$6,
+      __vue_script__$6,
+      __vue_scope_id__$6,
+      __vue_is_functional_template__$6,
+      __vue_module_identifier__$6,
       undefined,
       undefined
     );
 
   //
-  var script$s = {
+  var script$7 = {
     name: 'Navbar',
     props: {
       links: {
@@ -18610,7 +9007,7 @@
 
     // Health prior function
     created() {
-      sciris.getUserInfo(this.$store);
+      this.$sciris.getUserInfo(this.$store);
     },
 
     // Theme function
@@ -18623,19 +9020,21 @@
     methods: {
       // Health prior functions
       checkLoggedIn() {
+        this.$sciris.checkLoggedIn;
       },
 
       checkAdminLoggedIn() {
+        this.$sciris.checkAdminLoggedIn;
       },
 
       logOut() {
-        sciris.logoutCall().then(response => {
+        this.$sciris.logoutCall().then(response => {
           // Update the user info.
-          sciris.getUserInfo(this.$store); // Clear out the active project.
+          this.$sciris.getUserInfo(this.$store); // Clear out the active project.
 
           this.$store.commit('newActiveProject', {}); // Navigate to the login page automatically.
 
-          EventBus$1.$emit(events$2.EVENT_LOGOUT_SUCCESS);
+          EventBus.$emit(events$1.EVENT_LOGOUT_SUCCESS);
         });
       },
 
@@ -18664,20 +9063,22 @@
   };
 
   /* script */
-              const __vue_script__$s = script$s;
-              
+  const __vue_script__$7 = script$7;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$7.__file = "Navbar.vue";
+
   /* template */
-  var __vue_render__$s = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)}),0),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])};
-  var __vue_staticRenderFns__$s = [];
+  var __vue_render__$7 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('nav',{staticClass:"navbar navbar-light navbar-default"},[(_vm.logo)?_c('a',{staticClass:"navbar-brand",attrs:{"target":"_blank","href":_vm.homepage}},[_c('img',{attrs:{"height":"50px","vertical-align":"middle","src":_vm.logo}})]):_vm._e(),_vm._v(" "),(!_vm.hideRouteName)?_c('span',{staticClass:"navabar-route-name"},[_vm._v(_vm._s(_vm.routeName))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"navbar-toggle",class:{toggled: _vm.$sidebar.showSidebar},attrs:{"type":"button"},on:{"click":_vm.toggleSidebar}},[_c('span',{staticClass:"sr-only"},[_vm._v("Toggle navigation")]),_vm._v(" "),_c('span',{staticClass:"icon-bar bar1"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar2"}),_vm._v(" "),_c('span',{staticClass:"icon-bar bar3"})]),_vm._v(" "),_c('ul',{staticClass:"navbar-nav ml-auto collapse show"},_vm._l((_vm.links),function(link){return _c('li',{staticClass:"nav-item"},[_c('router-link',{staticClass:"nav-link",attrs:{"to":link.path}},[_c('span',[_vm._v(_vm._s(link.name))])])],1)}),0),_vm._v(" "),_c('ul',{staticClass:"nav navbar-nav ml-auto collapse show"},[_c('li',{staticClass:"nav-item nav-item-static"},[_c('div',{staticClass:"nav-link"},[_c('i',{staticClass:"ti-view-grid"}),_vm._v(" "),_c('span',[_vm._v("Project: "+_vm._s(_vm.activeProjectName))])])]),_vm._v(" "),_c('li',{staticClass:"nav-item nav-item-static"},[_c('dropdown',{attrs:{"title":_vm.activeUserName,"icon":"ti-user dropdown-icon"}},[_c('li',[_c('a',{attrs:{"href":"#/changeinfo"}},[_c('i',{staticClass:"ti-pencil"}),_vm._v("  Edit account")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/changepassword"}},[_c('i',{staticClass:"ti-key"}),_vm._v("  Change password")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/help"}},[_c('i',{staticClass:"ti-help"}),_vm._v("  Help")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#/about"}},[_c('i',{staticClass:"ti-shine"}),_vm._v("  About")])]),_vm._v(" "),_c('li',[_c('a',{attrs:{"href":"#"},on:{"click":function($event){_vm.logOut();}}},[_c('i',{staticClass:"ti-car"}),_vm._v("  Log out")])])])],1)])])};
+  var __vue_staticRenderFns__$7 = [];
 
     /* style */
-    const __vue_inject_styles__$s = undefined;
+    const __vue_inject_styles__$7 = undefined;
     /* scoped */
-    const __vue_scope_id__$s = undefined;
+    const __vue_scope_id__$7 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$s = undefined;
+    const __vue_module_identifier__$7 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$s = false;
+    const __vue_is_functional_template__$7 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18685,12 +9086,12 @@
 
     
     var Navbar = normalizeComponent(
-      { render: __vue_render__$s, staticRenderFns: __vue_staticRenderFns__$s },
-      __vue_inject_styles__$s,
-      __vue_script__$s,
-      __vue_scope_id__$s,
-      __vue_is_functional_template__$s,
-      __vue_module_identifier__$s,
+      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
+      __vue_inject_styles__$7,
+      __vue_script__$7,
+      __vue_scope_id__$7,
+      __vue_is_functional_template__$7,
+      __vue_module_identifier__$7,
       undefined,
       undefined
     );
@@ -18740,7 +9141,7 @@
   //
   //
   //
-  var script$t = {
+  var script$8 = {
     name: 'help',
     props: {
       reflink: {
@@ -18786,23 +9187,52 @@
     }
   };
 
-  var css$k = ".btn-helplink{padding:4px 4px 2px 2px;margin-bottom:5px}.helplink-label{display:inline-block;font-size:1.4em;margin:0 5px 10px 0}";
-  styleInject(css$k);
+  function styleInject(css, ref) {
+    if ( ref === void 0 ) ref = {};
+    var insertAt = ref.insertAt;
+
+    if (!css || typeof document === 'undefined') { return; }
+
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    if (insertAt === 'top') {
+      if (head.firstChild) {
+        head.insertBefore(style, head.firstChild);
+      } else {
+        head.appendChild(style);
+      }
+    } else {
+      head.appendChild(style);
+    }
+
+    if (style.styleSheet) {
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+  }
+
+  var css = ".btn-helplink{padding:4px 4px 2px 2px;margin-bottom:5px}.helplink-label{display:inline-block;font-size:1.4em;margin:0 5px 10px 0}";
+  styleInject(css);
 
   /* script */
-              const __vue_script__$t = script$t;
+  const __vue_script__$8 = script$8;
+  // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
+  script$8.__file = "HelpLink.vue";
   /* template */
-  var __vue_render__$t = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button btn-helplink",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])};
-  var __vue_staticRenderFns__$t = [];
+  var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[(_vm.label!=='')?_c('div',{staticClass:"helplink-label"},[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_c('button',{staticClass:"btn __blue small-button btn-helplink",attrs:{"data-tooltip":"Help"},on:{"click":function($event){_vm.openLink(_vm.reflink);}}},[_c('i',{staticClass:"ti-help"})])])};
+  var __vue_staticRenderFns__$8 = [];
 
     /* style */
-    const __vue_inject_styles__$t = undefined;
+    const __vue_inject_styles__$8 = undefined;
     /* scoped */
-    const __vue_scope_id__$t = undefined;
+    const __vue_scope_id__$8 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$t = undefined;
+    const __vue_module_identifier__$8 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$t = false;
+    const __vue_is_functional_template__$8 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -18810,15 +9240,25 @@
 
     
     var HelpLink = normalizeComponent(
-      { render: __vue_render__$t, staticRenderFns: __vue_staticRenderFns__$t },
-      __vue_inject_styles__$t,
-      __vue_script__$t,
-      __vue_scope_id__$t,
-      __vue_is_functional_template__$t,
-      __vue_module_identifier__$t,
+      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
+      __vue_inject_styles__$8,
+      __vue_script__$8,
+      __vue_scope_id__$8,
+      __vue_is_functional_template__$8,
+      __vue_module_identifier__$8,
       undefined,
       undefined
     );
+
+  var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function unwrapExports (x) {
+  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
+  }
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
 
   var vue2SimplertPlugin = createCommonjsModule(function (module, exports) {
   /*! vue2-simplert-plugin v0.4.1 */
@@ -18833,6 +9273,16 @@
 
   var Simplert = unwrapExports(vue2SimplertPlugin);
   var vue2SimplertPlugin_1 = vue2SimplertPlugin.Simplert;
+
+  var Vue$1 = Vue;
+  Vue$1 = 'default' in Vue$1 ? Vue$1['default'] : Vue$1;
+
+  var version = '2.2.2';
+
+  var compatible = (/^2\./).test(Vue$1.version);
+  if (!compatible) {
+    Vue$1.util.warn('VueClickaway ' + version + ' only supports Vue 2.x, and does not support Vue ' + Vue$1.version);
+  }
 
   var lodash = createCommonjsModule(function (module, exports) {
   (function() {
@@ -35965,35 +26415,35 @@
 
     computed: {
       projectID() {
-        return sciris.projectID(this);
+        return this.$sciris.projectID(this);
       },
 
       hasData() {
-        return sciris.hasData(this);
+        return this.$sciris.hasData(this);
       },
 
       hasPrograms() {
-        return sciris.hasPrograms(this);
+        return this.$sciris.hasPrograms(this);
       },
 
       simStart() {
-        return sciris.simStart(this);
+        return this.$sciris.simStart(this);
       },
 
       simEnd() {
-        return sciris.simEnd(this);
+        return this.$sciris.simEnd(this);
       },
 
       simYears() {
-        return sciris.simYears(this);
+        return this.$sciris.simYears(this);
       },
 
       activePops() {
-        return sciris.activePops(this);
+        return this.$sciris.activePops(this);
       },
 
       placeholders() {
-        return sciris.placeholders(this, 1);
+        return this.$sciris.placeholders(this, 1);
       },
 
       filteredParlist() {
@@ -36003,8 +26453,8 @@
     },
 
     created() {
-      sciris.addListener(this);
-      sciris.createDialogs(this);
+      this.$sciris.addListener(this);
+      this.$sciris.createDialogs(this);
 
       if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData) {
         console.log('created() called');
@@ -36029,52 +26479,52 @@
     },
     methods: {
       validateYears() {
-        return sciris.validateYears(this);
+        return this.$sciris.validateYears(this);
       },
 
       updateSets() {
-        return sciris.updateSets(this);
+        return this.$sciris.updateSets(this);
       },
 
       exportGraphs() {
-        return sciris.exportGraphs(this);
+        return this.$sciris.exportGraphs(this);
       },
 
       exportResults(datastoreID) {
-        return sciris.exportResults(this, datastoreID);
+        return this.$sciris.exportResults(this, datastoreID);
       },
 
       scaleFigs(frac) {
-        return sciris.scaleFigs(this, frac);
+        return this.$sciris.scaleFigs(this, frac);
       },
 
       clearGraphs() {
-        return sciris.clearGraphs(this);
+        return this.$sciris.clearGraphs(this);
       },
 
       togglePlotControls() {
-        return sciris.togglePlotControls(this);
+        return this.$sciris.togglePlotControls(this);
       },
 
       getPlotOptions(project_id) {
-        return sciris.getPlotOptions(this, project_id);
+        return this.$sciris.getPlotOptions(this, project_id);
       },
 
       makeGraphs(graphdata) {
-        return sciris.makeGraphs(this, graphdata, '/calibration');
+        return this.$sciris.makeGraphs(this, graphdata, '/calibration');
       },
 
       reloadGraphs(showErr) {
         // Set to calibration=true
-        return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, true);
+        return this.$sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, true);
       },
 
       maximize(legend_id) {
-        return sciris.maximize(this, legend_id);
+        return this.$sciris.maximize(this, legend_id);
       },
 
       minimize(legend_id) {
-        return sciris.minimize(this, legend_id);
+        return this.$sciris.minimize(this, legend_id);
       },
 
       toggleParams() {
@@ -36085,13 +26535,13 @@
         return new Promise((resolve, reject) => {
           console.log('loadParTable() called for ' + this.activeParset); // TODO: Get spinners working right for this leg of initialization.
 
-          sciris.rpc('get_y_factors', [this.projectID, this.activeParset, this.toolName()]).then(response => {
+          this.$sciris.rpc('get_y_factors', [this.projectID, this.activeParset, this.toolName()]).then(response => {
             this.parlist = response.data.parlist; // Get the parameter values
 
             var tmpParset = _.cloneDeep(this.activeParset);
 
             this.activeParset = null;
-            sciris.sleep(500).then(response => {
+            this.$sciris.sleep(500).then(response => {
               this.activeParset = tmpParset;
             });
             this.parlist.push('Update Vue DOM');
@@ -36102,7 +26552,7 @@
             console.log(this.parlist);
             resolve(response);
           }).catch(error => {
-            sciris.fail(this, 'Could not load parameters', error);
+            this.$sciris.fail(this, 'Could not load parameters', error);
             reject(error);
           });
         });
@@ -36110,15 +26560,15 @@
 
       saveParTable() {
         return new Promise((resolve, reject) => {
-          sciris.rpc('set_y_factors', [this.projectID, this.activeParset, this.parlist, this.toolName()]).then(response => {
+          this.$sciris.rpc('set_y_factors', [this.projectID, this.activeParset, this.parlist, this.toolName()]).then(response => {
             this.loadParTable().then(response2 => {
-              sciris.succeed(this, 'Parameters updated');
+              this.$sciris.succeed(this, 'Parameters updated');
               this.manualCalibration(this.projectID);
               resolve(response2);
             });
             resolve(response);
           }).catch(error => {
-            sciris.fail(this, 'Could not save parameters', error);
+            this.$sciris.fail(this, 'Could not save parameters', error);
             reject(error);
           });
         });
@@ -36138,75 +26588,75 @@
       renameParset() {
         console.log('renameParset() called for ' + this.activeParset);
         this.$modal.hide('rename-parset');
-        sciris.start(this);
-        sciris.rpc('rename_parset', [this.projectID, this.origParsetName, this.activeParset]) // Have the server copy the project, giving it a new name.
+        this.$sciris.start(this);
+        this.$sciris.rpc('rename_parset', [this.projectID, this.origParsetName, this.activeParset]) // Have the server copy the project, giving it a new name.
         .then(response => {
           this.updateSets(); // Update the project summaries so the copied program shows up on the list.
           // TODO: look into whether the above line is necessary
 
-          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" renamed'); // Indicate success.
+          this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" renamed'); // Indicate success.
         }).catch(error => {
-          sciris.fail(this, 'Could not rename parameter set', error);
+          this.$sciris.fail(this, 'Could not rename parameter set', error);
         });
       },
 
       copyParset() {
         console.log('copyParset() called for ' + this.activeParset);
-        sciris.start(this);
-        sciris.rpc('copy_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        this.$sciris.start(this);
+        this.$sciris.rpc('copy_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
         .then(response => {
           this.updateSets(); // Update the project summaries so the copied program shows up on the list.
           // TODO: look into whether the above line is necessary
 
           this.activeParset = response.data;
-          sciris.succeed(this, 'Parameter set "' + this.activeParset + '" copied'); // Indicate success.
+          this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" copied'); // Indicate success.
         }).catch(error => {
-          sciris.fail(this, 'Could not copy parameter set', error);
+          this.$sciris.fail(this, 'Could not copy parameter set', error);
         });
       },
 
       deleteParset() {
         console.log('deleteParset() called for ' + this.activeParset);
-        sciris.start(this);
-        sciris.rpc('delete_parset', [this.projectID, this.activeParset]) // Have the server delete the parset.
+        this.$sciris.start(this);
+        this.$sciris.rpc('delete_parset', [this.projectID, this.activeParset]) // Have the server delete the parset.
         .then(response => {
           this.updateSets() // Update the project summaries so the deleted parset shows up on the list.
           .then(response2 => {
             this.loadParTable(); // Reload the parameters.
 
-            sciris.succeed(this, 'Parameter set "' + this.activeParset + '" deleted'); // Indicate success.
+            this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" deleted'); // Indicate success.
           });
         }).catch(error => {
-          sciris.fail(this, 'Cannot delete last parameter set: ensure there are at least 2 parameter sets before deleting one', error);
+          this.$sciris.fail(this, 'Cannot delete last parameter set: ensure there are at least 2 parameter sets before deleting one', error);
         });
       },
 
       downloadParset() {
         console.log('downloadParset() called for ' + this.activeParset);
-        sciris.start(this);
-        sciris.download('download_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        this.$sciris.start(this);
+        this.$sciris.download('download_parset', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
         .then(response => {
           // Indicate success.
-          sciris.succeed(this, ''); // No green popup message.
+          this.$sciris.succeed(this, ''); // No green popup message.
         }).catch(error => {
-          sciris.fail(this, 'Could not download parameter set', error);
+          this.$sciris.fail(this, 'Could not download parameter set', error);
         });
       },
 
       uploadParset() {
         console.log('uploadParset() called');
-        sciris.upload('upload_parset', [this.projectID], {}, '.par') // Have the server copy the project, giving it a new name.
+        this.$sciris.upload('upload_parset', [this.projectID], {}, '.par') // Have the server copy the project, giving it a new name.
         .then(response => {
-          sciris.start(this);
+          this.$sciris.start(this);
           this.updateSets() // Update the project summaries so the copied program shows up on the list.
           .then(response2 => {
             this.activeParset = response.data;
             this.loadParTable(); // Reload the parameters.
 
-            sciris.succeed(this, 'Parameter set "' + this.activeParset + '" uploaded'); // Indicate success.
+            this.$sciris.succeed(this, 'Parameter set "' + this.activeParset + '" uploaded'); // Indicate success.
           });
         }).catch(error => {
-          sciris.fail(this, 'Could not upload parameter set', error);
+          this.$sciris.fail(this, 'Could not upload parameter set', error);
         });
       },
 
@@ -36214,8 +26664,8 @@
         console.log('manualCalibration() called');
         this.validateYears(); // Make sure the start end years are in the right range.
 
-        sciris.start(this);
-        sciris.rpc('manual_calibration', [project_id, this.serverDatastoreId], {
+        this.$sciris.start(this);
+        this.$sciris.rpc('manual_calibration', [project_id, this.serverDatastoreId], {
           'parsetname': this.activeParset,
           'plot_options': this.plotOptions,
           'plotyear': this.endYear,
@@ -36226,10 +26676,10 @@
         .then(response => {
           this.makeGraphs(response.data);
           this.table = response.data.table;
-          sciris.succeed(this, 'Simulation run, graphs now rendering...');
+          this.$sciris.succeed(this, 'Simulation run, graphs now rendering...');
         }).catch(error => {
           console.log(error.message);
-          sciris.fail(this, 'Could not run manual calibration', error);
+          this.$sciris.fail(this, 'Could not run manual calibration', error);
         });
       },
 
@@ -36237,7 +26687,7 @@
         console.log('autoCalibrate() called');
         this.validateYears(); // Make sure the start end years are in the right range.
 
-        sciris.start(this);
+        this.$sciris.start(this);
 
         if (this.calibTime === '30 seconds') {
           var maxtime = 30;
@@ -36245,7 +26695,7 @@
           var maxtime = 9999;
         }
 
-        sciris.rpc('automatic_calibration', [project_id, this.serverDatastoreId], {
+        this.$sciris.rpc('automatic_calibration', [project_id, this.serverDatastoreId], {
           'parsetname': this.activeParset,
           'max_time': maxtime,
           'plot_options': this.plotOptions,
@@ -36257,22 +26707,22 @@
         .then(response => {
           this.table = response.data.table;
           this.makeGraphs(response.data.graphs);
-          sciris.succeed(this, 'Simulation run, graphs now rendering...');
+          this.$sciris.succeed(this, 'Simulation run, graphs now rendering...');
         }).catch(error => {
           console.log(error.message);
-          sciris.fail(this, 'Could not run automatic calibration', error);
+          this.$sciris.fail(this, 'Could not run automatic calibration', error);
         });
       },
 
       reconcile() {
         console.log('reconcile() called for ' + this.activeParset);
-        sciris.start(this);
-        sciris.download('reconcile', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
+        this.$sciris.start(this);
+        this.$sciris.download('reconcile', [this.projectID, this.activeParset]) // Have the server copy the project, giving it a new name.
         .then(response => {
           // Indicate success.
-          sciris.succeed(this, ''); // No green popup message.
+          this.$sciris.succeed(this, ''); // No green popup message.
         }).catch(error => {
-          sciris.fail(this, 'Could not reconcile program set', error);
+          this.$sciris.fail(this, 'Could not reconcile program set', error);
         });
       }
 
@@ -36303,7 +26753,7 @@
 
     computed: {
       getVersionInfo() {
-        sciris.rpc('get_version_info').then(response => {
+        this.$sciris.rpc('get_version_info').then(response => {
           this.username = this.$store.state.currentUser.username;
           this.useragent = window.navigator.userAgent;
           this.timestamp = Date(Date.now()).toLocaleString();
@@ -36345,13 +26795,13 @@
 
       adv_submit() {
         console.log('adv_submit() called');
-        sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
+        this.$sciris.rpc('run_query', [this.adv_authentication, this.adv_query]) // Have the server copy the project, giving it a new name.
         .then(response => {
           console.log(response.data);
           this.adv_response = response.data.replace(/\n/g, '<br>');
-          sciris.succeed(this, 'Query run'); // Indicate success.
+          this.$sciris.succeed(this, 'Query run'); // Indicate success.
         }).catch(error => {
-          sciris.fail(this, 'Could not run query', error);
+          this.$sciris.fail(this, 'Could not run query', error);
         });
       }
 
@@ -36399,42 +26849,42 @@
 
     computed: {
       projectID() {
-        return sciris.projectID(this);
+        return this.$sciris.projectID(this);
       },
 
       hasData() {
-        return sciris.hasData(this);
+        return this.$sciris.hasData(this);
       },
 
       hasPrograms() {
-        return sciris.hasPrograms(this);
+        return this.$sciris.hasPrograms(this);
       },
 
       simStart() {
-        return sciris.dataEnd(this);
+        return this.$sciris.dataEnd(this);
       },
 
       simEnd() {
-        return sciris.simEnd(this);
+        return this.$sciris.simEnd(this);
       },
 
       projectionYears() {
-        return sciris.projectionYears(this);
+        return this.$sciris.projectionYears(this);
       },
 
       activePops() {
-        return sciris.activePops(this);
+        return this.$sciris.activePops(this);
       },
 
       placeholders() {
-        return sciris.placeholders(this, 1);
+        return this.$sciris.placeholders(this, 1);
       }
 
     },
 
     created() {
-      sciris.addListener(this);
-      sciris.createDialogs(this);
+      this.$sciris.addListener(this);
+      this.$sciris.createDialogs(this);
 
       if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
         console.log('created() called');
@@ -36455,95 +26905,95 @@
 
     methods: {
       validateYears() {
-        return sciris.validateYears(this);
+        return this.$sciris.validateYears(this);
       },
 
       updateSets() {
-        return sciris.updateSets(this);
+        return this.$sciris.updateSets(this);
       },
 
       exportGraphs() {
-        return sciris.exportGraphs(this);
+        return this.$sciris.exportGraphs(this);
       },
 
       exportResults(datastoreID) {
-        return sciris.exportResults(this, datastoreID);
+        return this.$sciris.exportResults(this, datastoreID);
       },
 
       scaleFigs(frac) {
-        return sciris.scaleFigs(this, frac);
+        return this.$sciris.scaleFigs(this, frac);
       },
 
       clearGraphs() {
-        return sciris.clearGraphs(this);
+        return this.$sciris.clearGraphs(this);
       },
 
       togglePlotControls() {
-        return sciris.togglePlotControls(this);
+        return this.$sciris.togglePlotControls(this);
       },
 
       getPlotOptions(project_id) {
-        return sciris.getPlotOptions(this, project_id);
+        return this.$sciris.getPlotOptions(this, project_id);
       },
 
       makeGraphs(graphdata) {
-        return sciris.makeGraphs(this, graphdata, '/scenarios');
+        return this.$sciris.makeGraphs(this, graphdata, '/scenarios');
       },
 
       reloadGraphs(showErr) {
-        return sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true);
+        return this.$sciris.reloadGraphs(this, this.projectID, this.serverDatastoreId, showErr, false, true);
       },
 
       // Set to calibration=false, plotbudget=true
       maximize(legend_id) {
-        return sciris.maximize(this, legend_id);
+        return this.$sciris.maximize(this, legend_id);
       },
 
       minimize(legend_id) {
-        return sciris.minimize(this, legend_id);
+        return this.$sciris.minimize(this, legend_id);
       },
 
       getDefaultBudgetScen() {
         console.log('getDefaultBudgetScen() called');
-        sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+        this.$sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
           this.defaultBudgetScen = response.data; // Set the scenario to what we received.
 
           console.log('This is the default:');
           console.log(this.defaultBudgetScen);
         }).catch(error => {
-          sciris.fail(this, 'Could not get default budget scenario', error);
+          this.$sciris.fail(this, 'Could not get default budget scenario', error);
         });
       },
 
       getScenSummaries() {
         console.log('getScenSummaries() called');
-        sciris.start(this);
-        sciris.rpc('get_scen_info', [this.projectID]).then(response => {
+        this.$sciris.start(this);
+        this.$sciris.rpc('get_scen_info', [this.projectID]).then(response => {
           this.scenSummaries = response.data; // Set the scenarios to what we received.
 
           console.log('Scenario summaries:');
           console.log(this.scenSummaries);
           this.scenariosLoaded = true;
-          sciris.succeed(this, 'Scenarios loaded');
+          this.$sciris.succeed(this, 'Scenarios loaded');
         }).catch(error => {
-          sciris.fail(this, 'Could not get scenarios', error);
+          this.$sciris.fail(this, 'Could not get scenarios', error);
         });
       },
 
       setScenSummaries() {
         console.log('setScenSummaries() called');
-        sciris.start(this);
-        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-          sciris.succeed(this, 'Scenarios saved');
+        this.$sciris.start(this);
+        this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Scenarios saved');
         }).catch(error => {
-          sciris.fail(this, 'Could not save scenarios', error);
+          this.$sciris.fail(this, 'Could not save scenarios', error);
         });
       },
 
       addBudgetScenModal() {
         // Open a model dialog for creating a new project
         console.log('addBudgetScenModal() called');
-        sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
+        this.$sciris.rpc('get_default_budget_scen', [this.projectID]).then(response => {
           this.defaultBudgetScen = response.data; // Set the scenario to what we received.
 
           this.addEditModal.scenSummary = _.cloneDeep(this.defaultBudgetScen);
@@ -36552,14 +27002,14 @@
           this.$modal.show('add-budget-scen');
           console.log(this.defaultBudgetScen);
         }).catch(error => {
-          sciris.fail(this, 'Could not open add scenario modal', error);
+          this.$sciris.fail(this, 'Could not open add scenario modal', error);
         });
       },
 
       addBudgetScen() {
         console.log('addBudgetScen() called');
         this.$modal.hide('add-budget-scen');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         let newScen = _.cloneDeep(this.addEditModal.scenSummary); // Get the new scenario summary from the modal.
 
@@ -36583,16 +27033,16 @@
           }
         } else {
           // Else (we are adding a new scenario)...
-          newScen.name = sciris.getUniqueName(newScen.name, scenNames);
+          newScen.name = this.$sciris.getUniqueName(newScen.name, scenNames);
           this.scenSummaries.push(newScen);
         }
 
         console.log(newScen);
         console.log(this.scenSummaries);
-        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-          sciris.succeed(this, 'Scenario added');
+        this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Scenario added');
         }).catch(error => {
-          sciris.fail(this, 'Could not add scenario', error);
+          this.$sciris.fail(this, 'Could not add scenario', error);
         });
       },
 
@@ -36610,7 +27060,7 @@
 
       copyScen(scenSummary) {
         console.log('copyScen() called');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         var newScen = _.cloneDeep(scenSummary);
 
@@ -36618,18 +27068,18 @@
         this.scenSummaries.forEach(scenSum => {
           otherNames.push(scenSum.name);
         });
-        newScen.name = sciris.getUniqueName(newScen.name, otherNames);
+        newScen.name = this.$sciris.getUniqueName(newScen.name, otherNames);
         this.scenSummaries.push(newScen);
-        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-          sciris.succeed(this, 'Scenario copied');
+        this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Scenario copied');
         }).catch(error => {
-          sciris.fail(this, 'Could not copy scenario', error);
+          this.$sciris.fail(this, 'Could not copy scenario', error);
         });
       },
 
       deleteScen(scenSummary) {
         console.log('deleteScen() called');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         for (var i = 0; i < this.scenSummaries.length; i++) {
           if (this.scenSummaries[i].name === scenSummary.name) {
@@ -36637,10 +27087,10 @@
           }
         }
 
-        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
-          sciris.succeed(this, 'Scenario deleted');
+        this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Scenario deleted');
         }).catch(error => {
-          sciris.fail(this, 'Could not delete scenario', error);
+          this.$sciris.fail(this, 'Could not delete scenario', error);
         });
       },
 
@@ -36648,11 +27098,11 @@
         console.log('runScens() called');
         this.validateYears(); // Make sure the start end years are in the right range.
 
-        sciris.start(this);
-        sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
+        this.$sciris.start(this);
+        this.$sciris.rpc('set_scen_info', [this.projectID, this.scenSummaries]) // Make sure they're saved first
         .then(response => {
           // Go to the server to get the results from the package set.
-          sciris.rpc('run_scenarios', [this.projectID, this.serverDatastoreId, this.plotOptions], {
+          this.$sciris.rpc('run_scenarios', [this.projectID, this.serverDatastoreId, this.plotOptions], {
             saveresults: false,
             tool: this.toolName(),
             plotyear: this.endYear,
@@ -36660,12 +27110,12 @@
           }).then(response => {
             this.table = response.data.table;
             this.makeGraphs(response.data);
-            sciris.succeed(this, ''); // Success message in graphs function
+            this.$sciris.succeed(this, ''); // Success message in graphs function
           }).catch(error => {
-            sciris.fail(this, 'Could not run scenarios', error);
+            this.$sciris.fail(this, 'Could not run scenarios', error);
           });
         }).catch(error => {
-          sciris.fail(this, 'Could not set scenarios', error);
+          this.$sciris.fail(this, 'Could not set scenarios', error);
         });
       }
 
@@ -36709,7 +27159,7 @@
 
     computed: {
       projectID() {
-        return sciris.projectID(this);
+        return this.$sciris.projectID(this);
       },
 
       userName() {
@@ -36717,7 +27167,7 @@
       },
 
       simYears() {
-        return sciris.simYears(this);
+        return this.$sciris.simYears(this);
       },
 
       sortedFilteredProjectSummaries() {
@@ -36727,7 +27177,7 @@
     },
     methods: {
       updateSorting() {
-        return sciris.updateSorting(this);
+        return this.$sciris.updateSorting(this);
       },
 
       projectLoaded(uid) {
@@ -36747,7 +27197,7 @@
 
       getDemoOptions() {
         console.log('getDemoOptions() called');
-        sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
+        this.$sciris.rpc('get_demo_project_options') // Get the current user's framework summaries from the server.
         .then(response => {
           this.demoOptions = response.data; // Set the frameworks to what we received.
 
@@ -36756,27 +27206,27 @@
           console.log(this.demoOptions);
           console.log(this.demoOption);
         }).catch(error => {
-          sciris.fail(this, 'Could not load demo project options', error);
+          this.$sciris.fail(this, 'Could not load demo project options', error);
         });
       },
 
       getDefaultPrograms() {
         console.log('getDefaultPrograms() called');
-        sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
+        this.$sciris.rpc('get_default_programs') // Get the current user's framework summaries from the server.
         .then(response => {
           this.defaultPrograms = response.data; // Set the frameworks to what we received.
 
           console.log('Loaded default programs:');
           console.log(this.defaultPrograms);
         }).catch(error => {
-          sciris.fail(this, 'Could not load default programs', error);
+          this.$sciris.fail(this, 'Could not load default programs', error);
         });
       },
 
       updateFrameworkSummaries() {
         console.log('updateFrameworkSummaries() called'); // Get the current user's framework summaries from the server.
 
-        sciris.rpc('jsonify_frameworks', [this.userName]).then(response => {
+        this.$sciris.rpc('jsonify_frameworks', [this.userName]).then(response => {
           // Set the frameworks to what we received.
           this.frameworkSummaries = response.data.frameworks;
 
@@ -36789,14 +27239,14 @@
             console.log('No framework summaries found');
           }
         }).catch(error => {
-          sciris.fail(this, 'Could not load frameworks', error);
+          this.$sciris.fail(this, 'Could not load frameworks', error);
         });
       },
 
       updateProjectSummaries(setActiveID) {
         console.log('updateProjectSummaries() called');
-        sciris.start(this);
-        sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
+        this.$sciris.start(this);
+        this.$sciris.rpc('jsonify_projects', [this.userName]) // Get the current user's project summaries from the server.
         .then(response => {
           let lastCreationTime = null;
           let lastCreatedID = null;
@@ -36834,16 +27284,16 @@
             }
           }
 
-          sciris.succeed(this, ''); // No green popup.
+          this.$sciris.succeed(this, ''); // No green popup.
         }).catch(error => {
-          sciris.fail(this, 'Could not load projects', error);
+          this.$sciris.fail(this, 'Could not load projects', error);
         });
       },
 
       addDemoProject() {
         console.log('addDemoProject() called');
         this.$modal.hide('demo-project');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         if (this.toolName() === 'cascade') {
           var demoOption = this.demoOption;
@@ -36852,13 +27302,13 @@
         } // Have the server create a new project.
 
 
-        sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
+        this.$sciris.rpc('add_demo_project', [this.userName, demoOption, this.toolName()]).then(response => {
           // Update the project summaries so the new project shows up on the list.
           this.updateProjectSummaries(response.data.projectID); // Already have notification from project
 
-          sciris.succeed(this, '');
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not add demo project', error);
+          this.$sciris.fail(this, 'Could not add demo project', error);
         });
       },
 
@@ -36885,9 +27335,9 @@
       createNewProject() {
         console.log('createNewProject() called');
         this.$modal.hide('create-project');
-        sciris.start(this);
+        this.$sciris.start(this);
         var frameworkID = this.getFrameworkID();
-        sciris.download('create_new_project', // Have the server create a new project.
+        this.$sciris.download('create_new_project', // Have the server create a new project.
         [this.userName, frameworkID, this.proj_name, this.num_pops, this.num_progs, this.data_start, this.data_end], {
           tool: this.toolName()
         }).then(response => {
@@ -36895,23 +27345,23 @@
           // Note: There's no easy way to get the new project UID to tell the 
           // project update to choose the new project because the RPC cannot pass it back.
           this.updateProjectSummaries(null);
-          sciris.succeed(this, 'New project "' + this.proj_name + '" created');
+          this.$sciris.succeed(this, 'New project "' + this.proj_name + '" created');
         }).catch(error => {
-          sciris.fail(this, 'Could not add new project:' + error.message);
+          this.$sciris.fail(this, 'Could not add new project:' + error.message);
         });
       },
 
       uploadProjectFromFile() {
         console.log('uploadProjectFromFile() called');
-        sciris.upload('upload_project', [this.userName], {}, '.prj') // Have the server upload the project.
+        this.$sciris.upload('upload_project', [this.userName], {}, '.prj') // Have the server upload the project.
         .then(response => {
           // This line needs to be here to avoid the spinner being up during the user modal.
-          sciris.start(this); // Update the project summaries so the new project shows up on the list.
+          this.$sciris.start(this); // Update the project summaries so the new project shows up on the list.
 
           this.updateProjectSummaries(response.data.projectID);
-          sciris.succeed(this, 'New project uploaded');
+          this.$sciris.succeed(this, 'New project uploaded');
         }).catch(error => {
-          sciris.fail(this, 'Could not upload file', error);
+          this.$sciris.fail(this, 'Could not upload file', error);
         });
       },
 
@@ -36964,22 +27414,22 @@
         console.log('openProject() called for ' + matchProject.project.name);
         this.$store.commit('newActiveProject', matchProject); // Set the active project to the matched project.
 
-        sciris.succeed(this, 'Project "' + matchProject.project.name + '" loaded'); // Success popup.
+        this.$sciris.succeed(this, 'Project "' + matchProject.project.name + '" loaded'); // Success popup.
       },
 
       copyProject(uid) {
         let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid); // Find the project that matches the UID passed in.
 
         console.log('copyProject() called for ' + matchProject.project.name);
-        sciris.start(this);
-        sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
+        this.$sciris.start(this);
+        this.$sciris.rpc('copy_project', [uid]) // Have the server copy the project, giving it a new name.
         .then(response => {
           // Update the project summaries so the copied program shows up on the list.
           this.updateProjectSummaries(response.data.projectID); // Indicate success.
 
-          sciris.succeed(this, 'Project "' + matchProject.project.name + '" copied');
+          this.$sciris.succeed(this, 'Project "' + matchProject.project.name + '" copied');
         }).catch(error => {
-          sciris.fail(this, 'Could not copy project', error);
+          this.$sciris.fail(this, 'Could not copy project', error);
         });
       },
 
@@ -37015,16 +27465,16 @@
 
 
           newProjectSummary.project.name = projectSummary.renaming;
-          sciris.start(this); // Have the server change the name of the project by passing in the new copy of the summary.
+          this.$sciris.start(this); // Have the server change the name of the project by passing in the new copy of the summary.
 
-          sciris.rpc('rename_project', [newProjectSummary]).then(response => {
+          this.$sciris.rpc('rename_project', [newProjectSummary]).then(response => {
             // Update the project summaries so the rename shows up on the list.
             this.updateProjectSummaries(newProjectSummary.project.id); // Turn off the renaming mode.
 
             projectSummary.renaming = '';
-            sciris.succeed(this, '');
+            this.$sciris.succeed(this, '');
           }).catch(error => {
-            sciris.fail(this, 'Could not rename project', error);
+            this.$sciris.fail(this, 'Could not rename project', error);
           });
         } // This silly hack is done to make sure that the Vue component gets updated by this function call.
         // Something about resetting the project name informs the Vue component it needs to
@@ -37041,13 +27491,13 @@
         // Find the project that matches the UID passed in.
         let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
         console.log('downloadProjectFile() called for ' + matchProject.project.name);
-        sciris.start(this); // Make the server call to download the project to a .prj file.
+        this.$sciris.start(this); // Make the server call to download the project to a .prj file.
 
-        sciris.download('download_project', [uid]).then(response => {
+        this.$sciris.download('download_project', [uid]).then(response => {
           // Indicate success.
-          sciris.succeed(this, '');
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not download project', error);
+          this.$sciris.fail(this, 'Could not download project', error);
         });
       },
 
@@ -37055,21 +27505,21 @@
         // Find the project that matches the UID passed in.
         let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
         console.log('downloadFramework() called for ' + matchProject.project.name);
-        sciris.start(this, 'Downloading framework...');
-        sciris.download('download_framework_from_project', [uid]).then(response => {
-          sciris.succeed(this, '');
+        this.$sciris.start(this, 'Downloading framework...');
+        this.$sciris.download('download_framework_from_project', [uid]).then(response => {
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not download framework', error);
+          this.$sciris.fail(this, 'Could not download framework', error);
         });
       },
 
       downloadDatabook(uid) {
         console.log('downloadDatabook() called');
-        sciris.start(this, 'Downloading data book...');
-        sciris.download('download_databook', [uid]).then(response => {
-          sciris.succeed(this, '');
+        this.$sciris.start(this, 'Downloading data book...');
+        this.$sciris.download('download_databook', [uid]).then(response => {
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not download databook', error);
+          this.$sciris.fail(this, 'Could not download databook', error);
         });
       },
 
@@ -37077,11 +27527,11 @@
         // Find the project that matches the UID passed in.
         let matchProject = this.projectSummaries.find(theProj => theProj.project.id === uid);
         console.log('downloadProgbook() called for ' + matchProject.project.name);
-        sciris.start(this, 'Downloading program book...');
-        sciris.download('download_progbook', [uid]).then(response => {
-          sciris.succeed(this, '');
+        this.$sciris.start(this, 'Downloading program book...');
+        this.$sciris.download('download_progbook', [uid]).then(response => {
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not download program book', error);
+          this.$sciris.fail(this, 'Could not download program book', error);
         });
       },
 
@@ -37090,11 +27540,11 @@
         let uid = this.activeuid;
         console.log('createProgbook() called');
         this.$modal.hide('create-progbook');
-        sciris.start(this, 'Creating program book...');
-        sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear]).then(response => {
-          sciris.succeed(this, '');
+        this.$sciris.start(this, 'Creating program book...');
+        this.$sciris.download('create_progbook', [uid, this.num_progs, this.progStartYear, this.progEndYear]).then(response => {
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not create program book', error);
+          this.$sciris.fail(this, 'Could not create program book', error);
         });
       },
 
@@ -37103,37 +27553,37 @@
         let uid = this.activeuid;
         console.log('createDefaultProgbook() called');
         this.$modal.hide('create-progbook');
-        sciris.start(this, 'Creating default program book...');
-        sciris.download('create_default_progbook', [uid, this.progStartYear, this.progEndYear, this.defaultPrograms]) // TODO: set years
+        this.$sciris.start(this, 'Creating default program book...');
+        this.$sciris.download('create_default_progbook', [uid, this.progStartYear, this.progEndYear, this.defaultPrograms]) // TODO: set years
         .then(response => {
-          sciris.succeed(this, '');
+          this.$sciris.succeed(this, '');
         }).catch(error => {
-          sciris.fail(this, 'Could not create program book', error);
+          this.$sciris.fail(this, 'Could not create program book', error);
         });
       },
 
       uploadDatabook(uid) {
         console.log('uploadDatabook() called');
-        sciris.upload('upload_databook', [uid], {}, '.xlsx').then(response => {
-          sciris.start(this, 'Uploading databook...'); // Update the project summaries so the copied program shows up on the list.
+        this.$sciris.upload('upload_databook', [uid], {}, '.xlsx').then(response => {
+          this.$sciris.start(this, 'Uploading databook...'); // Update the project summaries so the copied program shows up on the list.
 
           this.updateProjectSummaries(uid);
-          sciris.succeed(this, 'Data uploaded');
+          this.$sciris.succeed(this, 'Data uploaded');
         }).catch(error => {
-          sciris.fail(this, 'Could not upload databook', error);
+          this.$sciris.fail(this, 'Could not upload databook', error);
         });
       },
 
       uploadProgbook(uid) {
         // Find the project that matches the UID passed in.
         console.log('uploadProgbook() called');
-        sciris.upload('upload_progbook', [uid], {}, '.xlsx').then(response => {
-          sciris.start(this); // Update the project summaries so the copied program shows up on the list.
+        this.$sciris.upload('upload_progbook', [uid], {}, '.xlsx').then(response => {
+          this.$sciris.start(this); // Update the project summaries so the copied program shows up on the list.
 
           this.updateProjectSummaries(uid);
-          sciris.succeed(this, 'Programs uploaded'); // Indicate success.
+          this.$sciris.succeed(this, 'Programs uploaded'); // Indicate success.
         }).catch(error => {
-          sciris.fail(this, 'Could not upload program book', error);
+          this.$sciris.fail(this, 'Could not upload program book', error);
         });
       },
 
@@ -37162,8 +27612,8 @@
         console.log('deleteSelectedProjects() called for ', selectProjectsUIDs); // Have the server delete the selected projects.
 
         if (selectProjectsUIDs.length > 0) {
-          sciris.start(this);
-          sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName]).then(response => {
+          this.$sciris.start(this);
+          this.$sciris.rpc('delete_projects', [selectProjectsUIDs, this.userName]).then(response => {
             // Get the active project ID.
             let activeProjectId = this.$store.state.activeProject.project.id;
 
@@ -37182,9 +27632,9 @@
 
 
             this.updateProjectSummaries(activeProjectId);
-            sciris.succeed(this, '');
+            this.$sciris.succeed(this, '');
           }).catch(error => {
-            sciris.fail(this, 'Could not delete project/s', error);
+            this.$sciris.fail(this, 'Could not delete project/s', error);
           });
         }
       },
@@ -37195,11 +27645,11 @@
         console.log('downloadSelectedProjects() called for ', selectProjectsUIDs); // Have the server download the selected projects.
 
         if (selectProjectsUIDs.length > 0) {
-          sciris.start(this);
-          sciris.download('download_projects', [selectProjectsUIDs, this.userName]).then(response => {
-            sciris.succeed(this, '');
+          this.$sciris.start(this);
+          this.$sciris.download('download_projects', [selectProjectsUIDs, this.userName]).then(response => {
+            this.$sciris.succeed(this, '');
           }).catch(error => {
-            sciris.fail(this, 'Could not download project/s', error);
+            this.$sciris.fail(this, 'Could not download project/s', error);
           });
         }
       }
@@ -37251,42 +27701,42 @@
 
     computed: {
       projectID() {
-        return sciris.projectID(this);
+        return this.$sciris.projectID(this);
       },
 
       hasData() {
-        return sciris.hasData(this);
+        return this.$sciris.hasData(this);
       },
 
       hasPrograms() {
-        return sciris.hasPrograms(this);
+        return this.$sciris.hasPrograms(this);
       },
 
       simStart() {
-        return sciris.simStart(this);
+        return this.$sciris.simStart(this);
       },
 
       simEnd() {
-        return sciris.simEnd(this);
+        return this.$sciris.simEnd(this);
       },
 
       projectionYears() {
-        return sciris.projectionYears(this);
+        return this.$sciris.projectionYears(this);
       },
 
       activePops() {
-        return sciris.activePops(this);
+        return this.$sciris.activePops(this);
       },
 
       placeholders() {
-        return sciris.placeholders(this, 1);
+        return this.$sciris.placeholders(this, 1);
       }
 
     },
 
     created() {
-      sciris.addListener(this);
-      sciris.createDialogs(this);
+      this.$sciris.addListener(this);
+      this.$sciris.createDialogs(this);
 
       if (this.$store.state.activeProject.project !== undefined && this.$store.state.activeProject.project.hasData && this.$store.state.activeProject.project.hasPrograms) {
         console.log('created() called');
@@ -37303,52 +27753,52 @@
 
     methods: {
       validateYears() {
-        return sciris.validateYears(this);
+        return this.$sciris.validateYears(this);
       },
 
       updateSets() {
-        return sciris.updateSets(this);
+        return this.$sciris.updateSets(this);
       },
 
       exportGraphs() {
-        return sciris.exportGraphs(this);
+        return this.$sciris.exportGraphs(this);
       },
 
       exportResults(datastoreID) {
-        return sciris.exportResults(this, datastoreID);
+        return this.$sciris.exportResults(this, datastoreID);
       },
 
       scaleFigs(frac) {
-        return sciris.scaleFigs(this, frac);
+        return this.$sciris.scaleFigs(this, frac);
       },
 
       clearGraphs() {
-        return sciris.clearGraphs(this);
+        return this.$sciris.clearGraphs(this);
       },
 
       togglePlotControls() {
-        return sciris.togglePlotControls(this);
+        return this.$sciris.togglePlotControls(this);
       },
 
       getPlotOptions(project_id) {
-        return sciris.getPlotOptions(this, project_id);
+        return this.$sciris.getPlotOptions(this, project_id);
       },
 
       makeGraphs(graphdata) {
-        return sciris.makeGraphs(this, graphdata, '/optimizations');
+        return this.$sciris.makeGraphs(this, graphdata, '/optimizations');
       },
 
       reloadGraphs(cache_id, showErr) {
-        return sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true);
+        return this.$sciris.reloadGraphs(this, this.projectID, cache_id, showErr, false, true);
       },
 
       // Set to calibration=false, plotbudget=True
       maximize(legend_id) {
-        return sciris.maximize(this, legend_id);
+        return this.$sciris.maximize(this, legend_id);
       },
 
       minimize(legend_id) {
-        return sciris.minimize(this, legend_id);
+        return this.$sciris.minimize(this, legend_id);
       },
 
       statusFormatStr(optimSummary) {
@@ -37415,7 +27865,7 @@
         return new Promise((resolve, reject) => {
           console.log('getOptimTaskState() called for with: ' + optimSummary.status);
           let statusStr = '';
-          sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
+          this.$sciris.rpc('check_task', [optimSummary.serverDatastoreId]) // Check the status of the task.
           .then(result => {
             statusStr = result.data.task.status;
             optimSummary.status = statusStr;
@@ -37510,7 +27960,7 @@
           if (this.needToPoll()) {
             // Sleep waitingtime seconds.
             let waitingtime = 1;
-            sciris.sleep(waitingtime * 1000).then(response => {
+            this.$sciris.sleep(waitingtime * 1000).then(response => {
               this.doTaskPolling(false); // Call the next polling, in a way that doesn't check_task() for _every_ task.
             });
           } // Otherwise, flag that we're no longer polling.
@@ -37525,9 +27975,9 @@
           let datastoreId = optimSummary.serverDatastoreId; // hack because this gets overwritten soon by caller
 
           console.log('clearTask() called for ' + this.currentOptim);
-          sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
+          this.$sciris.rpc('del_result', [datastoreId, this.projectID]) // Delete cached result.
           .then(response => {
-            sciris.rpc('delete_task', [datastoreId]).then(response => {
+            this.$sciris.rpc('delete_task', [datastoreId]).then(response => {
               this.getOptimTaskState(optimSummary); // Get the task state for the optimization.
 
               if (!this.pollingTasks) {
@@ -37546,8 +27996,8 @@
 
       getOptimSummaries() {
         console.log('getOptimSummaries() called');
-        sciris.start(this);
-        sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
+        this.$sciris.start(this);
+        this.$sciris.rpc('get_optim_info', [this.projectID]) // Get the current project's optimization summaries from the server.
         .then(response => {
           this.optimSummaries = response.data; // Set the optimizations to what we received.
 
@@ -37563,26 +28013,26 @@
           this.doTaskPolling(true); // start task polling, kicking off with running check_task() for all optimizations
 
           this.optimsLoaded = true;
-          sciris.succeed(this, 'Optimizations loaded');
+          this.$sciris.succeed(this, 'Optimizations loaded');
         }).catch(error => {
-          sciris.fail(this, 'Could not load optimizations', error);
+          this.$sciris.fail(this, 'Could not load optimizations', error);
         });
       },
 
       setOptimSummaries() {
         console.log('setOptimSummaries() called');
-        sciris.start(this);
-        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-          sciris.succeed(this, 'Optimizations saved');
+        this.$sciris.start(this);
+        this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Optimizations saved');
         }).catch(error => {
-          sciris.fail(this, 'Could not save optimizations', error);
+          this.$sciris.fail(this, 'Could not save optimizations', error);
         });
       },
 
       addOptimModal(optim_type) {
         // Open a model dialog for creating a new project
         console.log('addOptimModal() called for ' + optim_type);
-        sciris.rpc('get_default_optim', [this.projectID, this.toolName(), optim_type]).then(response => {
+        this.$sciris.rpc('get_default_optim', [this.projectID, this.toolName(), optim_type]).then(response => {
           this.defaultOptim = response.data; // Set the optimization to what we received.
 
           this.resetModal(response.data);
@@ -37596,7 +28046,7 @@
       saveOptim() {
         console.log('saveOptim() called');
         this.$modal.hide('add-optim');
-        sciris.start(this);
+        this.$sciris.start(this);
         this.endYear = this.modalOptim.end_year;
 
         let newOptim = _.cloneDeep(this.modalOptim); // Get the new optimization summary from the modal.
@@ -37634,11 +28084,11 @@
             newOptim.pendingTime = '--';
             newOptim.executionTime = '--';
           } else {
-            sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit');
+            this.$sciris.fail(this, 'Could not find optimization "' + this.addEditDialogOldName + '" to edit');
           }
         } else {
           // Else (we are adding a new optimization)...
-          newOptim.name = sciris.getUniqueName(newOptim.name, optimNames);
+          newOptim.name = this.$sciris.getUniqueName(newOptim.name, optimNames);
           newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
           this.optimSummaries.push(newOptim);
           this.getOptimTaskState(newOptim).then(result => {
@@ -37648,11 +28098,11 @@
           });
         }
 
-        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-          sciris.succeed(this, 'Optimization added');
+        this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Optimization added');
           this.resetModal(this.defaultOptim);
         }).catch(error => {
-          sciris.fail(this, 'Could not add optimization', error);
+          this.$sciris.fail(this, 'Could not add optimization', error);
         });
       },
 
@@ -37679,7 +28129,7 @@
 
       copyOptim(optimSummary) {
         console.log('copyOptim() called');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         var newOptim = _.cloneDeep(optimSummary);
 
@@ -37687,20 +28137,20 @@
         this.optimSummaries.forEach(optimSum => {
           otherNames.push(optimSum.name);
         });
-        newOptim.name = sciris.getUniqueName(newOptim.name, otherNames);
+        newOptim.name = this.$sciris.getUniqueName(newOptim.name, otherNames);
         newOptim.serverDatastoreId = this.$store.state.activeProject.project.id + ':opt-' + newOptim.name;
         this.optimSummaries.push(newOptim);
         this.getOptimTaskState(newOptim);
-        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-          sciris.succeed(this, 'Optimization copied');
+        this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Optimization copied');
         }).catch(error => {
-          sciris.fail(this, 'Could not copy optimization', error);
+          this.$sciris.fail(this, 'Could not copy optimization', error);
         });
       },
 
       deleteOptim(optimSummary) {
         console.log('deleteOptim() called');
-        sciris.start(this);
+        this.$sciris.start(this);
 
         if (optimSummary.status !== 'not started') {
           this.clearTask(optimSummary); // Clear the task from the server.
@@ -37712,10 +28162,10 @@
           }
         }
 
-        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
-          sciris.succeed(this, 'Optimization deleted');
+        this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]).then(response => {
+          this.$sciris.succeed(this, 'Optimization deleted');
         }).catch(error => {
-          sciris.fail(this, 'Could not delete optimization', error);
+          this.$sciris.fail(this, 'Could not delete optimization', error);
         });
       },
 
@@ -37723,11 +28173,11 @@
         console.log('runOptim() called for ' + this.currentOptim + ' for time: ' + maxtime);
         this.validateYears(); // Make sure the end year is sensibly set.
 
-        sciris.start(this);
+        this.$sciris.start(this);
         var RPCname = this.getOptimizationRPCName();
-        sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
+        this.$sciris.rpc('set_optim_info', [this.projectID, this.optimSummaries]) // Make sure they're saved first
         .then(response => {
-          sciris.rpc('launch_task', [optimSummary.serverDatastoreId, RPCname, [this.projectID, optimSummary.serverDatastoreId, optimSummary.name], {
+          this.$sciris.rpc('launch_task', [optimSummary.serverDatastoreId, RPCname, [this.projectID, optimSummary.serverDatastoreId, optimSummary.name], {
             'plot_options': this.plotOptions,
             'maxtime': maxtime,
             'tool': this.toolName(),
@@ -37742,12 +28192,12 @@
               this.doTaskPolling(true);
             }
 
-            sciris.succeed(this, 'Started optimization');
+            this.$sciris.succeed(this, 'Started optimization');
           }).catch(error => {
-            sciris.fail(this, 'Could not start optimization', error);
+            this.$sciris.fail(this, 'Could not start optimization', error);
           });
         }).catch(error => {
-          sciris.fail(this, 'Could not save optimizations', error);
+          this.$sciris.fail(this, 'Could not save optimizations', error);
         });
       },
 
@@ -37772,9 +28222,12 @@
 
   require("bootstrap");
 
-  function install$1(Vue, options = {}) {
+  function install(Vue, options = {}) {
     Object.defineProperty(Vue.prototype, '$_', {
       value: lodash
+    });
+    Object.defineProperty(Vue.prototype, '$sciris', {
+      value: options.sciris
     });
     Vue.use(Simplert);
 
@@ -37793,30 +28246,30 @@
     let afterPasswordChangePath = options.afterPasswordChangePath || "/";
     let afterRegistrationPath = options.afterRegistrationPath || "/login";
     let afterLogoutPath = options.afterLogoutPath || "/login";
-    EventBus$1.$on(events$2.EVENT_LOGIN_SUCCESS, user => {
+    EventBus.$on(events$1.EVENT_LOGIN_SUCCESS, user => {
       options.router.push(afterLoginPath);
     });
-    EventBus$1.$on(events$2.EVENT_LOGOUT_SUCCESS, user => {
+    EventBus.$on(events$1.EVENT_LOGOUT_SUCCESS, user => {
       options.router.push(afterLogoutPath);
     });
-    EventBus$1.$on(events$2.EVENT_REGISTER_SUCCESS, () => {
+    EventBus.$on(events$1.EVENT_REGISTER_SUCCESS, () => {
       setTimeout(function () {
         options.router.push(afterRegistrationPath);
       }, 1000); // Navigate automatically to the login page after a delay
     });
-    EventBus$1.$on(events$2.EVENT_PASSWORD_CHANGE_SUCCESS, user => {
+    EventBus.$on(events$1.EVENT_PASSWORD_CHANGE_SUCCESS, user => {
       options.router.push(afterPasswordChangePath);
     });
   }
 
   if (typeof window !== 'undefined' && window.Vue) {
     window.Vue.use({
-      install: install$1
+      install
     });
   }
 
   var index$2 = {
-    install: install$1
+    install
   };
   const views = {
     LoginPage,
@@ -37828,8 +28281,9 @@
 
   exports.default = index$2;
   exports.ScirisRoutes = ScirisRoutes;
-  exports.EventBus = EventBus$1;
-  exports.events = events$2;
+  exports.EventBus = EventBus;
+  exports.sciris = sciris;
+  exports.events = events$1;
   exports.views = views;
   exports.mixins = index$1;
 

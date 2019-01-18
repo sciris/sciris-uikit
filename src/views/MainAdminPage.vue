@@ -38,8 +38,6 @@ Last update: 2018sep23
 </template>
 
 <script>
-import sciris from 'sciris-js'; 
-
 export default {
 
   name: 'MainAdminPage',
@@ -57,7 +55,7 @@ export default {
 
   methods: {
     getUsersInfo () {
-      sciris.getAllUsersInfo()
+      this.$sciris.getAllUsersInfo()
       .then(response => {
         this.usersList = response.data
       })
@@ -68,7 +66,7 @@ export default {
     },
 
     activateAccount (username) {
-      sciris.activateUserAccount(username)
+      this.$sciris.activateUserAccount(username)
       .then(response => {
         // If the response was successful...
         if (response.data == 'success')
@@ -89,7 +87,7 @@ export default {
     },
 
     deactivateAccount (username) {
-      sciris.deactivateUserAccount(username)
+      this.$sciris.deactivateUserAccount(username)
       .then(response => {
         // If the response was successful...
         if (response.data == 'success')
@@ -110,7 +108,7 @@ export default {
     },
 
     grantAdmin (username) {
-      sciris.grantUserAdminRights(username)
+      this.$sciris.grantUserAdminRights(username)
       .then(response => {
         // If the response was successful...
         if (response.data == 'success')
@@ -131,7 +129,7 @@ export default {
     },
 
     revokeAdmin (username) {
-      sciris.revokeUserAdminRights(username)
+      this.$sciris.revokeUserAdminRights(username)
       .then(response => {
         // If the response was successful...
         if (response.data == 'success')
@@ -152,7 +150,7 @@ export default {
     },
 
     resetPassword (username) {
-      sciris.resetUserPassword(username)
+      this.$sciris.resetUserPassword(username)
       .then(response => {
         // If the response was successful...
         if (response.data == 'success')
@@ -173,7 +171,7 @@ export default {
     },
 
     deleteUser (username) {
-      sciris.deleteUser(username)
+      this.$sciris.deleteUser(username)
       .then(response => {
         // Give result message.
         this.adminResult = 'User deleted.'
