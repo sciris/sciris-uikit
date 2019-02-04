@@ -1,6 +1,6 @@
 {
   "name": "sciris-uikit",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Sciris <info@sciris.org>",
   "scripts": {
     "build": "bili"

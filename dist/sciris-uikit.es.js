@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.2.1
+ * sciris-uikit v0.2.3
  * (c) 2019-present Sciris <info@sciris.org>
  */
 import Vue from 'vue';
@@ -3083,4 +3083,4 @@ const views = {
 };
 
 export default index$1;
-export { ScirisRoutes, EventBus, sciris, events, views, index as mixins };
+export { EventBus, sciris, events, views, index as mixins };

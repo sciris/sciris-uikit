@@ -80,7 +80,6 @@ const views = {
 } 
 
 export {
-  ScirisRoutes,
   EventBus,
   sciris,
   events,

@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.2.1
+ * sciris-uikit v0.2.3
  * (c) 2019-present Sciris <info@sciris.org>
  */
 'use strict';
@@ -3089,7 +3089,6 @@ const views = {
 };
 
 exports.default = index$1;
-exports.ScirisRoutes = ScirisRoutes;
 exports.EventBus = EventBus;
 exports.sciris = sciris;
 exports.events = events;
