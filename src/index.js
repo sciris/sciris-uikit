@@ -81,7 +81,6 @@ const views = {
 
 export {
   EventBus,
-  sciris,
   events,
   views, 
   mixins

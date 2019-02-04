@@ -1,5 +1,5 @@
 /*!
- * sciris-uikit v0.2.3
+ * sciris-uikit v0.2.4
  * (c) 2019-present Sciris <info@sciris.org>
  */
 (function (global, factory) {
@@ -28281,7 +28281,6 @@
 
   exports.default = index$2;
   exports.EventBus = EventBus;
-  exports.sciris = sciris;
   exports.events = events$1;
   exports.views = views;
   exports.mixins = index$1;
